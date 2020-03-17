@@ -1,0 +1,95 @@
+{
+    "name": "league/uri-components",
+    "type": "library",
+    "description" : "URI components manipulation library",
+    "keywords": [
+        "url",
+        "uri",
+        "rfc3986",
+        "components",
+        "scheme",
+        "userinfo",
+        "host",
+        "port",
+        "authority",
+        "path",
+        "query",
+        "fragment"
+    ],
+    "license": "MIT",
+    "homepage": "http://uri.thephpleague.com",
+    "authors": [
+        {
+            "name" : "Ignace Nyamagana Butera",
+            "email" : "nyamsprod@gmail.com",
+            "homepage" : "https://nyamsprod.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "ext-json": "*",
+        "league/uri-interfaces": "^2.1",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.3",
+        "guzzlehttp/psr7": "^1.4",
+        "league/uri": "^6.0",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-phpunit": "^0.12",
+        "phpstan/phpstan-strict-rules": "^0.12",
+        "phpunit/phpunit": "^7.0 | ^8.0",
+        "laminas/laminas-diactoros": "^2.0"
+    },
+    "suggest": {
+        "ext-intl": "to handle IDN host",
+        "ext-gmp": "to improve handle IPV4 parsing",
+        "ext-fileinfo": "Needed to create Data URI from a filepath",
+        "php-64bit": "to improve handle IPV4 parsing",
+        "jeremykendall/php-domain-parser": "Public Suffix and Top Level Domain parsing implemented in PHP",
+        "league/uri": "to allow manipulating URI objects",
+        "psr/http-message-implementation": "to allow manipulating PSR-7 Uri objects"
+    },
+    "autoload": {
+        "psr-4": {
+            "League\\Uri\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LeagueTest\\Uri\\": "tests"
+        }
+    },
+    "scripts": {
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
+        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
+        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests --ansi",
+        "phpstan": [
+            "@phpstan-src",
+            "@phpstan-tests"
+        ],
+        "phpunit": "phpunit --coverage-text",
+        "test": [
+            "@phpcs",
+            "@phpstan-src",
+            "@phpstan-tests",
+            "@phpunit"
+        ]
+    },
+    "scripts-descriptions": {
+        "phpcs": "Runs coding style test suite",
+        "phpstan": "Runs complete codebase static analysis",
+        "phpstan-src": "Runs source code static analysis",
+        "phpstan-test": "Runs test suite static analysis",
+        "phpunit": "Runs unit and functional testing",
+        "test": "Runs full test suite"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

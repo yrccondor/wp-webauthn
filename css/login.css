@@ -1,0 +1,33 @@
+#wp-webauthn {
+    float: right;
+    margin-right: 5px;
+}
+#wp-webauthn span {
+    line-height: 30px;
+}
+#wp-webauthn-check {
+    display: none;
+}
+.wp-webauthn-notice {
+    font-size: 18px;
+    text-align: center;
+    height: 74.25px;
+    line-height: 74.25px;
+    margin-bottom: 10px;
+    opacity: .8;
+    display: none;
+}
+.wp-webauthn-notice span {
+    line-height: unset;
+}
+.wp-webauthn-notice .wwa-success {
+    color: #2C8D46;
+}
+.wp-webauthn-notice .wwa-failed {
+    color: #CA4A1F;
+}
+@media(max-width: 782px){
+    #wp-webauthn span {
+        line-height: 38px;
+    }
+}

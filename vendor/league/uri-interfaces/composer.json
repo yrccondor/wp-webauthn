@@ -1,0 +1,50 @@
+{
+    "name": "league/uri-interfaces",
+    "description" : "Common interface for URI representation",
+    "keywords": [
+        "url",
+        "uri",
+        "rfc3986",
+        "rfc3987"
+    ],
+    "license": "MIT",
+    "homepage": "http://github.com/thephpleague/uri-interfaces",
+    "authors": [
+        {
+            "name" : "Ignace Nyamagana Butera",
+            "email" : "nyamsprod@gmail.com",
+            "homepage" : "https://nyamsprod.com"
+        }
+    ],
+    "require": {
+        "php" : "^7.1",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.0",
+        "phpunit/phpunit" : "^7.0|^8.0",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-strict-rules": "^0.12",
+        "phpstan/phpstan-phpunit": "^0.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "League\\Uri\\": "src/"
+        }
+    },
+    "scripts": {
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
+        "phpstan": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
+        "test": ["@phpcs", "@phpstan"]
+    },
+    "scripts-descriptions": {
+        "phpcs":"Runs coding style test suite",
+        "phpstan":"Runs php static code analysis compliance test",
+        "test": "Runs all the test suite"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        }
+    }
+}
