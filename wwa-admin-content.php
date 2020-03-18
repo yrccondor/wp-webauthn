@@ -6,27 +6,20 @@ wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
 ?>
 <div class="wrap"><h1>WP-WebAuthn</h1>
 <?php
-if(function_exists("gmp_intval")){
-    add_settings_error("", "gmp_error", __("你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。", "wwa"));
+if(!function_exists("gmp_intval")){
+    add_settings_error("wwa_settings", "gmp_error", __("你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。", "wwa"));
 }
-settings_errors();
 // Only admin can change settings
 if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins')){
     wwa_update_option('first_choice', $_POST['first_choice']);
     wwa_update_option('website_name', $_POST['website_name']);
     wwa_update_option('website_domain', $_POST['website_domain']);
     wwa_update_option('user_verification', $_POST['user_verification']);
-?>
-<div class="notice notice-success is-dismissible">
-<p><?php _e('设置已保存。', 'wwa'); ?></p>
-</div>
-<?php
+    add_settings_error("wwa_settings", "save_success", __("设置已保存。", "wwa"), "success");
 }elseif((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && !(check_admin_referer('wwa_options_update'))){
-?>
-<div class="notice notice-error is-dismissible">
-<p><?php _e('更改未能保存。', 'wwa'); ?></p>
-</div>
-<?php }
+    add_settings_error("wwa_settings", "save_error", __("更改未能保存。", "wwa"));
+}
+settings_errors("wwa_settings");
 // Only admin can change settings
 if(current_user_can("edit_plugins")){ ?>
 <form method="post" action="">
