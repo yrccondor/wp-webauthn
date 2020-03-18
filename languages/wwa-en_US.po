@@ -7,9 +7,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: wp-webauthn\n"
-"POT-Creation-Date: 2020-03-18 04:13+0000\n"
-"PO-Revision-Date: 2020-03-18 04:21+0000\n"
+"Project-Id-Version: WP-WebAuthn 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
+"POT-Creation-Date: 2020-03-18T05:38:06+00:00\n"
+"PO-Revision-Date: 2020-03-18 05:48+0000\n"
 "Last-Translator: Ye Shu <hello@shuye.dev>\n"
 "Language-Team: Ye Shu <hello@shuye.dev>\n"
 "Language: en\n"
@@ -17,14 +18,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.3\n"
-"X-Poedit-Basepath: ..\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: __;_e;_x;_ex;_n;_nx;_n_noop;_nx_noop;"
-"translate_nooped_plural;esc_html__;esc_html_e;esc_html_x;esc_attr__;"
-"esc_attr_e;esc_attr_x;number_format_i18n;date_i18n\n"
-"X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPathExcluded-0: vendor\n"
+"X-Domain: wwa\n"
+
+#. Plugin Name of the plugin
+msgid "WP-WebAuthn"
+msgstr "WP-WebAuthn"
+
+#. Plugin URI of the plugin
+msgid "https://flyhigher.top"
+msgstr "https://flyhigher.top"
+
+#. Description of the plugin
+msgid "Description: WP-WebAuthn 使你可以通过 U2F 设备登录账户而无需输入密码。"
+msgstr ""
+"Description: WP-WebAuthn enables passwordless login through U2F devices."
+
+#. Author of the plugin
+msgid "Axton"
+msgstr "Axton"
+
+#. Author URI of the plugin
+msgid "https://axton.cc"
+msgstr "https://axton.cc"
 
 #: wwa-admin-content.php:5
 msgid "正在初始化..."
