@@ -124,6 +124,11 @@ function wwa_ajax_create(){
         wp_die("Something went wrong.");
     }
 
+    // Check queries
+    if(!isset($_GET["name"]) || !isset($_GET["type"])){
+        wp_die("Bad Request.");
+    }
+
     $rpEntity = new PublicKeyCredentialRpEntity(
         wwa_get_option('website_name'),
         wwa_get_option('website_domain')
@@ -213,6 +218,11 @@ function wwa_ajax_create_response(){
         wp_die("Something went wrong.");
     }
 
+    // Check POST
+    if(!isset($_POST["data"]) || !isset($_POST["name"]) || !isset($_POST["type"])){
+        wp_die("Bad Request.");
+    }
+
     // May not get the challenge yet
     if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco']) || ($_POST["type"] !== "platform" && $_POST["type"] !== "cross-platform" && $_POST["type"] !== "none")){
         wp_die("Bad request.");
@@ -254,6 +264,11 @@ add_action('wp_ajax_wwa_create_response' , 'wwa_ajax_create_response');
 function wwa_ajax_auth_start(){
     if(!session_id()){
         session_start();
+    }
+
+    // Check queries
+    if(!isset($_GET["type"])){
+        wp_die("Bad Request.");
     }
 
     $user_key = "";
@@ -341,6 +356,11 @@ add_action('wp_ajax_nopriv_wwa_auth_start' , 'wwa_ajax_auth_start');
 function wwa_ajax_auth(){
     if(!session_id()){
         session_start();
+    }
+
+    // Check POST
+    if(!isset($_POST["type"]) || !isset($_POST["data"])){
+        wp_die("Bad Request.");
     }
 
     // May not get the challenge yet
