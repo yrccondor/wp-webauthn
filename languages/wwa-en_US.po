@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: wp-webauthn\n"
-"POT-Creation-Date: 2020-03-18 01:10+0000\n"
-"PO-Revision-Date: 2020-03-18 04:06+0000\n"
+"POT-Creation-Date: 2020-03-18 04:13+0000\n"
+"PO-Revision-Date: 2020-03-18 04:13+0000\n"
 "Last-Translator: Ye Shu <hello@shuye.dev>\n"
 "Language-Team: Ye Shu <hello@shuye.dev>\n"
 "Language: en\n"
@@ -25,8 +25,7 @@ msgstr "Initializing..."
 
 #: wwa-admin-content.php:5
 msgid "请按照浏览器接下来的提示完成绑定..."
-msgstr ""
-"Please follow instructions from your browser to finish registration..."
+msgstr "Please follow instructions from your browser to finish registration..."
 
 #: wwa-admin-content.php:5
 msgid "绑定成功"
@@ -70,8 +69,7 @@ msgstr "Delete"
 
 #: wwa-admin-content.php:5
 msgid "请按照浏览器接下来的提示进行验证..."
-msgstr ""
-"Please follow instructions from your browser to finish verification..."
+msgstr "Please follow instructions from your browser to finish verification..."
 
 #: wwa-admin-content.php:5
 msgid "正在验证..."
@@ -120,10 +118,10 @@ msgstr "Username + Password"
 #: wwa-admin-content.php:41
 msgid ""
 "由于目前 WebAuthn 还没有得到良好的浏览器支持，因此你只能选择登录页面默认显示"
-"的登录方式，而<strong>不能彻底禁用密码登录方式。</strong><br>无论你将哪种登"
-"录方式设为了默认，登录页面都将会显示一个切换按钮以便于你切换到另一种登录方"
-"式。<br>当浏览器不支持 WebAuthn 时，无论你将哪种登录方式设为了默认，密码登录"
-"方式都将被默认显示。"
+"的登录方式，而<strong>不能彻底禁用密码登录方式。</strong><br>无论你将哪种登录"
+"方式设为了默认，登录页面都将会显示一个切换按钮以便于你切换到另一种登录方式。"
+"<br>当浏览器不支持 WebAuthn 时，无论你将哪种登录方式设为了默认，密码登录方式"
+"都将被默认显示。"
 msgstr ""
 "Since WebAuthn hasn't been fully supported by all browsers, you can only "
 "choose the preferred (default) login method and <strong>CANNOT completely "
@@ -149,8 +147,8 @@ msgstr "Website domain"
 #: wwa-admin-content.php:56
 msgid "<strong>必须</strong>与当前域名完全一致或为当前域名的子集。"
 msgstr ""
-"This field <strong>MUST</strong> be exactly the same with the current "
-"domain or parent domain."
+"This field <strong>MUST</strong> be exactly the same with the current domain "
+"or parent domain."
 
 #: wwa-admin-content.php:62
 msgid "绑定认证器"
@@ -197,8 +195,8 @@ msgstr "Authenticator identifier"
 #: wwa-admin-content.php:80
 msgid "给认证器设置一个便于辨认的名字，<strong>不影响</strong>认证过程。"
 msgstr ""
-"An easily identifiable name for the authenticator. <strong>DOES NOT</"
-"strong> affect the authentication process in anyway."
+"An easily identifiable name for the authenticator. <strong>DOES NOT</strong> "
+"affect the authentication process in anyway."
 
 #: wwa-admin-content.php:84
 msgid "开始绑定"
@@ -234,42 +232,46 @@ msgid "测试"
 msgstr "Verify"
 
 # Shows up at login page, should be shorter in length than the default text "log in" (as of Mar 2020)
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "认证"
 msgstr "Auth"
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "使用 WebAuthn 认证"
 msgstr "Authenticate with WebAuthn"
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "请稍候..."
 msgstr "Please wait..."
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "请按提示完成认证..."
 msgstr "Please proceed..."
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "正在认证..."
 msgstr "Authenticating..."
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "登录成功"
 msgstr "Authenticated!"
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "认证失败"
 msgstr "Authentication failed"
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "请填写用户名"
 msgstr "Please enter username"
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "用户名"
 msgstr "Username"
 
-#: wwa-functions.php:34
+#: wwa-functions.php:41
 msgid "用户名或电子邮件地址"
 msgstr "Username or email address"
+
+#: wwa-functions.php:41
+msgid "<strong>错误</strong>：用户名一栏为空。"
+msgstr "<strong>ERROR</strong>: username cannot be empty."
