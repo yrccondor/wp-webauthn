@@ -1,5 +1,4 @@
 <?php
-settings_errors();
 // Insert CSS and JS
 wp_enqueue_script('wwa_admin', plugins_url('js/admin.js',__FILE__));
 wp_localize_script('wwa_admin', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'i18n_1' => __('正在初始化...','wwa'),'i18n_2' => __('请按照浏览器接下来的提示完成绑定...','wwa'),'i18n_3' => '<span class="success">'.__('绑定成功','wwa').'</span>','i18n_4' => '<span class="failed">'.__('绑定失败','wwa').'</span>','i18n_5' => __('你的浏览器不支持 WebAuthn','wwa'),'i18n_6' => __('正在绑定...','wwa'),'i18n_7' => __('请填写认证器名称','wwa'),'i18n_8' => __('加载失败，刷新试试？','wwa'),'i18n_9' => __('任意','wwa'),'i18n_10' => __('内置认证器','wwa'),'i18n_11' => __('外部认证器','wwa'),'i18n_12' => __('删除','wwa'),'i18n_13' => __('请按照浏览器接下来的提示进行验证...','wwa'),'i18n_14' => __('正在验证...','wwa'),'i18n_15' => '<span class="failed">'.__('验证失败','wwa').'</span>','i18n_16' => '<span class="success">'.__('验证成功，你的账户现可通过 WebAuthn 登录','wwa').'</span>','i18n_17' => __('没有已绑定的认证器','wwa'),'i18n_18' => __('确认删除验证器：','wwa'),'i18n_19' => __('正在删除...','wwa')));
@@ -7,6 +6,10 @@ wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
 ?>
 <div class="wrap"><h1>WP-WebAuthn</h1>
 <?php
+if(function_exists("gmp_intval")){
+    add_settings_error("", "gmp_error", __("你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。", "wwa"));
+}
+settings_errors();
 // Only admin can change settings
 if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins')){
     wwa_update_option('first_choice', $_POST['first_choice']);
