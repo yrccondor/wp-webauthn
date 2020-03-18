@@ -9,6 +9,8 @@ add_action('init','wwa_register_session');
 
 // Destroy all sessions when user state changes
 function wwa_destroy_session() {
+    unset($_SESSION['wwa_user_name_auth']);
+    unset($_SESSION['wwa_user_auth']);
     unset($_SESSION['wwa_server']);
     unset($_SESSION['wwa_pkcco']);
     unset($_SESSION['wwa_server_auth']);

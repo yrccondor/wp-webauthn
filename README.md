@@ -31,3 +31,7 @@ Open sourced under GPL v3.0 license.
 ## Thanks to
 
 [web-auth/webauthn-framework](https://github.com/web-auth/webauthn-framework)
+
+[Ye Shu](https://github.com/yechs) (English Translator)
+
+[milkice](https://github.com/milkice233)

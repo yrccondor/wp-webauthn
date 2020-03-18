@@ -37,7 +37,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         return $sources;
     }
 
-    // Save credential into deatbase
+    // Save credential into database
     public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void {
         $data = $this->read();
         $data_key = base64_encode($publicKeyCredentialSource->getPublicKeyCredentialId());
@@ -304,6 +304,8 @@ function wwa_ajax_auth_start(){
                 $user_info->display_name = $_GET["user"];
                 $user_key = hash("sha256", $_GET["user"]."-".$_GET["user"]."-".wwa_generate_random_string(10));
             }
+        }else{
+            wp_die("Bad Request.");
         }
     }
 
@@ -354,6 +356,7 @@ function wwa_ajax_auth_start(){
     // Save for future use
     $_SESSION['wwa_server_auth'] = serialize($server);
     $_SESSION['wwa_pkcco_auth'] = base64_encode(serialize($publicKeyCredentialRequestOptions));
+    $_SESSION['wwa_user_name_auth'] = $user_info->user_login;
 
     // Save the user entity if is not logged in
     if(!($_GET["type"] === "test" && current_user_can('read'))){
@@ -378,7 +381,7 @@ function wwa_ajax_auth(){
     }
 
     // May not get the challenge yet
-    if(!isset($_SESSION['wwa_server_auth']) || !isset($_SESSION['wwa_pkcco_auth']) || ($_POST["type"] !== "test" && $_POST["type"] !== "auth")){
+    if(!isset($_SESSION['wwa_server_auth']) || !isset($_SESSION['wwa_pkcco_auth']) || !isset($_SESSION['wwa_user_name_auth']) || ($_POST["type"] !== "test" && $_POST["type"] !== "auth")){
         wp_die("Bad request.");
     }
     if(!($_POST["type"] === "test" && current_user_can('read')) && !isset($_SESSION['wwa_user_auth'])){
@@ -429,7 +432,7 @@ function wwa_ajax_auth(){
         if(!($_POST["type"] === "test" && current_user_can('read'))){
             // Log user in
             if (!is_user_logged_in()) {
-                $user_login = $_POST["user"];
+                $user_login = $_SESSION['wwa_user_name_auth'];
 
                 $user =  get_user_by('login', $user_login);
                 $user_id = $user->ID;
