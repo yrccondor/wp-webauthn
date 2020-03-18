@@ -45,4 +45,10 @@ function wwa_login_js() {
     wp_enqueue_style('wwa_login_css', plugins_url('css/login.css',__FILE__));
 }
 add_action('login_enqueue_scripts', 'wwa_login_js');
+
+// Multi-language support
+function wwa_load_textdomain(){
+    load_plugin_textdomain('wwa', false, dirname(plugin_basename(__FILE__)).'/languages');
+}
+add_action('init', 'wwa_load_textdomain');
 ?>
