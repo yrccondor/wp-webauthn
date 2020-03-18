@@ -8,7 +8,7 @@ WP-WebAuthn allows you to safely login to your WordPress site without password.
 
 ## Introduction
 
-Webauthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanner, Windows Hello compatible cameras and more.
+Webauthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras and more.
 
 When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
 
@@ -20,7 +20,7 @@ WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just dow
 
 Just download the plugin from releases and install it, then you are done.
 
-You can also install WP-WebAuthn from WordPress plugin directory. (Not now, still being reviewed)
+You can also install WP-WebAuthn from WordPress plugin directory. **(Not now, still being reviewed)**
 
 ## License
 
