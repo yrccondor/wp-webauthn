@@ -192,6 +192,7 @@ jQuery("#bind").click(function(){
 
 // Test WebAuthn
 jQuery("#test").click(function(){
+    jQuery('#show-test').text(php_vars.i18n_1);
     jQuery("#test").attr("disabled", "disabled");
     jQuery.ajax({
         url: php_vars.ajax_url,

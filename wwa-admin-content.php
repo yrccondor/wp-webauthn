@@ -12,6 +12,7 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && check_admin_refe
     wwa_update_option('first_choice', $_POST['first_choice']);
     wwa_update_option('website_name', $_POST['website_name']);
     wwa_update_option('website_domain', $_POST['website_domain']);
+    wwa_update_option('user_verification', $_POST['user_verification']);
 ?>
 <div class="notice notice-success is-dismissible">
 <p><?php _e('设置已保存。', 'wwa'); ?></p>
@@ -49,18 +50,29 @@ wp_nonce_field('wwa_options_update');
     <p class="description"><?php _e('网站名称<strong>不影响</strong>任何认证过程，仅仅是为了方便辨认。', 'wwa');?></p>
 </td>
 </tr>
-  <tr>
+<tr>
 <th scope="row"><label for="website_domain"><?php _e('网站域名', 'wwa');?></lable></th>
 <td>
     <input required name="website_domain" type="text" id="website_domain" value="<?php echo wwa_get_option('website_domain');?>" class="regular-text">
     <p class="description"><?php _e('<strong>必须</strong>与当前域名完全一致或为当前域名的子集。', 'wwa');?></p>
 </td>
 </tr>
+<tr>
+<th scope="row"><?php _e('要求用户验证', 'wwa');?></th>
+<td>
+<?php $wwa_v_uv=wwa_get_option('user_verification');?>
+    <fieldset>
+    <label><input type="radio" name="user_verification" value="true" <?php if($wwa_v_uv=='true'){?>checked="checked"<?php }?>> <?php _e("启用", "wwa");?></label><br>
+    <label><input type="radio" name="user_verification" value="false" <?php if($wwa_v_uv=='false'){?>checked="checked"<?php }?>> <?php _e("禁用", "wwa");?></label><br>
+    <p class="description"><?php _e('用户验证可提高安全性，但部分移动设备不支持。<br>如果你无法绑定或验证认证器，请尝试禁用用户验证。', 'wwa');?></p>
+    </fieldset>
+</td>
+</tr>
 </table><?php submit_button(); ?></form>
 <?php }?>
 <br>
 <h2><?php _e('绑定认证器', 'wwa');?></h2>
-<p class="description"><?php _e('你将为当前登录的账户添加一个认证器。同一个账户可以绑定多个不同的验证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。', 'wwa');?></p>
+<p class="description"><?php _e('你将为<strong>当前登录的账户</strong>添加一个认证器。同一个账户可以绑定多个不同的验证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。', 'wwa');?></p>
 <table class="form-table">
 <tr>
 <th scope="row"><label for="authenticator_type"><?php _e('认证器类型', 'wwa');?></label></th>

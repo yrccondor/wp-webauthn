@@ -184,11 +184,18 @@ function wwa_ajax_create(){
         $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE;
     }
 
+    // Set user verification
+    if(wwa_get_option("user_verification") === "true"){
+        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
+    }else{
+        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED;
+    }
+
     // Create authenticator selection
     $authenticatorSelectionCriteria = new AuthenticatorSelectionCriteria(
         $authenticator_type,
         false,
-        AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED
+        $user_verification
     );
 
     // Create a creation challenge
@@ -331,9 +338,16 @@ function wwa_ajax_auth_start(){
         return $credential->getPublicKeyCredentialDescriptor();
     }, $credentialSources);
 
+    // Set user verification
+    if(wwa_get_option("user_verification") === "true"){
+        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
+    }else{
+        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED;
+    }
+
     // Create a auth challenge
     $publicKeyCredentialRequestOptions = $server->generatePublicKeyCredentialRequestOptions(
-        PublicKeyCredentialRequestOptions::USER_VERIFICATION_REQUIREMENT_REQUIRED,
+        $user_verification,
         $allowedCredentials
     );
 
@@ -341,7 +355,7 @@ function wwa_ajax_auth_start(){
     $_SESSION['wwa_server_auth'] = serialize($server);
     $_SESSION['wwa_pkcco_auth'] = base64_encode(serialize($publicKeyCredentialRequestOptions));
 
-    // Save the user if is not logged in
+    // Save the user entity if is not logged in
     if(!($_GET["type"] === "test" && current_user_can('read'))){
         $_SESSION['wwa_user_auth'] = serialize($userEntity);
     }

@@ -36,7 +36,8 @@ function wwa_init_data(){
             'user_id' => array(),
             'first_choice' => 'true',
             'webite_name' => get_bloginfo('name'),
-            'webite_domain' => explode(":", explode("/", explode("//", site_url())[1])[0])[0]
+            'webite_domain' => explode(":", explode("/", explode("//", site_url())[1])[0])[0],
+            'user_verification' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
         include('version.php');
