@@ -1,7 +1,4 @@
 <?php
-/**
- * Add menus to the admin pannel
- */
 //Add menu
 function wwa_admin_menu(){
     add_options_page('WP-WebAuthn' , 'WP-WebAuthn', 'read', 'wwa_admin','wwa_display_main_menu');

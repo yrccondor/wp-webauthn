@@ -12,13 +12,13 @@ Webauthn is a new way for you to authenticate in web. It helps you replace your 
 
 When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
 
-WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install, and you are in the future of web authentication.
+WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install it, and you are in the future of web authentication.
 
 ## Installation
 
-**PHP extension gmp is needed**
+**PHP extension gmp is required.**
 
-Just download the plugin from releases and install, then you are done.
+Just download the plugin from releases and install it, then you are done.
 
 You can also install WP-WebAuthn from WordPress plugin directory. (Not now, still being reviewed)
 

@@ -18,13 +18,20 @@ add_action('wp_logout', 'wwa_destroy_session');
 add_action('wp_login', 'wwa_destroy_session');
 
 // Create random strings for user ID
-function wwa_generate_random_string($length = 10) { 
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'; 
-    $randomString = ''; 
-    for ($i = 0; $i < $length; $i++) { 
-        $randomString .= $characters[rand(0, strlen($characters) - 1)]; 
-    } 
-    return $randomString; 
+function wwa_generate_random_string($length = 10) {
+    // Use cryptographically secure pseudo-random generator in PHP 7+
+    if(function_exists("random_bytes")){
+        $bytes = random_bytes(round($length/2));
+        return bin2hex($bytes);
+    }else{
+        // Not supported, use normal random generator
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'; 
+        $randomString = ''; 
+        for ($i = 0; $i < $length; $i++) { 
+            $randomString .= $characters[rand(0, strlen($characters) - 1)]; 
+        } 
+        return $randomString; 
+    }
 }
 
 // Add CSS and JS in login page
