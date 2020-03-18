@@ -1,5 +1,5 @@
 $(function(){
-	if (!(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
+    if (!(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
         // If supported, toggle
         $('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
         $('#wp-webauthn-check, .wp-webauthn-notice').show();

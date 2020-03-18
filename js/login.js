@@ -1,15 +1,20 @@
 let wwaSupported = true;
 $(function(){
-	$('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
-	$('.forgetmenot').before('<div class="wp-webauthn-notice"><span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2+'</div>');
-	$('.wp-webauthn-notice').css({'height': ($('.user-pass-wrap').height() - 10) + 'px', 'line-height': ($('.user-pass-wrap').height() - 10) + 'px'});
-	if (window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function") {
-    	wwaSupported = false;
-    	$("#wp-webauthn").hide();
-	}
-	$('#wp-webauthn-check').click(check);
-	$('#wp-webauthn').click(toggle);
+    $('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
+    $('.forgetmenot').before('<div class="wp-webauthn-notice"><span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2+'</div>');
+    $('.wp-webauthn-notice').css({'height': ($('.user-pass-wrap').height() - 10) + 'px', 'line-height': ($('.user-pass-wrap').height() - 10) + 'px'});
+    $("#wp-webauthn-check").width($("#wp-submit").width());
+    if (window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function") {
+        wwaSupported = false;
+        $("#wp-webauthn").hide();
+    }
+    $('#wp-webauthn-check').click(check);
+    $('#wp-webauthn').click(toggle);
 })
+
+window.onresize = function(){
+    $("#wp-webauthn-check").width($("#wp-submit").width());
+}
 
 document.addEventListener("keydown", parseKey, false);
 
@@ -74,10 +79,33 @@ function toggle(){
     }
 }
 
+// Shake the login form, code from WordPress
+function wwa_shake(id, a, d) {
+    c = a.shift();
+    document.getElementById(id).style.left = c + 'px';
+    if (a.length > 0) {
+        setTimeout(function() {
+            wwa_shake(id, a, d);
+        }, d);
+    } else {
+        try {
+            document.getElementById(id).style.position = 'static';
+            $("#user_login").focus();
+        } catch (e) {}
+    }
+}
+
 function check(){
     if(wwaSupported){
         if($("#user_login").val() === ""){
-            alert(php_vars.i18n_8);
+            $("#login_error").remove();
+            $("#login > h1").first().after('<div id="login_error"> '+php_vars.i18n_11+'</div>');
+            // Shake the login form, code from WordPress
+            let shake = new Array(15,30,15,0,-15,-30,-15,0);
+            shake = shake.concat(shake.concat(shake));
+            var form = document.forms[0].id;
+            document.getElementById(form).style.position = 'relative';
+            wwa_shake(form, shake, 20);
             return;
         }
         $("#user_login").attr("readonly", "readonly");
