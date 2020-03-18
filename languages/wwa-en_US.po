@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: WP-WebAuthn 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
 "POT-Creation-Date: 2020-03-18T07:36:16+00:00\n"
-"PO-Revision-Date: 2020-03-18 07:37+0000\n"
+"PO-Revision-Date: 2020-03-18 07:42+0000\n"
 "Last-Translator: Ye Shu <hello@shuye.dev>\n"
 "Language-Team: Ye Shu <hello@shuye.dev>\n"
 "Language: en\n"
@@ -174,38 +174,38 @@ msgstr ""
 
 #: wwa-admin-content.php:61
 msgid "要求用户验证"
-msgstr ""
+msgstr "Require user verification"
 
 #: wwa-admin-content.php:65
 msgid "启用"
-msgstr ""
+msgstr "Enable"
 
 #: wwa-admin-content.php:66
 msgid "禁用"
-msgstr ""
+msgstr "Disable"
 
 #: wwa-admin-content.php:67
 msgid ""
 "用户验证可提高安全性，但部分移动设备不支持。<br>如果你无法绑定或验证认证器，"
 "请尝试禁用用户验证。"
 msgstr ""
+"User verification can improve security, but is not fully supported by mobile "
+"devices. <br> If you cannot register or verify your authenticators, please "
+"consider disabling user verification."
 
 #: wwa-admin-content.php:74
 msgid "绑定认证器"
 msgstr "Authenticator Registration"
 
 #: wwa-admin-content.php:75
-#, fuzzy
-#| msgid ""
-#| "你将为当前登录的账户添加一个认证器。同一个账户可以绑定多个不同的验证器。"
-#| "<br>如果需要为其他用户绑定认证器，请使用其他账户登录。"
 msgid ""
 "你将为<strong>当前登录的账户</strong>添加一个认证器。同一个账户可以绑定多个不"
 "同的验证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。"
 msgstr ""
-"You are about to associate an authenticator with the current account. You "
-"can register multiple authenticators for an account. <br> If you want to "
-"register authenticators for other users, please log in using that account."
+"You are about to associate an authenticator with <strong>the current "
+"account</strong>. You can register multiple authenticators for an account. "
+"<br> If you want to register authenticators for other users, please log in "
+"using that account."
 
 #: wwa-admin-content.php:78 wwa-admin-content.php:102 wwa-admin-content.php:118
 msgid "认证器类型"
