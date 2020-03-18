@@ -99,6 +99,7 @@ function check(){
     if(wwaSupported){
         if($("#user_login").val() === ""){
             $("#login_error").remove();
+            $("p.message").remove();
             $("#login > h1").first().after('<div id="login_error"> '+php_vars.i18n_11+'</div>');
             // Shake the login form, code from WordPress
             let shake = new Array(15,30,15,0,-15,-30,-15,0);
