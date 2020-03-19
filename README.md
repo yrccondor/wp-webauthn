@@ -2,7 +2,7 @@
 <img src="https://img.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
 </p>
 
-<h1 style="text-align: center">WP-WebAuthn</h1>
+<h1 align="center">WP-WebAuthn</h1>
 
 
 WP-WebAuthn allows you to safely login to your WordPress site without password.
