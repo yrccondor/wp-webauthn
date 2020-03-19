@@ -9,6 +9,9 @@ wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
 if(!function_exists("gmp_intval")){
     add_settings_error("wwa_settings", "gmp_error", __("你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。", "wwa"));
 }
+if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (explode(":", explode("/", explode("//", site_url())[1])[0])[0] !== "localhost")){
+    add_settings_error("wwa_settings", "https_error", __("你的站点似乎没有运行在安全上下文中，这会导致 WebAuthn 无法使用。请确保你的站点在使用 HTTPS 连接或处于 <code>localhost</code> 中。", "wwa"));
+}
 // Only admin can change settings
 if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins')){
     wwa_update_option('first_choice', $_POST['first_choice']);
