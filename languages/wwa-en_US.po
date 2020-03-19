@@ -7,10 +7,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: WP-WebAuthn 1.0.0\n"
+"Project-Id-Version: WP-WebAuthn 1.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
-"POT-Creation-Date: 2020-03-18T07:36:16+00:00\n"
-"PO-Revision-Date: 2020-03-18 07:42+0000\n"
+"POT-Creation-Date: 2020-03-19T08:41:46+00:00\n"
+"PO-Revision-Date: 2020-03-19 08:51+0000\n"
 "Last-Translator: Ye Shu <hello@shuye.dev>\n"
 "Language-Team: Ye Shu <hello@shuye.dev>\n"
 "Language: en\n"
@@ -29,9 +29,8 @@ msgid "https://flyhigher.top"
 msgstr "https://flyhigher.top"
 
 #. Description of the plugin
-msgid "Description: WP-WebAuthn 使你可以通过 U2F 设备登录账户而无需输入密码。"
-msgstr ""
-"Description: WP-WebAuthn enables passwordless login through U2F devices."
+msgid "WP-WebAuthn 使你可以通过 U2F 设备登录账户而无需输入密码。"
+msgstr "WP-WebAuthn enables passwordless login through U2F devices."
 
 #. Author of the plugin
 msgid "Axton"
@@ -41,103 +40,109 @@ msgstr "Axton"
 msgid "https://axton.cc"
 msgstr "https://axton.cc"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "正在初始化..."
 msgstr "Initializing..."
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "请按照浏览器接下来的提示完成绑定..."
 msgstr "Please follow instructions from your browser to finish registration..."
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "绑定成功"
 msgstr "Registration complete"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "绑定失败"
 msgstr "Registration failed"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "你的浏览器不支持 WebAuthn"
 msgstr "Your browser does not support WebAuthn"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "正在绑定..."
 msgstr "Registrating..."
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "请填写认证器名称"
 msgstr "Please enter the authenticator identifier"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "加载失败，刷新试试？"
 msgstr "Loading failed, maybe try refreshing?"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "任意"
 msgstr "Any"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "内置认证器"
 msgstr "Platform authenticator"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "外部认证器"
 msgstr "Roaming authenticator"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "删除"
 msgstr "Delete"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "请按照浏览器接下来的提示进行验证..."
 msgstr "Please follow instructions from your browser to finish verification..."
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "正在验证..."
 msgstr "Verifying..."
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "验证失败"
 msgstr "Verification failed"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "验证成功，你的账户现可通过 WebAuthn 登录"
 msgstr "Verification passed! You can now log in through WebAuthn"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "没有已绑定的认证器"
 msgstr "No authenticators registered"
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "确认删除验证器："
 msgstr "Confirm removal of authenticator: "
 
-#: wwa-admin-content.php:5
+#: wwa-admin-content.php:4
 msgid "正在删除..."
 msgstr "Removing authenticator..."
+
+#: wwa-admin-content.php:10
+msgid "你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。"
+msgstr ""
+"PHP gmp extension doesn't seem to exist, rendering WP-WebAuthn unable to "
+"function."
 
 #: wwa-admin-content.php:18
 msgid "设置已保存。"
 msgstr "Settings saved."
 
-#: wwa-admin-content.php:24
+#: wwa-admin-content.php:20
 msgid "更改未能保存。"
 msgstr "Settings NOT saved."
 
-#: wwa-admin-content.php:36
+#: wwa-admin-content.php:32
 msgid "登录页面默认登录方式"
 msgstr "Preferred login method"
 
-#: wwa-admin-content.php:40
+#: wwa-admin-content.php:36
 msgid "WebAuthn"
 msgstr "WebAuthn"
 
-#: wwa-admin-content.php:41
+#: wwa-admin-content.php:37
 msgid "密码"
 msgstr "Username + Password"
 
-#: wwa-admin-content.php:42
+#: wwa-admin-content.php:38
 msgid ""
 "由于目前 WebAuthn 还没有得到良好的浏览器支持，因此你只能选择登录页面默认显示"
 "的登录方式，而<strong>不能彻底禁用密码登录方式。</strong><br>无论你将哪种登录"
@@ -152,39 +157,39 @@ msgstr ""
 "button at the login page. <br> When the browser does not support WebAuthn, "
 "the login method will default to Username+Password."
 
-#: wwa-admin-content.php:47
+#: wwa-admin-content.php:43
 msgid "网站名称"
 msgstr "Website identifier"
 
-#: wwa-admin-content.php:50
+#: wwa-admin-content.php:46
 msgid "网站名称<strong>不影响</strong>任何认证过程，仅仅是为了方便辨认。"
 msgstr ""
 "This identifier is for identification purpose only and <strong>DOES NOT</"
 "strong> affect the authentication process in anyway."
 
-#: wwa-admin-content.php:54
+#: wwa-admin-content.php:50
 msgid "网站域名"
 msgstr "Website domain"
 
-#: wwa-admin-content.php:57
+#: wwa-admin-content.php:53
 msgid "<strong>必须</strong>与当前域名完全一致或为当前域名的子集。"
 msgstr ""
 "This field <strong>MUST</strong> be exactly the same with the current domain "
 "or parent domain."
 
-#: wwa-admin-content.php:61
+#: wwa-admin-content.php:57
 msgid "要求用户验证"
 msgstr "Require user verification"
 
-#: wwa-admin-content.php:65
+#: wwa-admin-content.php:61
 msgid "启用"
 msgstr "Enable"
 
-#: wwa-admin-content.php:66
+#: wwa-admin-content.php:62
 msgid "禁用"
 msgstr "Disable"
 
-#: wwa-admin-content.php:67
+#: wwa-admin-content.php:63
 msgid ""
 "用户验证可提高安全性，但部分移动设备不支持。<br>如果你无法绑定或验证认证器，"
 "请尝试禁用用户验证。"
@@ -193,11 +198,11 @@ msgstr ""
 "devices. <br> If you cannot register or verify your authenticators, please "
 "consider disabling user verification."
 
-#: wwa-admin-content.php:74
+#: wwa-admin-content.php:70
 msgid "绑定认证器"
 msgstr "Authenticator Registration"
 
-#: wwa-admin-content.php:75
+#: wwa-admin-content.php:71
 msgid ""
 "你将为<strong>当前登录的账户</strong>添加一个认证器。同一个账户可以绑定多个不"
 "同的验证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。"
@@ -207,23 +212,23 @@ msgstr ""
 "<br> If you want to register authenticators for other users, please log in "
 "using that account."
 
-#: wwa-admin-content.php:78 wwa-admin-content.php:102 wwa-admin-content.php:118
+#: wwa-admin-content.php:74 wwa-admin-content.php:98 wwa-admin-content.php:114
 msgid "认证器类型"
 msgstr "Type of authenticator"
 
-#: wwa-admin-content.php:81
+#: wwa-admin-content.php:77
 msgid "任意类型"
 msgstr "Any"
 
-#: wwa-admin-content.php:82
+#: wwa-admin-content.php:78
 msgid "限定内置认证器（如指纹传感器）"
 msgstr "Platform authenticator (e.g. a built-in fingerprint sensor) only"
 
-#: wwa-admin-content.php:83
+#: wwa-admin-content.php:79
 msgid "限定外部认证器（如 USB Key）"
 msgstr "Roaming authenticator (e.g., a USB security key) only"
 
-#: wwa-admin-content.php:85
+#: wwa-admin-content.php:81
 msgid ""
 "如果限定了认证器类型，浏览器将只会要求你提供指定类型的认证器。<br>无论你选择"
 "何种类型，登录时你只能使用绑定认证器时使用的同一个认证器。"
@@ -232,90 +237,90 @@ msgstr ""
 "selected type. <br> Regardless of the type, you can only log in with the "
 "very same authenticators you've registered."
 
-#: wwa-admin-content.php:89 wwa-admin-content.php:101 wwa-admin-content.php:117
+#: wwa-admin-content.php:85 wwa-admin-content.php:97 wwa-admin-content.php:113
 msgid "认证器名称"
 msgstr "Authenticator identifier"
 
-#: wwa-admin-content.php:92
+#: wwa-admin-content.php:88
 msgid "给认证器设置一个便于辨认的名字，<strong>不影响</strong>认证过程。"
 msgstr ""
 "An easily identifiable name for the authenticator. <strong>DOES NOT</strong> "
 "affect the authentication process in anyway."
 
-#: wwa-admin-content.php:96
+#: wwa-admin-content.php:92
 msgid "开始绑定"
 msgstr "Start registration"
 
-#: wwa-admin-content.php:97
+#: wwa-admin-content.php:93
 msgid "当前账户已绑定的认证器"
 msgstr "Authenticators currently registered"
 
 # Table header
-#: wwa-admin-content.php:103 wwa-admin-content.php:119
+#: wwa-admin-content.php:99 wwa-admin-content.php:115
 msgid "添加时间"
 msgstr "Registered"
 
-#: wwa-admin-content.php:104 wwa-admin-content.php:120
+#: wwa-admin-content.php:100 wwa-admin-content.php:116
 msgid "操作"
 msgstr "Action"
 
-#: wwa-admin-content.php:109
+#: wwa-admin-content.php:105
 msgid "加载中..."
 msgstr "Loading..."
 
-#: wwa-admin-content.php:125
+#: wwa-admin-content.php:121
 msgid "测试绑定"
 msgstr "Verify registration"
 
-#: wwa-admin-content.php:126
+#: wwa-admin-content.php:122
 msgid "点击测试按钮，你可以使用已绑定的认证器进行测试登录。"
 msgstr "Click verify to verify that the registered authenticators are working"
 
-#: wwa-admin-content.php:127
+#: wwa-admin-content.php:123
 msgid "测试"
 msgstr "Verify"
 
 # Shows up at login page, should be shorter in length than the default text "log in" (as of Mar 2020)
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "认证"
 msgstr "Auth"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "使用 WebAuthn 认证"
 msgstr "Authenticate with WebAuthn"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "请稍候..."
 msgstr "Please wait..."
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "请按提示完成认证..."
 msgstr "Please proceed..."
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "正在认证..."
 msgstr "Authenticating..."
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "登录成功"
 msgstr "Authenticated!"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "认证失败"
 msgstr "Authentication failed"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "请填写用户名"
 msgstr "Please enter username"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "用户名"
 msgstr "Username"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "用户名或电子邮件地址"
 msgstr "Username or email address"
 
-#: wwa-functions.php:41
+#: wwa-functions.php:43
 msgid "<strong>错误</strong>：用户名一栏为空。"
 msgstr "<strong>ERROR</strong>: username cannot be empty."
