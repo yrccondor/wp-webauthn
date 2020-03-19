@@ -5,12 +5,12 @@
 <h1 align="center">WP-WebAuthn</h1>
 
 
-WP-WebAuthn allows you to safely login to your WordPress site without password.
+<p align="center">WP-WebAuthn allows you to safely login to your WordPress site without password.</p>
 
-<a href="https://github.com/yrccondor/wp-webauthn/releases"><img alt="releases" src="https://img.shields.io/github/release/yrccondor/wp-webauthn.svg?style=flat-square"/></a>
+<p align="center"><a href="https://github.com/yrccondor/wp-webauthn/releases"><img alt="releases" src="https://img.shields.io/github/release/yrccondor/wp-webauthn.svg?style=flat-square"/></a>
 <img alt="WordPress" src="https://img.shields.io/badge/WordPress-5.0%2B-blue.svg?style=flat-square"/>
 <a href="https://axton.cc"><img alt="Author" src="https://img.shields.io/badge/author-Axton-red.svg?style=flat-square"/></a>
-<a href="https://flyhigher.top"><img alt="Author" src="https://img.shields.io/badge/made%20with-%e2%9d%a4-ff69b4.svg?style=flat-square"/></a>
+<a href="https://flyhigher.top"><img alt="Author" src="https://img.shields.io/badge/made%20with-%e2%9d%a4-ff69b4.svg?style=flat-square"/></a></p>
 
 ## Introduction
 
