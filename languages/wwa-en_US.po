@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: WP-WebAuthn 1.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
 "POT-Creation-Date: 2020-03-19T08:41:46+00:00\n"
-"PO-Revision-Date: 2020-03-19 08:43+0000\n"
+"PO-Revision-Date: 2020-03-19 08:51+0000\n"
 "Last-Translator: Ye Shu <hello@shuye.dev>\n"
 "Language-Team: Ye Shu <hello@shuye.dev>\n"
 "Language: en\n"
@@ -29,12 +29,8 @@ msgid "https://flyhigher.top"
 msgstr "https://flyhigher.top"
 
 #. Description of the plugin
-#, fuzzy
-#| msgid ""
-#| "Description: WP-WebAuthn 使你可以通过 U2F 设备登录账户而无需输入密码。"
 msgid "WP-WebAuthn 使你可以通过 U2F 设备登录账户而无需输入密码。"
-msgstr ""
-"Description: WP-WebAuthn enables passwordless login through U2F devices."
+msgstr "WP-WebAuthn enables passwordless login through U2F devices."
 
 #. Author of the plugin
 msgid "Axton"
@@ -123,6 +119,8 @@ msgstr "Removing authenticator..."
 #: wwa-admin-content.php:10
 msgid "你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。"
 msgstr ""
+"PHP gmp extension doesn't seem to exist, rendering WP-WebAuthn unable to "
+"function."
 
 #: wwa-admin-content.php:18
 msgid "设置已保存。"
