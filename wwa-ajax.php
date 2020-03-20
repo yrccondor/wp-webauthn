@@ -291,7 +291,7 @@ function wwa_ajax_auth_start(){
         $wwa_get = array();
         $wwa_get["type"] = sanitize_text_field($_GET["type"]);
         if(isset($_GET["user"])){
-            $wwa_get["user"] = sanitize_text_field($_GET["type"]);
+            $wwa_get["user"] = sanitize_text_field($_GET["user"]);
         }
     }
 
