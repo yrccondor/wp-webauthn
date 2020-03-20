@@ -108,7 +108,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
             // Save credentials's meta separately
             $source = $data[$key]->getUserHandle();
             $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
-            $meta[$key] = array("human_name" => base64_encode($_POST["name"]), "added" => date('Y-m-d H:i:s'), "authenticator_type" => $_POST["type"], "user" => $source);
+            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s'), "authenticator_type" => $_POST["type"], "user" => $source);
             wwa_update_option("user_credentials_meta", json_encode($meta));
         }
         wwa_update_option("user_credentials", json_encode($data));
@@ -127,6 +127,11 @@ function wwa_ajax_create(){
     // Check queries
     if(!isset($_GET["name"]) || !isset($_GET["type"])){
         wp_die("Bad Request.");
+    }else{
+        // Sanitize the input
+        $wwa_get = array();
+        $wwa_get["name"] = sanitize_text_field($_GET["name"]);
+        $wwa_get["type"] = sanitize_text_field($_GET["type"]);
     }
 
     $rpEntity = new PublicKeyCredentialRpEntity(
@@ -176,9 +181,9 @@ function wwa_ajax_create(){
     }, $credentialSources);
 
     // Set authenticator type
-    if($_GET["type"] === "platform"){
+    if($wwa_get["type"] === "platform"){
         $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_PLATFORM;
-    }else if($_GET["type"] === "cross-platform"){
+    }else if($wwa_get["type"] === "cross-platform"){
         $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_CROSS_PLATFORM;
     }else{
         $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE;
@@ -228,10 +233,15 @@ function wwa_ajax_create_response(){
     // Check POST
     if(!isset($_POST["data"]) || !isset($_POST["name"]) || !isset($_POST["type"])){
         wp_die("Bad Request.");
+    }else{
+        // Sanitize the input
+        $wwa_post = array();
+        $wwa_post["name"] = sanitize_text_field($_POST["name"]);
+        $wwa_post["type"] = sanitize_text_field($_POST["type"]);
     }
 
     // May not get the challenge yet
-    if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco']) || ($_POST["type"] !== "platform" && $_POST["type"] !== "cross-platform" && $_POST["type"] !== "none")){
+    if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco']) || ($wwa_post["type"] !== "platform" && $wwa_post["type"] !== "cross-platform" && $wwa_post["type"] !== "none")){
         wp_die("Bad request.");
     }
 
@@ -276,10 +286,17 @@ function wwa_ajax_auth_start(){
     // Check queries
     if(!isset($_GET["type"])){
         wp_die("Bad Request.");
+    }else{
+        // Sanitize the input
+        $wwa_get = array();
+        $wwa_get["type"] = sanitize_text_field($_GET["type"]);
+        if(isset($_GET["user"])){
+            $wwa_get["user"] = sanitize_text_field($_GET["type"]);
+        }
     }
 
     $user_key = "";
-    if($_GET["type"] === "test" && current_user_can('read')){
+    if($wwa_get["type"] === "test" && current_user_can('read')){
         // Logged in and testing, if the user haven't bound any authenticator yet, exit
         $user_info = wp_get_current_user();
 
@@ -290,19 +307,19 @@ function wwa_ajax_auth_start(){
         }
     }else{
         // Not testing, create a fake user ID if the user does not exist or haven't bound any authenticator yet
-        if(isset($_GET["user"])){
-            if(get_user_by('login', $_GET["user"])){
-                $user_info = get_user_by('login', $_GET["user"]);
+        if(isset($wwa_get["user"])){
+            if(get_user_by('login', $wwa_get["user"])){
+                $user_info = get_user_by('login', $wwa_get["user"]);
                 if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
-                    $user_key = hash("sha256", $_GET["user"]."-".$_GET["user"]."-".wwa_generate_random_string(10));
+                    $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
                 }else{
                     $user_key = wwa_get_option("user_id")[$user_info->user_login];
                 }
             }else{
                 $user_info = new stdClass();
-                $user_info->user_login = $_GET["user"];
-                $user_info->display_name = $_GET["user"];
-                $user_key = hash("sha256", $_GET["user"]."-".$_GET["user"]."-".wwa_generate_random_string(10));
+                $user_info->user_login = $wwa_get["user"];
+                $user_info->display_name = $wwa_get["user"];
+                $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
             }
         }else{
             wp_die("Bad Request.");
@@ -331,7 +348,7 @@ function wwa_ajax_auth_start(){
     $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
 
     // Logged in and testing, if the user haven't bind a authenticator yet, exit
-    if(count($credentialSources) === 0 && $_GET["type"] === "test" && current_user_can('read')){
+    if(count($credentialSources) === 0 && $wwa_get["type"] === "test" && current_user_can('read')){
         wp_die("User not inited.");
     }
 
@@ -359,7 +376,7 @@ function wwa_ajax_auth_start(){
     $_SESSION['wwa_user_name_auth'] = $user_info->user_login;
 
     // Save the user entity if is not logged in
-    if(!($_GET["type"] === "test" && current_user_can('read'))){
+    if(!($wwa_get["type"] === "test" && current_user_can('read'))){
         $_SESSION['wwa_user_auth'] = serialize($userEntity);
     }
 
@@ -378,13 +395,17 @@ function wwa_ajax_auth(){
     // Check POST
     if(!isset($_POST["type"]) || !isset($_POST["data"])){
         wp_die("Bad Request.");
+    }else{
+        // Sanitize the input
+        $wwa_post = array();
+        $wwa_post["type"] = sanitize_text_field($_POST["type"]);
     }
 
     // May not get the challenge yet
-    if(!isset($_SESSION['wwa_server_auth']) || !isset($_SESSION['wwa_pkcco_auth']) || !isset($_SESSION['wwa_user_name_auth']) || ($_POST["type"] !== "test" && $_POST["type"] !== "auth")){
+    if(!isset($_SESSION['wwa_server_auth']) || !isset($_SESSION['wwa_pkcco_auth']) || !isset($_SESSION['wwa_user_name_auth']) || ($wwa_post["type"] !== "test" && $wwa_post["type"] !== "auth")){
         wp_die("Bad request.");
     }
-    if(!($_POST["type"] === "test" && current_user_can('read')) && !isset($_SESSION['wwa_user_auth'])){
+    if(!($wwa_post["type"] === "test" && current_user_can('read')) && !isset($_SESSION['wwa_user_auth'])){
         wp_die("Bad request.");
     }
 
@@ -400,7 +421,7 @@ function wwa_ajax_auth(){
 
     // If user entity is not saved, read from WordPress
     $user_key = "";
-    if($_POST["type"] === "test" && current_user_can('read')){
+    if($wwa_post["type"] === "test" && current_user_can('read')){
         $user_info = wp_get_current_user();
 
         if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
@@ -429,7 +450,7 @@ function wwa_ajax_auth(){
         );
 
         // Success
-        if(!($_POST["type"] === "test" && current_user_can('read'))){
+        if(!($wwa_post["type"] === "test" && current_user_can('read'))){
             // Log user in
             if (!is_user_logged_in()) {
                 $user_login = $_SESSION['wwa_user_name_auth'];

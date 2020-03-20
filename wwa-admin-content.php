@@ -13,13 +13,13 @@ if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (explode(":", ex
     add_settings_error("wwa_settings", "https_error", __("你的站点似乎没有运行在安全上下文中，这会导致 WebAuthn 无法使用。请确保你的站点在使用 HTTPS 连接或处于 <code>localhost</code> 中。", "wwa"));
 }
 // Only admin can change settings
-if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins')){
+if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false")){
     wwa_update_option('first_choice', $_POST['first_choice']);
-    wwa_update_option('website_name', $_POST['website_name']);
-    wwa_update_option('website_domain', $_POST['website_domain']);
+    wwa_update_option('website_name', sanitize_text_field($_POST['website_name']));
+    wwa_update_option('website_domain', str_replace("https:", "", str_replace("/", "", sanitize_text_field($_POST['website_domain']))));
     wwa_update_option('user_verification', $_POST['user_verification']);
     add_settings_error("wwa_settings", "save_success", __("设置已保存。", "wwa"), "success");
-}elseif((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] == 'true') && !(check_admin_referer('wwa_options_update'))){
+}elseif((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true')){
     add_settings_error("wwa_settings", "save_error", __("更改未能保存。", "wwa"));
 }
 settings_errors("wwa_settings");

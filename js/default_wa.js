@@ -1,13 +1,13 @@
-$(function(){
+jQuery(function(){
     if (!(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
         // If supported, toggle
-        $('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
-        $('#wp-webauthn-check, .wp-webauthn-notice').show();
-        $("#user_login").focus();
+        jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
+        jQuery('#wp-webauthn-check, .wp-webauthn-notice').show();
+        jQuery("#user_login").focus();
     }
     window.onload = function(){
-        $("#user_pass").removeAttr("disabled");
-        $("#wp-submit").attr("disabled", "disabled");
-        $("#loginform label").first().text(php_vars.i18n_9);
+        jQuery("#user_pass").removeAttr("disabled");
+        jQuery("#wp-submit").attr("disabled", "disabled");
+        jQuery("#loginform label").first().text(php_vars.i18n_9);
     }
 })
