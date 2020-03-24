@@ -3,8 +3,13 @@ jQuery(function(){
     jQuery('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
     jQuery('.forgetmenot').before('<div class="wp-webauthn-notice"><span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2+'</div>');
     jQuery('.wp-webauthn-notice').css({'height': (jQuery('.user-pass-wrap').height() - 10) + 'px', 'line-height': (jQuery('.user-pass-wrap').height() - 10) + 'px'});
-    jQuery("#wp-webauthn-check").width(jQuery("#wp-submit").width());
-    if (window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function") {
+    let btnWidth = jQuery("#wp-submit").width();
+    if(btnWidth < 20 || btnWidth === undefined){
+        jQuery("#wp-webauthn-check").css("width", "auto");
+    }else{
+        jQuery("#wp-webauthn-check").width(btnWidth);
+    }
+    if(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function"){
         wwaSupported = false;
         jQuery("#wp-webauthn").hide();
     }
@@ -13,7 +18,12 @@ jQuery(function(){
 })
 
 window.onresize = function(){
-    jQuery("#wp-webauthn-check").width(jQuery("#wp-submit").width());
+    let btnWidth = jQuery("#wp-submit").width();
+    if(btnWidth < 20 || btnWidth === undefined){
+        jQuery("#wp-webauthn-check").css("width", "auto");
+    }else{
+        jQuery("#wp-webauthn-check").width(btnWidth);
+    }
 }
 
 document.addEventListener("keydown", parseKey, false);
