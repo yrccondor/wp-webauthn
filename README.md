@@ -30,7 +30,7 @@ WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just dow
 
 Just download the plugin from releases and install it, then you are done.
 
-You can also install WP-WebAuthn from WordPress plugin directory. **(Not now, still being reviewed)**
+You can also install [WP-WebAuthn](https://wordpress.org/plugins/wp-webauthn/) from WordPress plugin directory.
 
 ## License
 
