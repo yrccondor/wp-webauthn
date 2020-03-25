@@ -1,7 +1,7 @@
 === WP-WebAuthn ===
 Contributors: axton
 Donate link: https://flyhigher.top/about
-Tags: u2f, fido2, webauthn, login, secure
+Tags: u2f, fido, fido2, webauthn, login, secure, password
 Requires at least: 5.0
 Tested up to: 5.3
 Stable tag: trunk
@@ -45,9 +45,18 @@ Make sure your are using HTTPS or host your site in `localhost`. Then ckeck whet
 
 == Changelog ==
 
+= 1.0.3 =
+Fix: Login button disabled by fault when WebAuthn is not available
+Fix: The Auth button has zero width when the login page is modified
+Fix: iOS users may be failed to register authenticators due to the user verification policy
+
 = 1.0.2 =
 Initial version
 
 == Upgrade Notice ==
 
+= 1.0.3 =
+Bug fix
+
+= 1.0.2 =
 Initial version
