@@ -193,7 +193,7 @@ function wwa_ajax_create(){
     if(wwa_get_option("user_verification") === "true"){
         $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
     }else{
-        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED;
+        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_DISCOURAGED;
     }
 
     // Create authenticator selection
@@ -361,7 +361,7 @@ function wwa_ajax_auth_start(){
     if(wwa_get_option("user_verification") === "true"){
         $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
     }else{
-        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED;
+        $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_DISCOURAGED;
     }
 
     // Create a auth challenge
