@@ -105,10 +105,7 @@ wp_nonce_field('wwa_options_update');
     </thead>
     <tbody id="authenticator-list">
         <tr>
-            <td><?php _e('加载中...', 'wwa');?></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td colspan="4"><?php _e('加载中...', 'wwa');?></td>
         </tr>
     </tbody>
     <tfoot>

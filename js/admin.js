@@ -18,7 +18,7 @@ function updateList(){
         },
         success: function(data){
             if(data.length === 0){
-                jQuery("#authenticator-list").html('<tr><td>'+php_vars.i18n_17+'</td><td></td><td></td><td></td></tr>');
+                jQuery("#authenticator-list").html('<tr><td colspan="4">'+php_vars.i18n_17+'</td></tr>');
                 return;
             }
             let htmlStr = "";
@@ -28,7 +28,7 @@ function updateList(){
             jQuery("#authenticator-list").html(htmlStr);
         },
         error: function(){
-            jQuery("#authenticator-list").html('<tr><td>'+php_vars.i18n_8+'</td><td></td><td></td><td></td></tr>');
+            jQuery("#authenticator-list").html('<tr><td colspan="4">'+php_vars.i18n_8+'</td></tr>');
         }
     })
 }
@@ -204,6 +204,7 @@ jQuery("#test").click(function(){
         success: function(data){
             if(data === "User not inited."){
                 jQuery('#show-test').html(php_vars.i18n_15+": "+php_vars.i18n_17);
+                jQuery("#test").removeAttr('disabled');
                 return;
             }
             jQuery('#show-test').text(php_vars.i18n_13);
