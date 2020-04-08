@@ -5,7 +5,7 @@ jQuery(function(){
     }
     jQuery('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
     jQuery('.forgetmenot').before('<div class="wp-webauthn-notice"><span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2+'</div>');
-    jQuery('.wp-webauthn-notice').css({'height': (jQuery('.user-pass-wrap').height() - 10) + 'px', 'line-height': (jQuery('.user-pass-wrap').height() - 10) + 'px'});
+    jQuery('.wp-webauthn-notice').css({'height': (jQuery('.user-pass-wrap').outerHeight() - 10) + 'px', 'line-height': (jQuery('.user-pass-wrap').outerHeight() - 10) + 'px'});
     let btnWidth = jQuery("#wp-submit").width();
     if(btnWidth < 20 || btnWidth === undefined){
         jQuery("#wp-webauthn-check").css("width", "auto");
@@ -79,9 +79,10 @@ function toggle(){
         return;
     }
     if(wwaSupported){
-        if(jQuery('#wp-webauthn-check').css('display') === 'block'){
+        if(jQuery('.wp-webauthn-notice').first().css('display') === 'block'){
             jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').show();
-            jQuery('#wp-webauthn-check, .wp-webauthn-notice').hide();
+            jQuery('.wp-webauthn-notice').hide();
+            jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style")+"display: none !important");
             jQuery("#user_pass").removeAttr("disabled");
             jQuery("#user_login").focus();
             jQuery('.wp-webauthn-notice').html('<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2);
