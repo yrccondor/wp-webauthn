@@ -1,5 +1,8 @@
 let wwaSupported = true;
 jQuery(function(){
+    if(jQuery("#lostpasswordform").length){
+        return;
+    }
     jQuery('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
     jQuery('.forgetmenot').before('<div class="wp-webauthn-notice"><span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2+'</div>');
     jQuery('.wp-webauthn-notice').css({'height': (jQuery('.user-pass-wrap').height() - 10) + 'px', 'line-height': (jQuery('.user-pass-wrap').height() - 10) + 'px'});
@@ -18,6 +21,9 @@ jQuery(function(){
 })
 
 window.onresize = function(){
+    if(jQuery("#lostpasswordform").length){
+        return;
+    }
     let btnWidth = jQuery("#wp-submit").width();
     if(btnWidth < 20 || btnWidth === undefined){
         jQuery("#wp-webauthn-check").css("width", "auto");
@@ -69,6 +75,9 @@ function getQueryString(name) {
 }
 
 function toggle(){
+    if(jQuery("#lostpasswordform").length){
+        return;
+    }
     if(wwaSupported){
         if(jQuery('#wp-webauthn-check').css('display') === 'block'){
             jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').show();
@@ -106,6 +115,9 @@ function wwa_shake(id, a, d) {
 }
 
 function check(){
+    if(jQuery("#lostpasswordform").length){
+        return;
+    }
     if(wwaSupported){
         if(jQuery("#user_login").val() === ""){
             jQuery("#login_error").remove();

@@ -1,4 +1,7 @@
 jQuery(function(){
+    if(jQuery("#lostpasswordform").length){
+        return;
+    }
     if(!(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
         // If supported, toggle
         jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
@@ -7,6 +10,9 @@ jQuery(function(){
         jQuery("#wp-submit").attr("disabled", "disabled");
     }
     window.onload = function(){
+        if(jQuery("#lostpasswordform").length){
+            return;
+        }
         jQuery("#user_pass").removeAttr("disabled");
         jQuery("#loginform label").first().text(php_vars.i18n_9);
     }
