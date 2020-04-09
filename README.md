@@ -13,6 +13,8 @@
 <a href="https://flyhigher.top"><img alt="Author" src="https://img.shields.io/badge/made%20with-%e2%9d%a4-ff69b4.svg?style=flat-square"/></a></p>
 
 ## Introduction
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_shield)
+
 
 WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras and more.
 
@@ -37,6 +39,9 @@ You can also install [WP-WebAuthn](https://wordpress.org/plugins/wp-webauthn/) f
 <a href="https://github.com/yrccondor/wp-webauthn/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-GPL%20V3.0-orange.svg?style=flat-square"/></a>
 
 Open sourced under GPL v3.0 license.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_large)
 
 ## Thanks to
 
