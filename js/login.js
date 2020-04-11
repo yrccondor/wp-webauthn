@@ -182,14 +182,20 @@ function check(){
                         success: function(data){
                             if(data === "true"){
                                 jQuery('.wp-webauthn-notice').html(php_vars.i18n_6);
-                                if(getQueryString("redirect_to")){
+                                if(jQuery('p.submit input[name="redirect_to"]').length){
                                     setTimeout(()=>{
-                                        window.location.href = getQueryString("redirect_to");
+                                        window.location.href = jQuery('p.submit input[name="redirect_to"]').val();
                                     }, 200);
                                 }else{
-                                    setTimeout(()=>{
-                                        window.location.href = php_vars.admin_url
-                                    }, 200);
+                                    if(getQueryString("redirect_to")){
+                                        setTimeout(()=>{
+                                            window.location.href = getQueryString("redirect_to");
+                                        }, 200);
+                                    }else{
+                                        setTimeout(()=>{
+                                            window.location.href = php_vars.admin_url
+                                        }, 200);
+                                    }
                                 }
                             }else{
                                 jQuery('.wp-webauthn-notice').html(php_vars.i18n_7);
