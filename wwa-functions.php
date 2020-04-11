@@ -52,4 +52,20 @@ function wwa_load_textdomain(){
     load_plugin_textdomain('wwa', false, dirname(plugin_basename(__FILE__)).'/languages');
 }
 add_action('init', 'wwa_load_textdomain');
+
+function wwa_settings_link($links_array, $plugin_file_name){
+    if($plugin_file_name === "wp-webauthn/wp-webauthn.php"){
+        $links_array[] = '<a href="options-general.php?page=wwa_admin">'.__("Settings", "wwa").'</a>';
+    }
+    return $links_array;
+}
+add_filter('plugin_action_links', 'wwa_settings_link', 10, 2);
+
+function wwa_meta_link($links_array, $plugin_file_name){
+    if($plugin_file_name === "wp-webauthn/wp-webauthn.php"){
+        $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__("GitHub", "wwa").'</a>';
+    }
+    return $links_array;
+}
+add_filter('plugin_row_meta', 'wwa_meta_link', 10, 2);
 ?>
