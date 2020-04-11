@@ -38,7 +38,7 @@ wp_nonce_field('wwa_options_update');
     <fieldset>
     <label><input type="radio" name="first_choice" value="true" <?php if($wwa_v_first_choice=='true'){?>checked="checked"<?php }?>> <?php _e('WebAuthn', 'wwa');?></label><br>
     <label><input type="radio" name="first_choice" value="false" <?php if($wwa_v_first_choice=='false'){?>checked="checked"<?php }?>> <?php _e('Username + Password', 'wwa');?></label><br>
-    <p class="description"><?php _e('Since WebAuthn hasn\'t been fully supported by all browsers, you can only choose the preferred (default) login method and <strong>CANNOT completely disable the traditional Username+Password method</strong><br>Regardless of the preferred method, you will be able to switch to the other with a switch button at the login page. <br> When the browser does not support WebAuthn, the login method will default to Username+Password."', 'wwa');?></p>
+    <p class="description"><?php _e('Since WebAuthn hasn\'t been fully supported by all browsers, you can only choose the preferred (default) login method and <strong>CANNOT completely disable the traditional Username+Password method</strong><br>Regardless of the preferred method, you will be able to switch to the other with a switch button at the login page. <br> When the browser does not support WebAuthn, the login method will default to Username+Password.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>

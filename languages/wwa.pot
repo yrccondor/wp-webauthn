@@ -13,6 +13,26 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#. Plugin Name of the plugin
+msgid "WP-WebAuthn"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://flyhigher.top"
+msgstr ""
+
+#. Description of the plugin
+msgid "WP-WebAuthn allows you to safely login to your WordPress site without password."
+msgstr ""
+
+#. Author of the plugin
+msgid "Axton"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://axton.cc"
+msgstr ""
+
 #: wwa-admin-content.php:4
 msgid "Initializing..."
 msgstr ""
@@ -119,7 +139,7 @@ msgid "Username + Password"
 msgstr ""
 
 #: wwa-admin-content.php:41
-msgid "Since WebAuthn hasn't been fully supported by all browsers, you can only choose the preferred (default) login method and <strong>CANNOT completely disable the traditional Username+Password method</strong><br>Regardless of the preferred method, you will be able to switch to the other with a switch button at the login page. <br> When the browser does not support WebAuthn, the login method will default to Username+Password.\""
+msgid "Since WebAuthn hasn't been fully supported by all browsers, you can only choose the preferred (default) login method and <strong>CANNOT completely disable the traditional Username+Password method</strong><br>Regardless of the preferred method, you will be able to switch to the other with a switch button at the login page. <br> When the browser does not support WebAuthn, the login method will default to Username+Password."
 msgstr ""
 
 #: wwa-admin-content.php:46
