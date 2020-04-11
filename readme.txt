@@ -45,6 +45,11 @@ Make sure your are using HTTPS or host your site in `localhost`. Then ckeck whet
 
 == Changelog ==
 
+= 1.0.5 =
+Fix: Auth button displays in register form
+Improve: Set English as default language
+Improve: Compatibility in login page
+
 = 1.0.4 =
 Fix: Auth button displays in forget password form
 Fix: Test button disabled by fault
@@ -59,6 +64,9 @@ Fix: iOS users may be failed to register authenticators due to the user verifica
 Initial version
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+Improved compatibility in login page & Bug fix
 
 = 1.0.4 =
 Improved compatibility in login page & Bug fix
