@@ -21,7 +21,8 @@ msgstr ""
 msgid "Please follow instructions to finish registration..."
 msgstr ""
 
-#: wwa-admin-content.php:4, wwa-admin-content.php:102, wwa-admin-content.php:115
+#: wwa-admin-content.php:4
+msgctxt "action"
 msgid "Registered"
 msgstr ""
 
@@ -199,6 +200,11 @@ msgstr ""
 
 #: wwa-admin-content.php:101, wwa-admin-content.php:114
 msgid "Type"
+msgstr ""
+
+#: wwa-admin-content.php:102, wwa-admin-content.php:115
+msgctxt "time"
+msgid "Registered"
 msgstr ""
 
 #: wwa-admin-content.php:103, wwa-admin-content.php:116
