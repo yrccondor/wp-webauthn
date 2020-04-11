@@ -1,5 +1,5 @@
 jQuery(function(){
-    if(jQuery("#lostpasswordform").length){
+    if(jQuery("#lostpasswordform, #registerform").length){
         return;
     }
     if(!(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
@@ -10,7 +10,7 @@ jQuery(function(){
         jQuery("#wp-submit").attr("disabled", "disabled");
     }
     window.onload = function(){
-        if(jQuery("#lostpasswordform").length){
+        if(jQuery("#lostpasswordform, #registerform").length){
             return;
         }
         jQuery("#user_pass").removeAttr("disabled");

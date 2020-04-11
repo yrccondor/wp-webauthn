@@ -1,6 +1,6 @@
 let wwaSupported = true;
 jQuery(function(){
-    if(jQuery("#lostpasswordform").length){
+    if(jQuery("#lostpasswordform, #registerform").length){
         return;
     }
     jQuery('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
@@ -21,7 +21,7 @@ jQuery(function(){
 })
 
 window.onresize = function(){
-    if(jQuery("#lostpasswordform").length){
+    if(jQuery("#lostpasswordform, #registerform").length){
         return;
     }
     let btnWidth = jQuery("#wp-submit").width();
@@ -75,7 +75,7 @@ function getQueryString(name) {
 }
 
 function toggle(){
-    if(jQuery("#lostpasswordform").length){
+    if(jQuery("#lostpasswordform, #registerform").length){
         return;
     }
     if(wwaSupported){
@@ -116,7 +116,7 @@ function wwa_shake(id, a, d) {
 }
 
 function check(){
-    if(jQuery("#lostpasswordform").length){
+    if(jQuery("#lostpasswordform, #registerform").length){
         return;
     }
     if(wwaSupported){
