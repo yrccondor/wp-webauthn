@@ -119,6 +119,6 @@ wp_nonce_field('wwa_options_update');
 </table>
 <br>
 <h2><?php _e('Verify registration', 'wwa');?></h2>
-<p class="description"><?php _e('Click verify to verify that the registered authenticators are working', 'wwa');?></p>
+<p class="description"><?php _e('Click verify to verify that the registered authenticators are working.', 'wwa');?></p>
 <p class="submit"><button id="test" class="button button-primary"><?php _e('Verify', 'wwa');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="show-test"></span></p>
 </div>

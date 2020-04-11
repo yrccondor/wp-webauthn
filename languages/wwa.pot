@@ -220,7 +220,7 @@ msgid "Verify registration"
 msgstr ""
 
 #: wwa-admin-content.php:122
-msgid "Click verify to verify that the registered authenticators are working"
+msgid "Click verify to verify that the registered authenticators are working."
 msgstr ""
 
 #: wwa-admin-content.php:123
