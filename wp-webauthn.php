@@ -2,7 +2,7 @@
 /*
 Plugin Name: WP-WebAuthn
 Plugin URI: https://flyhigher.top
-Description: WP-WebAuthn 使你可以通过 U2F 设备登录账户而无需输入密码。
+Description: WP-WebAuthn allows you to safely login to your WordPress site without password.
 Version: 1.0.4
 Author: Axton
 Author URI: https://axton.cc
