@@ -6,7 +6,7 @@
     line-height: 30px;
 }
 #wp-webauthn-check {
-    display: none;
+    display: none!important;
 }
 .wp-webauthn-notice {
     font-size: 18px;

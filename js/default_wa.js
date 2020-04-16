@@ -2,10 +2,11 @@ jQuery(function(){
     if(jQuery("#lostpasswordform, #registerform").length){
         return;
     }
-    if(!(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
+    if(!(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function")){
         // If supported, toggle
         jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
-        jQuery('#wp-webauthn-check, .wp-webauthn-notice').show();
+        jQuery('.wp-webauthn-notice').show();
+        jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style")+"display: block !important");
         jQuery("#user_login").focus();
         jQuery("#wp-submit").attr("disabled", "disabled");
     }

@@ -12,7 +12,7 @@ jQuery(function(){
     }else{
         jQuery("#wp-webauthn-check").width(btnWidth);
     }
-    if(window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function"){
+    if(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function"){
         wwaSupported = false;
         jQuery("#wp-webauthn").hide();
     }
@@ -82,7 +82,7 @@ function toggle(){
         if(jQuery('.wp-webauthn-notice').first().css('display') === 'block'){
             jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').show();
             jQuery('.wp-webauthn-notice').hide();
-            jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style")+"display: none !important");
+            jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style").split("display: block !important")[0]+"display: none !important");
             jQuery("#user_pass").removeAttr("disabled");
             jQuery("#user_login").focus();
             jQuery('.wp-webauthn-notice').html('<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2);
@@ -90,7 +90,8 @@ function toggle(){
             jQuery("#loginform label").first().text(php_vars.i18n_10);
         }else{
             jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
-            jQuery('#wp-webauthn-check, .wp-webauthn-notice').show();
+            jQuery('.wp-webauthn-notice').show();
+            jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style").split("display: none !important")[0]+"display: block !important");
             jQuery("#user_login").focus();
             jQuery('.wp-webauthn-notice').html('<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2);
             jQuery("#wp-submit").attr("disabled", "disabled");

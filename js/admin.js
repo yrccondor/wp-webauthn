@@ -1,5 +1,5 @@
 // Whether the broswer supports WebAuthn
-if (window.PublicKeyCredential === undefined || typeof window.PublicKeyCredential !== "function" || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function") {
+if (window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function") {
     jQuery("#bind, #test").attr('disabled', 'disabled');
     jQuery('#show-progress').html(php_vars.i18n_5);
 }
