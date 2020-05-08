@@ -124,6 +124,10 @@ function wwa_ajax_create(){
         wp_die("Something went wrong.");
     }
 
+    if(wwa_get_option('website_name') === "" || wwa_get_option('website_domain') ===""){
+        wp_die("Not configured.");
+    }
+
     // Check queries
     if(!isset($_GET["name"]) || !isset($_GET["type"])){
         wp_die("Bad Request.");
@@ -255,8 +259,15 @@ function wwa_ajax_create_response(){
 
     $serverRequest = $creator->fromGlobals();
 
-    // Verify
     $server = unserialize($_SESSION['wwa_server']);
+
+    // Allow to bypass scheme verification when under localhost
+    $current_domain = wwa_get_option('website_domain');
+    if($current_domain === "localhost" || $current_domain === "127.0.0.1"){
+        $server->setSecuredRelyingPartyId([$current_domain]);
+    }
+
+    // Verify
     try {
         $publicKeyCredentialSource = $server->loadAndCheckAttestationResponse(
             base64_decode($_POST["data"]),
@@ -439,8 +450,15 @@ function wwa_ajax_auth(){
         $userEntity = unserialize($_SESSION['wwa_user_auth']);
     }
 
-    // Verify
     $server = unserialize($_SESSION['wwa_server_auth']);
+
+    // Allow to bypass scheme verification when under localhost
+    $current_domain = wwa_get_option('website_domain');
+    if($current_domain === "localhost" || $current_domain === "127.0.0.1"){
+        $server->setSecuredRelyingPartyId([$current_domain]);
+    }
+
+    // Verify
     try {
         $publicKeyCredentialSource = $server->loadAndCheckAssertionResponse(
             base64_decode($_POST["data"]),
