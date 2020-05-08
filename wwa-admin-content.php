@@ -9,7 +9,7 @@ wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
 if(!function_exists("gmp_intval")){
     add_settings_error("wwa_settings", "gmp_error", __("PHP gmp extension doesn't seem to exist, rendering WP-WebAuthn unable to function.", "wwa"));
 }
-if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (explode(":", explode("/", explode("//", site_url())[1])[0])[0] !== "localhost")){
+if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
     add_settings_error("wwa_settings", "https_error", __("WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.", "wwa"));
 }
 // Only admin can change settings

@@ -30,13 +30,14 @@ wwa_init_data();
 function wwa_init_data(){
     if(!get_option('wwa_init')){
         // Init
+        $site_domain = parse_url(site_url(), PHP_URL_HOST);
         $wwa_init_options = array(
             'user_credentials' => "{}",
             'user_credentials_meta' => "{}",
             'user_id' => array(),
             'first_choice' => 'true',
-            'webite_name' => get_bloginfo('name'),
-            'webite_domain' => explode(":", explode("/", explode("//", site_url())[1])[0])[0],
+            'website_name' => get_bloginfo('name'),
+            'website_domain' => $site_domain === NULL ? "" : $site_domain,
             'user_verification' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
