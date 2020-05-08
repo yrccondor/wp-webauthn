@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014-2019 Spomky-Labs
+ * Copyright (c) 2014-2020 Spomky-Labs
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -110,9 +110,14 @@ class Server
      */
     private $logger;
 
-    public function __construct(PublicKeyCredentialRpEntity $relayingParty, PublicKeyCredentialSourceRepository $publicKeyCredentialSourceRepository, ?MetadataStatementRepository $metadataStatementRepository)
+    /**
+     * @var string[]
+     */
+    private $securedRelyingPartyId = [];
+
+    public function __construct(PublicKeyCredentialRpEntity $relyingParty, PublicKeyCredentialSourceRepository $publicKeyCredentialSourceRepository, ?MetadataStatementRepository $metadataStatementRepository)
     {
-        $this->rpEntity = $relayingParty;
+        $this->rpEntity = $relyingParty;
 
         $this->coseAlgorithmManagerFactory = new ManagerFactory();
         $this->coseAlgorithmManagerFactory->add('RS1', new RSA\RS1());
@@ -158,6 +163,15 @@ class Server
     public function setExtensionOutputCheckerHandler(ExtensionOutputCheckerHandler $extensionOutputCheckerHandler): void
     {
         $this->extensionOutputCheckerHandler = $extensionOutputCheckerHandler;
+    }
+
+    /**
+     * @param string[] $securedRelyingPartyId
+     */
+    public function setSecuredRelyingPartyId(array $securedRelyingPartyId): void
+    {
+        Assertion::allString($securedRelyingPartyId, 'Invalid list. Shall be a list of strings');
+        $this->securedRelyingPartyId = $securedRelyingPartyId;
     }
 
     /**
@@ -208,7 +222,7 @@ class Server
     public function loadAndCheckAttestationResponse(string $data, PublicKeyCredentialCreationOptions $publicKeyCredentialCreationOptions, ServerRequestInterface $serverRequest): PublicKeyCredentialSource
     {
         $attestationStatementSupportManager = $this->getAttestationStatementSupportManager();
-        $attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $this->metadataStatementRepository, $this->logger);
+        $attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, null, $this->logger);
         $publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $this->logger);
 
         $publicKeyCredential = $publicKeyCredentialLoader->load($data);
@@ -224,13 +238,13 @@ class Server
             $this->logger
         );
 
-        return $authenticatorAttestationResponseValidator->check($authenticatorResponse, $publicKeyCredentialCreationOptions, $serverRequest);
+        return $authenticatorAttestationResponseValidator->check($authenticatorResponse, $publicKeyCredentialCreationOptions, $serverRequest, $this->securedRelyingPartyId);
     }
 
     public function loadAndCheckAssertionResponse(string $data, PublicKeyCredentialRequestOptions $publicKeyCredentialRequestOptions, ?PublicKeyCredentialUserEntity $userEntity, ServerRequestInterface $serverRequest): PublicKeyCredentialSource
     {
         $attestationStatementSupportManager = $this->getAttestationStatementSupportManager();
-        $attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, $this->metadataStatementRepository, $this->logger);
+        $attestationObjectLoader = new AttestationObjectLoader($attestationStatementSupportManager, null, $this->logger);
         $publicKeyCredentialLoader = new PublicKeyCredentialLoader($attestationObjectLoader, $this->logger);
 
         $publicKeyCredential = $publicKeyCredentialLoader->load($data);
@@ -251,7 +265,8 @@ class Server
             $authenticatorResponse,
             $publicKeyCredentialRequestOptions,
             $serverRequest,
-            null !== $userEntity ? $userEntity->getId() : null
+            null !== $userEntity ? $userEntity->getId() : null,
+            $this->securedRelyingPartyId
         );
     }
 
@@ -276,14 +291,12 @@ class Server
     {
         $attestationStatementSupportManager = new AttestationStatementSupportManager();
         $attestationStatementSupportManager->add(new NoneAttestationStatementSupport());
-        if (null !== $this->metadataStatementRepository) {
-            $coseAlgorithmManager = $this->coseAlgorithmManagerFactory->create($this->selectedAlgorithms);
-            $attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport());
-            $attestationStatementSupportManager->add(new AndroidSafetyNetAttestationStatementSupport($this->httpClient, $this->googleApiKey, $this->requestFactory, 2000, 60000));
-            $attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport());
-            $attestationStatementSupportManager->add(new TPMAttestationStatementSupport());
-            $attestationStatementSupportManager->add(new PackedAttestationStatementSupport($coseAlgorithmManager));
-        }
+        $coseAlgorithmManager = $this->coseAlgorithmManagerFactory->create($this->selectedAlgorithms);
+        $attestationStatementSupportManager->add(new FidoU2FAttestationStatementSupport());
+        $attestationStatementSupportManager->add(new AndroidSafetyNetAttestationStatementSupport($this->httpClient, $this->googleApiKey, $this->requestFactory, 2000, 60000));
+        $attestationStatementSupportManager->add(new AndroidKeyAttestationStatementSupport());
+        $attestationStatementSupportManager->add(new TPMAttestationStatementSupport());
+        $attestationStatementSupportManager->add(new PackedAttestationStatementSupport($coseAlgorithmManager));
 
         return $attestationStatementSupportManager;
     }

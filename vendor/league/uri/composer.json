@@ -33,9 +33,16 @@
         }
     ],
     "support": {
-        "forum": "https://groups.google.com/forum/#!forum/thephpleague",
+        "forum": "https://thephpleague.slack.com",
+        "docs": "https://uri.thephpleague.com",
         "issues": "https://github.com/thephpleague/uri/issues"
     },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/nyamsprod"
+        }
+    ],
     "require": {
         "php": "^7.2",
         "ext-json": "*",
@@ -44,7 +51,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
-        "phpunit/phpunit" : "^7.0 | ^8.0",
+        "phpunit/phpunit" : "^8.0",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12"

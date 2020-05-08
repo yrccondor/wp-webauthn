@@ -18,6 +18,7 @@ use League\Uri\Contracts\UriInterface;
 use League\Uri\Exceptions\SyntaxError;
 use League\Uri\Exceptions\TemplateCanNotBeExpanded;
 use function array_filter;
+use function array_key_exists;
 use function array_keys;
 use function explode;
 use function gettype;
@@ -428,7 +429,11 @@ final class UriTemplate
      */
     private function expandVariable(array $variable, string $operator, string $joiner, bool $useQuery): string
     {
-        $value = $this->variables[$variable['name']] ?? '';
+        if (!array_key_exists($variable['name'], $this->variables)) {
+            return '';
+        }
+
+        $value = $this->variables[$variable['name']];
         $arguments = [$value, $variable, $operator];
         $method = 'expandString';
         if (is_array($value)) {
