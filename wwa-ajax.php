@@ -63,6 +63,23 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"]);}, $arr);
     }
 
+    // Rename an authenticator
+    public function renameAuthenticator(string $id, string $name, PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): string {
+        $keys = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
+        $user_id = $publicKeyCredentialUserEntity->getId();
+
+        // Check if the user has the authenticator
+        foreach($keys as $item){
+            if($item->getUserHandle() === $user_id){
+                if(base64_encode($item->getPublicKeyCredentialId()) === base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT))){
+                    $this->renameCredential(base64_encode($item->getPublicKeyCredentialId()), $name);
+                    return "true";
+                }
+            }
+        }
+        return "Not Found.";
+    }
+
     // Remove an authenticator
     public function removeAuthenticator(string $id, PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): string {
         $keys = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
@@ -78,6 +95,13 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
             }
         }
         return "Not Found.";
+    }
+
+    // Rename a credential from database by credential ID
+    private function renameCredential(string $id, string $name): void {
+        $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
+        $meta[$id]["human_name"] = base64_encode($name);
+        wwa_update_option("user_credentials_meta", json_encode($meta));
     }
 
     // Remove a credential from database by credential ID
@@ -524,6 +548,34 @@ function wwa_ajax_authenticator_list(){
     exit;
 }
 add_action('wp_ajax_wwa_authenticator_list' , 'wwa_ajax_authenticator_list');
+
+// Rename an authenticator
+function wwa_ajax_rename_authenticator(){
+    if(!current_user_can("read") || !isset($_GET["id"]) || !isset($_GET["name"])){
+        wp_die("Bad Request.");
+    }
+
+    $user_info = wp_get_current_user();
+
+    $user_key = "";
+    if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
+        // The user haven't bound any authenticator, exit
+        wp_die("User not inited.");
+    }else{
+        $user_key = wwa_get_option("user_id")[$user_info->user_login];
+    }
+
+    $userEntity = new PublicKeyCredentialUserEntity(
+        $user_info->user_login,
+        $user_key,
+        $user_info->display_name
+    );
+
+    $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
+    echo $publicKeyCredentialSourceRepository->renameAuthenticator($_GET["id"], sanitize_text_field($_GET["name"]), $userEntity);
+    exit;
+}
+add_action('wp_ajax_wwa_rename_authenticator' , 'wwa_ajax_rename_authenticator');
 
 // Remove an authenticator
 function wwa_ajax_remove_authenticator(){

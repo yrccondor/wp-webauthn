@@ -23,7 +23,7 @@ function updateList(){
             }
             let htmlStr = "";
             for(item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td id="'+item.key+'"><a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
             }
             jQuery("#authenticator-list").html(htmlStr);
         },
@@ -267,6 +267,36 @@ jQuery("#test").click(function(){
         }
     })
 });
+
+/**
+ * Rename an authenticator
+ * @param {string} id Authenticator ID
+ * @param {string} name Current authenticator name
+ */
+function renameAuthenticator(id, name){
+    let new_name = prompt(php_vars.i18n_21, name);
+    if(new_name === ""){
+        alert(php_vars.i18n_7);
+    }else if(new_name !== null && new_name !== name){
+        jQuery("#"+id).text(php_vars.i18n_22)
+        jQuery.ajax({
+            url: php_vars.ajax_url,
+            type: 'GET',
+            data: {
+                action: 'wwa_rename_authenticator',
+                id: id,
+                name: new_name
+            },
+            success: function(){
+                updateList();
+            },
+            error: function(data){
+                alert("Error: "+data);
+                updateList();
+            }
+        })
+    }
+}
 
 /**
  * Remove an authenticator
