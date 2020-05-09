@@ -19,7 +19,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
     // Get one credential by credential ID
     public function findOneByCredentialId(string $publicKeyCredentialId): ?PublicKeyCredentialSource {
         $data = $this->read();
-        if (isset($data[base64_encode($publicKeyCredentialId)])){
+        if(isset($data[base64_encode($publicKeyCredentialId)])){
             return PublicKeyCredentialSource::createFromArray($data[base64_encode($publicKeyCredentialId)]);
         }
         return null;
@@ -30,7 +30,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         $sources = [];
         foreach($this->read() as $data){
             $source = PublicKeyCredentialSource::createFromArray($data);
-            if ($source->getUserHandle() === $publicKeyCredentialUserEntity->getId()){
+            if($source->getUserHandle() === $publicKeyCredentialUserEntity->getId()){
                 $sources[] = $source;
             }
         }
@@ -63,8 +63,8 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"]);}, $arr);
     }
 
-    // Rename an authenticator
-    public function renameAuthenticator(string $id, string $name, PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): string {
+    // Modify an authenticator
+    public function modifyAuthenticator(string $id, string $name, PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity, string $action): string {
         $keys = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
         $user_id = $publicKeyCredentialUserEntity->getId();
 
@@ -72,24 +72,11 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         foreach($keys as $item){
             if($item->getUserHandle() === $user_id){
                 if(base64_encode($item->getPublicKeyCredentialId()) === base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT))){
-                    $this->renameCredential(base64_encode($item->getPublicKeyCredentialId()), $name);
-                    return "true";
-                }
-            }
-        }
-        return "Not Found.";
-    }
-
-    // Remove an authenticator
-    public function removeAuthenticator(string $id, PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): string {
-        $keys = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
-        $user_id = $publicKeyCredentialUserEntity->getId();
-
-        // Check if the user has the authenticator
-        foreach($keys as $item){
-            if($item->getUserHandle() === $user_id){
-                if(base64_encode($item->getPublicKeyCredentialId()) === base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT))){
-                    $this->removeCredential(base64_encode($item->getPublicKeyCredentialId()));
+                    if($action === "rename"){
+                        $this->renameCredential(base64_encode($item->getPublicKeyCredentialId()), $name);
+                    }else if($action === "remove"){
+                        $this->removeCredential(base64_encode($item->getPublicKeyCredentialId()));
+                    }
                     return "true";
                 }
             }
@@ -549,9 +536,17 @@ function wwa_ajax_authenticator_list(){
 }
 add_action('wp_ajax_wwa_authenticator_list' , 'wwa_ajax_authenticator_list');
 
-// Rename an authenticator
-function wwa_ajax_rename_authenticator(){
-    if(!current_user_can("read") || !isset($_GET["id"]) || !isset($_GET["name"])){
+// Modify an authenticator
+function wwa_ajax_modify_authenticator(){
+    if(!current_user_can("read") || !isset($_GET["id"]) || !isset($_GET["target"])){
+        wp_die("Bad Request.");
+    }
+
+    if($_GET["target"] !== "rename" && $_GET["target"] !== "remove"){
+        wp_die("Bad Request.");
+    }
+
+    if($_GET["target"] === "rename" && !isset($_GET["name"])){
         wp_die("Bad Request.");
     }
 
@@ -572,36 +567,13 @@ function wwa_ajax_rename_authenticator(){
     );
 
     $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
-    echo $publicKeyCredentialSourceRepository->renameAuthenticator($_GET["id"], sanitize_text_field($_GET["name"]), $userEntity);
+
+    if($_GET["target"] === "rename"){
+        echo $publicKeyCredentialSourceRepository->modifyAuthenticator($_GET["id"], sanitize_text_field($_GET["name"]), $userEntity, "rename");
+    }else if($_GET["target"] === "remove"){
+        echo $publicKeyCredentialSourceRepository->modifyAuthenticator($_GET["id"], "", $userEntity, "remove");
+    }
     exit;
 }
-add_action('wp_ajax_wwa_rename_authenticator' , 'wwa_ajax_rename_authenticator');
-
-// Remove an authenticator
-function wwa_ajax_remove_authenticator(){
-    if(!current_user_can("read") || !isset($_GET["id"])){
-        wp_die("Bad Request.");
-    }
-
-    $user_info = wp_get_current_user();
-
-    $user_key = "";
-    if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
-        // The user haven't bound any authenticator, exit
-        wp_die("User not inited.");
-    }else{
-        $user_key = wwa_get_option("user_id")[$user_info->user_login];
-    }
-
-    $userEntity = new PublicKeyCredentialUserEntity(
-        $user_info->user_login,
-        $user_key,
-        $user_info->display_name
-    );
-
-    $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
-    echo $publicKeyCredentialSourceRepository->removeAuthenticator($_GET["id"], $userEntity);
-    exit;
-}
-add_action('wp_ajax_wwa_remove_authenticator' , 'wwa_ajax_remove_authenticator');
+add_action('wp_ajax_wwa_modify_authenticator' , 'wwa_ajax_modify_authenticator');
 ?>

@@ -283,9 +283,10 @@ function renameAuthenticator(id, name){
             url: php_vars.ajax_url,
             type: 'GET',
             data: {
-                action: 'wwa_rename_authenticator',
+                action: 'wwa_modify_authenticator',
                 id: id,
-                name: new_name
+                name: new_name,
+                target: 'rename'
             },
             success: function(){
                 updateList();
@@ -310,8 +311,9 @@ function removeAuthenticator(id, name){
             url: php_vars.ajax_url,
             type: 'GET',
             data: {
-                action: 'wwa_remove_authenticator',
-                id: id
+                action: 'wwa_modify_authenticator',
+                id: id,
+                target: 'remove'
             },
             success: function(){
                 updateList();
