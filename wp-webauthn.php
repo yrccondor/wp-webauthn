@@ -67,4 +67,5 @@ function wwa_update_option($option_name, $option_value){
 include('wwa-menus.php');
 include('wwa-functions.php');
 include('wwa-ajax.php');
+include('wwa-shortcodes.php');
 ?>

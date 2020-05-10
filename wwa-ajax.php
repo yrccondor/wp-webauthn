@@ -149,6 +149,10 @@ function wwa_ajax_create(){
         $wwa_get["type"] = sanitize_text_field($_GET["type"]);
     }
 
+    if($wwa_get["name"] === ""){
+        wp_die("Bad Request.");
+    }
+
     $rpEntity = new PublicKeyCredentialRpEntity(
         wwa_get_option('website_name'),
         wwa_get_option('website_domain')

@@ -38,12 +38,12 @@ function wwa_generate_random_string($length = 10) {
 
 // Add CSS and JS in login page
 function wwa_login_js() {
-    wp_enqueue_script('wwa_login', plugins_url('js/login.js',__FILE__), array('jquery'), '1.0.0', true);
+    wp_enqueue_script('wwa_login', plugins_url('js/login.js',__FILE__), array('jquery'), get_option('wwa_version')['version'], true);
     wp_localize_script('wwa_login', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'admin_url' => admin_url(),'i18n_1' => __('Auth','wwa'),'i18n_2' => __('Authenticate with WebAuthn','wwa'),'i18n_3' => __('Hold on...','wwa'),'i18n_4' => __('Please proceed...','wwa'),'i18n_5' => __('Authenticating...','wwa'),'i18n_6' => '<span class="wwa-success"><span class="dashicons dashicons-yes"></span> '.__('Authenticated','wwa').'</span>','i18n_7' => '<span class="wwa-failed"><span class="dashicons dashicons-no-alt"></span> '.__('Auth failed','wwa').'</span>','i18n_9' => __('Username','wwa'),'i18n_10' => __('Username or Email Address','wwa'),'i18n_11' => __('<strong>Error</strong>: The username field is empty.','wwa')));
     if(wwa_get_option('first_choice') === 'true'){
-        wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js',__FILE__), array('jquery'), '1.0.0', true);
+        wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js',__FILE__), array('jquery'), get_option('wwa_version')['version'], true);
     }
-    wp_enqueue_style('wwa_login_css', plugins_url('css/login.css',__FILE__));
+    wp_enqueue_style('wwa_login_css', plugins_url('css/login.css',__FILE__), array(), get_option('wwa_version')['version']);
 }
 add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
@@ -53,6 +53,7 @@ function wwa_load_textdomain(){
 }
 add_action('init', 'wwa_load_textdomain');
 
+// Add meta links in plugin list page
 function wwa_settings_link($links_array, $plugin_file_name){
     if($plugin_file_name === "wp-webauthn/wp-webauthn.php"){
         $links_array[] = '<a href="options-general.php?page=wwa_admin">'.__("Settings", "wwa").'</a>';
