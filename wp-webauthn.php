@@ -38,11 +38,13 @@ function wwa_init_data(){
             'first_choice' => 'true',
             'website_name' => get_bloginfo('name'),
             'website_domain' => $site_domain === NULL ? "" : $site_domain,
-            'user_verification' => 'false'
+            'user_verification' => 'false',
+            'logging' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
         include('version.php');
         update_option('wwa_version', $wwa_version);
+        update_option('wwa_log', array());
         update_option('wwa_init', md5(date('Y-m-d H:i:s')));
     }else{
         include('version.php');
@@ -54,7 +56,12 @@ function wwa_init_data(){
 
 // Wrap WP-WebAuthn settings
 function wwa_get_option($option_name){
-    return get_option("wwa_options")[$option_name];
+    $val = get_option("wwa_options");
+    if(isset($val[$option_name])){
+        return $val[$option_name];
+    }else{
+        return false;
+    }
 }
 
 function wwa_update_option($option_name, $option_value){

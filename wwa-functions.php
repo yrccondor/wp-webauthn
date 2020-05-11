@@ -36,6 +36,37 @@ function wwa_generate_random_string($length = 10) {
     }
 }
 
+// Add log
+function wwa_add_log($id, $content = "", $init = false){
+    if(wwa_get_option("logging") !== "true" && !$init){
+        return;
+    }
+    $log = get_option("wwa_log");
+    if($log === false){
+        $log = array();
+    }
+    $log[] = "[".date('Y-m-d H:i:s', current_time('timestamp'))."][".$id."] ".$content;
+    update_option("wwa_log", $log);
+}
+
+function wwa_generate_call_trace()
+{
+    $e = new Exception();
+    $trace = explode("\n", $e->getTraceAsString());
+    $trace = array_reverse($trace);
+    array_shift($trace);
+    array_pop($trace);
+    $length = count($trace);
+    $result = array();
+   
+    for ($i = 0; $i < $length; $i++)
+    {
+        $result[] = ($i + 1)  . ')' . substr($trace[$i], strpos($trace[$i], ' '));
+    }
+   
+    return "Traceback:\n                              ".implode("\n                              ", $result);
+}
+
 // Add CSS and JS in login page
 function wwa_login_js() {
     wp_enqueue_script('wwa_login', plugins_url('js/login.js',__FILE__), array(), get_option('wwa_version')['version'], true);
