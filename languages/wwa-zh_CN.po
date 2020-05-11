@@ -17,7 +17,7 @@ msgstr ""
 "esc_html_e;esc_html_x:1,2c\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.3.1\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
@@ -47,86 +47,111 @@ msgstr "https://axton.cc"
 msgid "Initializing..."
 msgstr "正在初始化..."
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Please follow instructions to finish registration..."
 msgstr "请按照浏览器接下来的提示完成绑定..."
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgctxt "action"
 msgid "Registered"
 msgstr "绑定成功"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Registration failed"
 msgstr "绑定失败"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Your browser does not support WebAuthn"
 msgstr "你的浏览器不支持 WebAuthn"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Registrating..."
 msgstr "正在绑定..."
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Please enter the authenticator identifier"
 msgstr "请填写认证器名称"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Loading failed, maybe try refreshing?"
 msgstr "加载失败，刷新试试？"
 
-#: wwa-admin-content.php:4, wwa-admin-content.php:80
+#: wwa-admin-content.php:4, wwa-admin-content.php:143, wwa-shortcodes.php:8,
+#: wwa-shortcodes.php:79, wwa-shortcodes.php:159
 msgid "Any"
 msgstr "任意类型"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8, wwa-shortcodes.php:159
 msgid "Platform authenticator"
 msgstr "内置认证器"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8, wwa-shortcodes.php:159
 msgid "Roaming authenticator"
 msgstr "外部认证器"
 
-#: wwa-admin-content.php:4
-msgid "Delete"
-msgstr "删除"
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8, wwa-shortcodes.php:159
+msgid "Remove"
+msgstr "移除"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Please follow instructions to finish verification..."
 msgstr "请按照浏览器接下来的提示进行验证..."
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Verifying..."
 msgstr "正在验证..."
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Verification failed"
 msgstr "验证失败"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Verification passed! You can now log in through WebAuthn"
 msgstr "验证成功，你的账户现可通过 WebAuthn 登录"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8, wwa-shortcodes.php:144
 msgid "No registered authenticators"
 msgstr "没有已绑定的认证器"
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Confirm removal of authenticator: "
 msgstr "确认删除验证器："
 
-#: wwa-admin-content.php:4
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
 msgid "Removing..."
 msgstr "正在删除..."
 
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8, wwa-shortcodes.php:159,
+#: wwa-shortcodes.php:159
+msgid "Rename"
+msgstr "重命名"
+
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
+msgid "Rename the authenticator"
+msgstr "重命名认证器"
+
+#: wwa-admin-content.php:4, wwa-shortcodes.php:8
+msgid "Renaming..."
+msgstr "正在重命名..."
+
+#: wwa-admin-content.php:4, wwa-admin-content.php:118
+msgid "Log count: "
+msgstr "日志数："
+
 #: wwa-admin-content.php:10
 msgid ""
-"PHP gmp extension doesn't seem to exist, rendering WP-WebAuthn unable to "
+"PHP extension gmp doesn't seem to exist, rendering WP-WebAuthn unable to "
 "function."
 msgstr "你的 PHP 似乎没有安装 gmp 拓展，这会导致 WP-WebAuthn 不能正常工作。"
 
 #: wwa-admin-content.php:13
+msgid ""
+"PHP extension mbstring doesn't seem to exist, rendering WP-WebAuthn unable "
+"to function."
+msgstr ""
+"你的 PHP 似乎没有安装 mbstring 拓展，这会导致 WP-WebAuthn 不能正常工作。"
+
+#: wwa-admin-content.php:16
 msgid ""
 "WebAuthn features are restricted to websites in secure contexts. Please make "
 "sure your website is served over HTTPS or locally with <code>localhost</"
@@ -135,27 +160,27 @@ msgstr ""
 "你的站点似乎没有运行在安全上下文中，这会导致 WebAuthn 无法使用。请确保你的站"
 "点在使用 HTTPS 连接或处于 <code>localhost</code> 中。"
 
-#: wwa-admin-content.php:21
+#: wwa-admin-content.php:56
 msgid "Settings saved."
 msgstr "设置已保存。"
 
-#: wwa-admin-content.php:23
+#: wwa-admin-content.php:58
 msgid "Settings NOT saved."
 msgstr "更改未能保存。"
 
-#: wwa-admin-content.php:35
+#: wwa-admin-content.php:70
 msgid "Preferred login method"
 msgstr "登录页面默认登录方式"
 
-#: wwa-admin-content.php:39
+#: wwa-admin-content.php:74
 msgid "WebAuthn"
 msgstr "WebAuthn"
 
-#: wwa-admin-content.php:40
+#: wwa-admin-content.php:75
 msgid "Username + Password"
 msgstr "密码"
 
-#: wwa-admin-content.php:41
+#: wwa-admin-content.php:76
 msgid ""
 "Since WebAuthn hasn't been fully supported by all browsers, you can only "
 "choose the preferred (default) login method and <strong>CANNOT completely "
@@ -170,39 +195,39 @@ msgstr ""
 "<br>当浏览器不支持 WebAuthn 时，无论你将哪种登录方式设为了默认，密码登录方式"
 "都将被默认显示。"
 
-#: wwa-admin-content.php:46
+#: wwa-admin-content.php:81
 msgid "Website identifier"
 msgstr "网站名称"
 
-#: wwa-admin-content.php:49
+#: wwa-admin-content.php:84
 msgid ""
 "This identifier is for identification purpose only and <strong>DOES NOT</"
 "strong> affect the authentication process in anyway."
 msgstr "网站名称<strong>不影响</strong>任何认证过程，仅仅是为了方便辨认。"
 
-#: wwa-admin-content.php:53
+#: wwa-admin-content.php:88
 msgid "Website domain"
 msgstr "网站域名"
 
-#: wwa-admin-content.php:56
+#: wwa-admin-content.php:91
 msgid ""
 "This field <strong>MUST</strong> be exactly the same with the current domain "
 "or parent domain."
 msgstr "<strong>必须</strong>与当前域名完全一致或为当前域名的子集。"
 
-#: wwa-admin-content.php:60
+#: wwa-admin-content.php:95
 msgid "Require user verification"
 msgstr "要求用户验证"
 
-#: wwa-admin-content.php:64
+#: wwa-admin-content.php:99, wwa-admin-content.php:115
 msgid "Enable"
 msgstr "启用"
 
-#: wwa-admin-content.php:65
+#: wwa-admin-content.php:100, wwa-admin-content.php:116
 msgid "Disable"
 msgstr "禁用"
 
-#: wwa-admin-content.php:66
+#: wwa-admin-content.php:101
 msgid ""
 "User verification can improve security, but is not fully supported by mobile "
 "devices. <br> If you cannot register or verify your authenticators, please "
@@ -211,11 +236,35 @@ msgstr ""
 "用户验证可提高安全性，但部分移动设备不支持。<br>如果你无法绑定或验证认证器，"
 "请尝试禁用用户验证。"
 
-#: wwa-admin-content.php:73
+#: wwa-admin-content.php:106
+msgid "Logging"
+msgstr "记录日志"
+
+#: wwa-admin-content.php:118
+msgid "Clear log"
+msgstr "清空日志"
+
+#: wwa-admin-content.php:120
+msgid ""
+"For debugging only. Enable only when needed.<br><strong>Note: Logs may "
+"contain sensitive information.</strong>"
+msgstr ""
+"仅用于调试，请只在需要时启用。<br><strong>注意：日志可能包含敏感信息。</"
+"strong>"
+
+#: wwa-admin-content.php:129
+msgid "Log"
+msgstr "日志"
+
+#: wwa-admin-content.php:131
+msgid "Automatic update every 5 seconds."
+msgstr "每隔 5 秒自动更新。"
+
+#: wwa-admin-content.php:136
 msgid "Register Authenticator"
 msgstr "绑定认证器"
 
-#: wwa-admin-content.php:74
+#: wwa-admin-content.php:137
 msgid ""
 "You are about to associate an authenticator with <strong>the current "
 "account</strong>. You can register multiple authenticators for an account. "
@@ -225,19 +274,19 @@ msgstr ""
 "你将为<strong>当前登录的账户</strong>添加一个认证器。同一个账户可以绑定多个不"
 "同的验证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。"
 
-#: wwa-admin-content.php:77
+#: wwa-admin-content.php:140, wwa-shortcodes.php:79
 msgid "Type of authenticator"
 msgstr "认证器类型"
 
-#: wwa-admin-content.php:81
+#: wwa-admin-content.php:144, wwa-shortcodes.php:79
 msgid "Platform authenticator (e.g. a built-in fingerprint sensor) only"
 msgstr "限定内置认证器（如指纹传感器）"
 
-#: wwa-admin-content.php:82
+#: wwa-admin-content.php:145, wwa-shortcodes.php:79
 msgid "Roaming authenticator (e.g., a USB security key) only"
 msgstr "限定外部认证器（如 USB Key）"
 
-#: wwa-admin-content.php:84
+#: wwa-admin-content.php:147, wwa-shortcodes.php:79
 msgid ""
 "If a type is selected, the browser will only prompt for authenticators of "
 "selected type. <br> Regardless of the type, you can only log in with the "
@@ -246,101 +295,129 @@ msgstr ""
 "如果限定了认证器类型，浏览器将只会要求你提供指定类型的认证器。<br>无论你选择"
 "何种类型，登录时你只能使用绑定认证器时使用的同一个认证器。"
 
-#: wwa-admin-content.php:88
+#: wwa-admin-content.php:151, wwa-shortcodes.php:79
 msgid "Authenticator identifier"
 msgstr "认证器名称"
 
-#: wwa-admin-content.php:91
+#: wwa-admin-content.php:154, wwa-shortcodes.php:79
 msgid ""
 "An easily identifiable name for the authenticator. <strong>DOES NOT</strong> "
 "affect the authentication process in anyway."
 msgstr "给认证器设置一个便于辨认的名字，<strong>不影响</strong>认证过程。"
 
-#: wwa-admin-content.php:95
+#: wwa-admin-content.php:158, wwa-shortcodes.php:79
 msgid "Start registration"
 msgstr "开始绑定"
 
-#: wwa-admin-content.php:96
+#: wwa-admin-content.php:159
 msgid "Authenticators currently registered"
 msgstr "当前账户已绑定的认证器"
 
-#: wwa-admin-content.php:100, wwa-admin-content.php:113
+#: wwa-admin-content.php:163, wwa-admin-content.php:176,
+#: wwa-shortcodes.php:117, wwa-shortcodes.php:118
 msgid "Identifier"
 msgstr "认证器名称"
 
-#: wwa-admin-content.php:101, wwa-admin-content.php:114
+#: wwa-admin-content.php:164, wwa-admin-content.php:177,
+#: wwa-shortcodes.php:117, wwa-shortcodes.php:118
 msgid "Type"
 msgstr "认证器类型"
 
-#: wwa-admin-content.php:102, wwa-admin-content.php:115
+#: wwa-admin-content.php:165, wwa-admin-content.php:178,
+#: wwa-shortcodes.php:117, wwa-shortcodes.php:118
 msgctxt "time"
 msgid "Registered"
 msgstr "添加时间"
 
-#: wwa-admin-content.php:103, wwa-admin-content.php:116
+#: wwa-admin-content.php:166, wwa-admin-content.php:179,
+#: wwa-shortcodes.php:117, wwa-shortcodes.php:118
 msgid "Action"
 msgstr "操作"
 
-#: wwa-admin-content.php:108
+#: wwa-admin-content.php:171
 msgid "Loading..."
 msgstr "加载中..."
 
-#: wwa-admin-content.php:121
+#: wwa-admin-content.php:184
 msgid "Verify registration"
 msgstr "测试绑定"
 
-#: wwa-admin-content.php:122
+#: wwa-admin-content.php:185
 msgid "Click verify to verify that the registered authenticators are working."
 msgstr "点击测试按钮，你可以使用已绑定的认证器进行测试登录。"
 
-#: wwa-admin-content.php:123
+#: wwa-admin-content.php:186, wwa-shortcodes.php:105
 msgid "Verify"
 msgstr "测试"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:50
 msgid "Auth"
 msgstr "认证"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:8, wwa-shortcodes.php:47,
+#: wwa-shortcodes.php:50
 msgid "Authenticate with WebAuthn"
 msgstr "使用 WebAuthn 认证"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:8
 msgid "Hold on..."
 msgstr "请稍候..."
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:8
 msgid "Please proceed..."
 msgstr "请按提示完成认证..."
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:8
 msgid "Authenticating..."
 msgstr "正在认证..."
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:8
 msgid "Authenticated"
 msgstr "登录成功"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:8
 msgid "Auth failed"
 msgstr "认证失败"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73, wwa-shortcodes.php:50
 msgid "Username"
 msgstr "用户名"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73
 msgid "Username or Email Address"
 msgstr "用户名或电子邮件地址"
 
-#: wwa-functions.php:42
+#: wwa-functions.php:73
 msgid "<strong>Error</strong>: The username field is empty."
 msgstr "<strong>错误</strong>：用户名一栏为空。"
 
-#: wwa-functions.php:58
+#: wwa-functions.php:90
 msgid "Settings"
 msgstr "设置"
 
-#: wwa-functions.php:66
+#: wwa-functions.php:98
 msgid "GitHub"
 msgstr "GitHub"
+
+#: wwa-functions.php:99
+msgid "Documentation"
+msgstr "文档"
+
+#: wwa-shortcodes.php:8
+msgid "Error: The username field is empty."
+msgstr "错误：用户名一栏为空。"
+
+#: wwa-shortcodes.php:50
+msgid "Authenticate with password"
+msgstr "使用密码登录"
+
+#: wwa-shortcodes.php:67, wwa-shortcodes.php:94
+msgid "You haven't logged in yet."
+msgstr "你还没有登录。"
+
+#: wwa-shortcodes.php:127
+msgid "You haven't logged in yet"
+msgstr "你还没有登录"
+
+#~ msgid "Delete"
+#~ msgstr "删除"

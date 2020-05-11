@@ -96,6 +96,7 @@ add_filter('plugin_action_links', 'wwa_settings_link', 10, 2);
 function wwa_meta_link($links_array, $plugin_file_name){
     if($plugin_file_name === "wp-webauthn/wp-webauthn.php"){
         $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__("GitHub", "wwa").'</a>';
+        $links_array[] = '<a href="http://doc.flyhigher.top/wp-webauthn">'.__("Documentation", "wwa").'</a>';
     }
     return $links_array;
 }

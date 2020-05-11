@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, secure, password
 Requires at least: 5.0
 Tested up to: 5.4
-Stable tag: trunk
+Stable tag: 1.0.7
 Requires PHP: 7.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -19,13 +19,19 @@ When using WebAuthn, you just need to click once and perform a simple verificati
 
 WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install it, and you are in the future of web authentication.
 
-**PHP extension gmp is required.**
+This plugin has 4 built-in shortcodes, so you can add components like register form to frontend pages.
+
+Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
+
+**PHP extensions gmp and mbstring are required.**
 
 **WebAuthn requires HTTPS connection or `localhost` to function normally.**
 
+You can contribute to this plugin on [GitHub](https://github.com/yrccondor/wp-webauthn).
+
 == Installation ==
 
-Notice: PHP extension gmp is required.
+Notice: PHP extensions gmp and mbstring are required.
 
 1. Upload the plugin files to the `/wp-content/plugins/wp-webauthn` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
@@ -38,14 +44,39 @@ Notice: PHP extension gmp is required.
  
 Make sure your are using HTTPS or host your site in `localhost`. Then ckeck whether you have installed the gmp extension for PHP.
 
+If you can't solve the problem, [open an issue](https://github.com/yrccondor/wp-webauthn/issues/new) on [GitHub](https://github.com/yrccondor/wp-webauthn) with plugin log.
+ 
+= Which browsers support WebAuthn? =
+ 
+The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You can learn more on [Can I Use](https://caniuse.com/#feat=webauthn).
+
+= What languages does this plugin support? =
+ 
+This plugin supports English and Chinese(Simplified) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
+
+All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
+
 == Screenshots ==
 
-1. The login page
-2. The settings page
+1. Verifying
+2. The login page
+3. The settings page
 
 == Changelog ==
 
-= 1.0.5 =
+= 1.0.7 =
+Fix: WebAuthn disabled by mistake on iOS devices
+Fix: Plug-in not initialized correctly when being actived
+Fix: Failed to register authenticators on Firefox and Microsoft Edge
+Fix: Wrong timezone when registering authenticator
+Add: Authenticator rename
+Add: 4 shortcodes
+Add: Log
+Update: Third-party libraries
+Improve: Allow bypass HTTPS check when under localhost
+Improve: Remove jQuery dependence on login page
+
+= 1.0.6 =
 Fix: Auth button displays in register form
 Improve: Set English as default language
 Improve: Compatibility in login page
@@ -65,7 +96,7 @@ Initial version
 
 == Upgrade Notice ==
 
-= 1.0.5 =
+= 1.0.6 =
 Improved compatibility in login page & Bug fix
 
 = 1.0.4 =

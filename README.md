@@ -26,6 +26,10 @@ When using WebAuthn, you just need to click once and perform a simple verificati
 
 WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install it, and you are in the future of web authentication.
 
+This plugin has 4 built-in shortcodes, so you can add components like register form to frontend pages.
+
+Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
+
 ## Installation
 
 **PHP extension gmp is required.**
