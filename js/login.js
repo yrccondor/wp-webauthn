@@ -1,44 +1,134 @@
+// Send an AJAX request and get the response
+let wwa_ajax = function() {
+    let xmlHttpReq = new XMLHttpRequest();
+    return {
+        /** Send an AJAX GET request and get the response
+         * 
+         * @param {string} url URL
+         * @param {string} data Attached data
+         * @param {object} callback Callback function
+         */
+        get: function(url, data = "", callback = ()=>{}){
+            xmlHttpReq.open("GET", url+data, true);
+            xmlHttpReq.send();
+            xmlHttpReq.onreadystatechange = function(){
+                if(xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200){
+                    callback(xmlHttpReq.responseText, true);
+                }else if(xmlHttpReq.readyState === 4){
+                    callback("Network Error.", false);
+                }
+            }
+        },
+        /** Send an AJAX POST request and get the response
+         * 
+         * @param {string} url URL
+         * @param {string} data Attached data
+         * @param {object} callback Callback function
+         */
+        post: function(url, data = "", callback = ()=>{}){
+            xmlHttpReq.open("POST", url, true);
+            xmlHttpReq.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xmlHttpReq.send(data);
+            xmlHttpReq.onreadystatechange = function(){
+                if(xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200){
+                    callback(xmlHttpReq.responseText, true);
+                }else if(xmlHttpReq.readyState === 4){
+                    callback("Network Error.", false);
+                }
+            }
+        }
+    }
+};
+
+/** Operate selected DOMs
+ * 
+ * @param {string} selector DOM selector
+ * @param {object} callback Callbck function
+ * @param {string} method Selecte method
+ */
+let wwa_dom = function(selector, callback = ()=>{}, method = "query"){
+    let dom_list = [];
+    if(method === "id"){
+        let dom = document.getElementById(selector);
+        if(dom){
+            callback(dom);
+        }
+        return;
+    }else if(method === "class"){
+        dom_list = document.getElementsByClassName(selector);
+    }else if(method === "tag"){
+        dom_list = document.getElementsByTagName(selector);
+    }else{
+        dom_list = document.querySelectorAll(selector);
+    }
+    for(let dom of dom_list){
+        callback(dom);
+    }
+    return;
+}
+
 let wwaSupported = true;
-jQuery(function(){
-    if(jQuery("#lostpasswordform, #registerform").length){
+document.addEventListener('DOMContentLoaded',function(){
+    if(document.querySelectorAll("#lostpasswordform, #registerform").length > 0){
         return;
     }
-    jQuery('#wp-submit').after('<button id="wp-webauthn-check" type="button" class="button button-large button-primary">'+php_vars.i18n_1+'</button><button id="wp-webauthn" type="button" class="button button-large"><span class="dashicons dashicons-update-alt"></span></button>');
-    jQuery('.forgetmenot').before('<div class="wp-webauthn-notice"><span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2+'</div>');
-    jQuery('.wp-webauthn-notice').css({'height': (jQuery('.user-pass-wrap').outerHeight() - 10) + 'px', 'line-height': (jQuery('.user-pass-wrap').outerHeight() - 10) + 'px'});
-    let btnWidth = jQuery("#wp-submit").width();
+    let button_check = document.createElement("button");
+    button_check.id = "wp-webauthn-check";
+    button_check.type = "button";
+    button_check.className = "button button-large button-primary";
+    button_check.innerHTML = php_vars.i18n_1;
+    let button_toggle = document.createElement("button");
+    button_toggle.id = "wp-webauthn";
+    button_toggle.type = "button";
+    button_toggle.className = "button button-large";
+    button_toggle.innerHTML = '<span class="dashicons dashicons-update-alt"></span>';
+    let submit = document.getElementById("wp-submit");
+    if(submit){
+        submit.parentNode.insertBefore(button_toggle, submit.nextElementSibling);
+        submit.parentNode.insertBefore(button_check, submit.nextElementSibling);
+    }
+    let notice = document.createElement("div");
+    notice.className = "wp-webauthn-notice";
+    notice.innerHTML = '<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2;
+    let forgetmenot = document.getElementsByClassName("forgetmenot");
+    if(forgetmenot.length > 0){
+        forgetmenot[0].parentNode.insertBefore(notice, forgetmenot[0]);
+    }
+    wwa_dom("wp-webauthn-notice", (dom)=>{dom.style.height = (document.getElementsByClassName("user-pass-wrap")[0].offsetHeight - 10) + 'px'}, "class");
+    wwa_dom("wp-webauthn-notice", (dom)=>{dom.style.lineHight = (document.getElementsByClassName("user-pass-wrap")[0].offsetHeight - 10) + 'px'}, "class");
+    let btnWidth = document.getElementById("wp-submit").clientWidth;
     if(btnWidth < 20 || btnWidth === undefined){
-        jQuery("#wp-webauthn-check").css("width", "auto");
+        wwa_dom("wp-webauthn-check", (dom)=>{dom.style.width = "auto"}, "id");
     }else{
-        jQuery("#wp-webauthn-check").width(btnWidth);
+        wwa_dom("wp-webauthn-check", (dom)=>{dom.style.width = btnWidth}, "id");
     }
     if(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function"){
         wwaSupported = false;
-        jQuery("#wp-webauthn").hide();
+        wwa_dom("wp-webauthn", (dom)=>{dom.style.display = "none"}, "id");
     }
-    jQuery('#wp-webauthn-check').click(check);
-    jQuery('#wp-webauthn').click(toggle);
+    wwa_dom("wp-webauthn-check", (dom)=>{dom.addEventListener('click', check, false)}, "id");
+    wwa_dom("wp-webauthn", (dom)=>{dom.addEventListener('click', toggle, false)}, "id");
 })
 
 window.onresize = function(){
-    if(jQuery("#lostpasswordform, #registerform").length){
+    if(document.querySelectorAll("#lostpasswordform, #registerform").length > 0){
         return;
     }
-    let btnWidth = jQuery("#wp-submit").width();
+    let btnWidth = document.getElementById("wp-submit").clientWidth;
     if(btnWidth < 20 || btnWidth === undefined){
-        jQuery("#wp-webauthn-check").css("width", "auto");
+        wwa_dom("wp-webauthn-check", (dom)=>{dom.style.width = "auto"}, "id");
     }else{
-        jQuery("#wp-webauthn-check").width(btnWidth);
+        wwa_dom("wp-webauthn-check", (dom)=>{dom.style.width = btnWidth}, "id");
     }
 }
 
 document.addEventListener("keydown", parseKey, false);
 
 function parseKey(event) {
-    if(wwaSupported && jQuery('#wp-webauthn-check').css('display') === 'block'){
+    if(wwaSupported && document.getElementById('wp-webauthn-check').style.display === 'block'){
         if(event.keyCode === 13){
             event.preventDefault();
-            jQuery('#wp-webauthn-check').click();
+            wwa_dom("wp-webauthn-check", (dom)=>{dom.click()}, "id");
         }
     }
 }
@@ -75,27 +165,31 @@ function getQueryString(name) {
 }
 
 function toggle(){
-    if(jQuery("#lostpasswordform, #registerform").length){
+    if(document.querySelectorAll("#lostpasswordform, #registerform").length > 0){
         return;
     }
     if(wwaSupported){
-        if(jQuery('.wp-webauthn-notice').first().css('display') === 'block'){
-            jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').show();
-            jQuery('.wp-webauthn-notice').hide();
-            jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style").split("display: block !important")[0]+"display: none !important");
-            jQuery("#user_pass").removeAttr("disabled");
-            jQuery("#user_login").focus();
-            jQuery('.wp-webauthn-notice').html('<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2);
-            jQuery("#wp-submit").removeAttr("disabled");
-            jQuery("#loginform label").first().text(php_vars.i18n_10);
+        if(document.getElementsByClassName('wp-webauthn-notice')[0].style.display === 'block'){
+            wwa_dom(".user-pass-wrap,.forgetmenot,#wp-submit", (dom)=>{dom.style.display = "block"});
+            wwa_dom("wp-webauthn-notice", (dom)=>{dom.style.display = "none"}, "class");
+            wwa_dom("wp-webauthn-check", (dom)=>{dom.style.cssText = dom.style.cssText.split("display: block !important")[0]+"display: none !important"}, "id");
+            wwa_dom("user_pass", (dom)=>{dom.disabled = false}, "id");
+            wwa_dom("user_login", (dom)=>{dom.focus()}, "id");
+            wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = '<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2}, "class");
+            wwa_dom("wp-submit", (dom)=>{dom.disabled = false}, "id");
+            if(document.querySelectorAll("#loginform label").length > 0){
+                document.querySelectorAll("#loginform label")[0].innerText = php_vars.i18n_10;
+            }
         }else{
-            jQuery('.user-pass-wrap,.forgetmenot,#wp-submit').hide();
-            jQuery('.wp-webauthn-notice').show();
-            jQuery('#wp-webauthn-check').attr("style", jQuery('#wp-webauthn-check').attr("style").split("display: none !important")[0]+"display: block !important");
-            jQuery("#user_login").focus();
-            jQuery('.wp-webauthn-notice').html('<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2);
-            jQuery("#wp-submit").attr("disabled", "disabled");
-            jQuery("#loginform label").first().text(php_vars.i18n_9);
+            wwa_dom(".user-pass-wrap,.forgetmenot,#wp-submit", (dom)=>{dom.style.display = "none"});
+            wwa_dom("wp-webauthn-notice", (dom)=>{dom.style.display = "block"}, "class");
+            wwa_dom("wp-webauthn-check", (dom)=>{dom.style.cssText = dom.style.cssText.split("display: none !important")[0]+"display: block !important"}, "id");
+            wwa_dom("user_login", (dom)=>{dom.focus()}, "id");
+            wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = '<span class="dashicons dashicons-shield-alt"></span> '+php_vars.i18n_2}, "class");
+            wwa_dom("wp-submit", (dom)=>{dom.disabled = true}, "id");
+            if(document.querySelectorAll("#loginform label").length > 0){
+                document.querySelectorAll("#loginform label")[0].innerText = php_vars.i18n_9;
+            }
         }
     }
 }
@@ -111,20 +205,25 @@ function wwa_shake(id, a, d) {
     } else {
         try {
             document.getElementById(id).style.position = 'static';
-            jQuery("#user_login").focus();
+            wwa_dom("user_login", (dom)=>{dom.focus()}, "id");
         } catch (e) {}
     }
 }
 
 function check(){
-    if(jQuery("#lostpasswordform, #registerform").length){
+    if(document.querySelectorAll("#lostpasswordform, #registerform").length > 0){
         return;
     }
     if(wwaSupported){
-        if(jQuery("#user_login").val() === ""){
-            jQuery("#login_error").remove();
-            jQuery("p.message").remove();
-            jQuery("#login > h1").first().after('<div id="login_error"> '+php_vars.i18n_11+'</div>');
+        if(document.getElementById("user_login").value === ""){
+            wwa_dom("login_error", (dom)=>{dom.remove()}, "id");
+            wwa_dom("p.message", (dom)=>{dom.remove()});
+            if(document.querySelectorAll("#login > h1").length > 0){
+                let dom = document.createElement("div");
+                dom.id = "login_error";
+                dom.innerHTML = php_vars.i18n_11;
+                document.querySelectorAll("#login > h1")[0].parentNode.insertBefore(dom, document.querySelectorAll("#login > h1")[0].nextElementSibling)
+            }
             // Shake the login form, code from WordPress
             let shake = new Array(15,30,15,0,-15,-30,-15,0);
             shake = shake.concat(shake.concat(shake));
@@ -133,19 +232,14 @@ function check(){
             wwa_shake(form, shake, 20);
             return;
         }
-        jQuery("#user_login").attr("readonly", "readonly");
-        jQuery("#wp-webauthn-check, #wp-webauthn").attr("disabled", "disabled");
-        jQuery('.wp-webauthn-notice').html(php_vars.i18n_3);
-        jQuery.ajax({
-            url: php_vars.ajax_url,
-            type: 'GET',
-            data: {
-                action: 'wwa_auth_start',
-                type: 'auth',
-                user: jQuery("#user_login").val()
-            },
-            success: function(data){
-                jQuery('.wp-webauthn-notice').html(php_vars.i18n_4)
+        wwa_dom("user_login", (dom)=>{dom.readOnly = true}, "id");
+        wwa_dom("#wp-webauthn-check, #wp-webauthn", (dom)=>{dom.disabled = true});
+        wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_3}, "class");
+        let request = wwa_ajax();
+        request.get(php_vars.ajax_url, "?action=wwa_auth_start&user="+encodeURIComponent(document.getElementById("user_login").value)+"&type=auth", (rawData, status)=>{
+            if(status){
+                wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_4}, "class");
+                let data = JSON.parse(rawData);
                 data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), c=>c.charCodeAt(0));
     
                 if (data.allowCredentials) {
@@ -156,7 +250,7 @@ function check(){
                 }
     
                 navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
-                    jQuery('.wp-webauthn-notice').html(php_vars.i18n_5)
+                    wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_5}, "class");
                     return credentialInfo;
                 }).then(function(data) {
                     const publicKeyCredential = {
@@ -172,20 +266,14 @@ function check(){
                     };
                     return publicKeyCredential;
                 }).then(JSON.stringify).then(function(AuthenticatorResponse) {
-                    jQuery.ajax({
-                        url: php_vars.ajax_url+"?action=wwa_auth",
-                        type: 'POST',
-                        data: {
-                            data: window.btoa(AuthenticatorResponse),
-                            type: 'auth',
-                            user: jQuery("#user_login").val()
-                        },
-                        success: function(data){
+                    let response = wwa_ajax();
+                    response.post(php_vars.ajax_url+"?action=wwa_auth", "data="+encodeURIComponent(window.btoa(AuthenticatorResponse))+"&type=auth&user="+encodeURIComponent(document.getElementById("user_login").value), (data, status)=>{
+                        if(status){
                             if(data === "true"){
-                                jQuery('.wp-webauthn-notice').html(php_vars.i18n_6);
-                                if(jQuery('p.submit input[name="redirect_to"]').length){
+                                wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_6}, "class");
+                                if(document.querySelectorAll('p.submit input[name="redirect_to"]').length > 0){
                                     setTimeout(()=>{
-                                        window.location.href = jQuery('p.submit input[name="redirect_to"]').val();
+                                        window.location.href = document.querySelectorAll('p.submit input[name="redirect_to"]')[0].value;
                                     }, 200);
                                 }else{
                                     if(getQueryString("redirect_to")){
@@ -199,28 +287,26 @@ function check(){
                                     }
                                 }
                             }else{
-                                jQuery('.wp-webauthn-notice').html(php_vars.i18n_7);
-                                jQuery("#user_login").removeAttr("readonly");
-                                jQuery("#wp-webauthn-check, #wp-webauthn").removeAttr("disabled");
+                                wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_7}, "class");
+                                wwa_dom("user_login", (dom)=>{dom.readOnly = false}, "id");
+                                wwa_dom("#wp-webauthn-check, #wp-webauthn", (dom)=>{dom.disabled = false});
                             }
-                        },
-                        error: function(){
-                            jQuery('.wp-webauthn-notice').html(php_vars.i18n_7);
-                            jQuery("#user_login").removeAttr("readonly");
-                            jQuery("#wp-webauthn-check, #wp-webauthn").removeAttr("disabled");
+                        }else{
+                            wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_7}, "class");
+                            wwa_dom("user_login", (dom)=>{dom.readOnly = false}, "id");
+                            wwa_dom("#wp-webauthn-check, #wp-webauthn", (dom)=>{dom.disabled = false});
                         }
                     })
                 }).catch((error) => {
                     console.warn(error);
-                    jQuery('.wp-webauthn-notice').html(php_vars.i18n_7);
-                    jQuery("#user_login").removeAttr("readonly");
-                    jQuery("#wp-webauthn-check, #wp-webauthn").removeAttr("disabled");
+                    wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_7}, "class");
+                    wwa_dom("user_login", (dom)=>{dom.readOnly = false}, "id");
+                    wwa_dom("#wp-webauthn-check, #wp-webauthn", (dom)=>{dom.disabled = false});
                 })
-            },
-            error: function(){
-                jQuery('.wp-webauthn-notice').html(php_vars.i18n_7);
-                jQuery("#user_login").removeAttr("readonly");
-                jQuery("#wp-webauthn-check, #wp-webauthn").removeAttr("disabled");
+            }else{
+                wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_7}, "class");
+                wwa_dom("user_login", (dom)=>{dom.readOnly = false}, "id");
+                wwa_dom("#wp-webauthn-check, #wp-webauthn", (dom)=>{dom.disabled = false});
             }
         })
     }

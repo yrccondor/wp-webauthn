@@ -208,7 +208,7 @@ function wwa_auth(){
                 return publicKeyCredential;
             }).then(JSON.stringify).then(function(AuthenticatorResponse){
                 let response = wwa_ajax();
-                response.post(wwa_php_vars.ajax_url+"?action=wwa_auth", "data="+encodeURIComponent(window.btoa(AuthenticatorResponse))+"&type=auth", (data, status)=>{
+                response.post(wwa_php_vars.ajax_url+"?action=wwa_auth", "data="+encodeURIComponent(window.btoa(AuthenticatorResponse))+"&type=auth&user="+encodeURIComponent(wwa_username), (data, status)=>{
                     if(status){
                         if(data === "true"){
                             wwa_enable_buttons();
