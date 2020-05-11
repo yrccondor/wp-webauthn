@@ -123,7 +123,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
             // Save credentials's meta separately
             $source = $data[$key]->getUserHandle();
             $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
-            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s'), "authenticator_type" => $_POST["type"], "user" => $source);
+            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s', current_time('timestamp')), "authenticator_type" => $_POST["type"], "user" => $source);
             wwa_update_option("user_credentials_meta", json_encode($meta));
         }
         wwa_update_option("user_credentials", json_encode($data));
