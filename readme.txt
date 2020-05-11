@@ -96,6 +96,9 @@ Initial version
 
 == Upgrade Notice ==
 
+= 1.0.7 =
+Bug fix, Improved compatibility & new features
+
 = 1.0.6 =
 Improved compatibility in login page & Bug fix
 
