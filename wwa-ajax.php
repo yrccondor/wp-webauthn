@@ -140,6 +140,8 @@ function wwa_ajax_create(){
             session_start();
         }
 
+        wwa_add_log($res_id, "ajax_create: Start");
+
         if(!current_user_can("read")){
             wwa_add_log($res_id, "ajax_create: (ERROR)Permission denied, exit");
             wp_die("Something went wrong.");
@@ -380,6 +382,8 @@ function wwa_ajax_auth_start(){
             wwa_add_log($res_id, "auth: Start session");
             session_start();
         }
+
+        wwa_add_log($res_id, "ajax_auth: Start");
 
         // Check queries
         if(!isset($_GET["type"])){
