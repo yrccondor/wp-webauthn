@@ -601,6 +601,8 @@ function wwa_ajax_auth(){
             if(!($wwa_post["type"] === "test" && current_user_can('read'))){
                 // Log user in
                 if (!is_user_logged_in()) {
+                    include('wwa-compatibility.php');
+
                     $user_login = $_SESSION['wwa_user_name_auth'];
 
                     $user =  get_user_by('login', $user_login);
@@ -614,7 +616,7 @@ function wwa_ajax_auth(){
                     }else{
                         wp_set_auth_cookie($user_id, false);
                     }
-                    do_action('wp_login', $user_login);
+                    do_action('wp_login', $user_login, $user);
                 }
             }
             echo "true";
