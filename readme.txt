@@ -99,6 +99,9 @@ Initial version
 
 == Upgrade Notice ==
 
+= 1.0.8 =
+Improve: Compatibility with Two Factor plugin
+
 = 1.0.7 =
 Bug fix, Improved compatibility & new features
 
