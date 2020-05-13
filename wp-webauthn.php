@@ -44,12 +44,12 @@ function wwa_init_data(){
             'logging' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
-        include('version.php');
+        include('wwa-version.php');
         update_option('wwa_version', $wwa_version);
         update_option('wwa_log', array());
         update_option('wwa_init', md5(date('Y-m-d H:i:s')));
     }else{
-        include('version.php');
+        include('wwa-version.php');
         if(!get_option('wwa_version') || get_option('wwa_version')['version'] != $wwa_version['version']){
             update_option('wwa_version', $wwa_version); //update version
         }

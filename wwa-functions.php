@@ -49,9 +49,12 @@ function wwa_add_log($id, $content = "", $init = false){
     update_option("wwa_log", $log);
 }
 
-function wwa_generate_call_trace()
-{
-    $e = new Exception();
+// Format trackback
+function wwa_generate_call_trace($exception = false){
+    $e = $exception;
+    if($exception === false){
+        $e = new Exception();
+    }
     $trace = explode("\n", $e->getTraceAsString());
     $trace = array_reverse($trace);
     array_shift($trace);

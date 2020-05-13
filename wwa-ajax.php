@@ -263,12 +263,12 @@ function wwa_ajax_create(){
         exit;
     }catch(\Exception $exception){
         wwa_add_log($res_id, "ajax_create: (ERROR)".$exception->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($exception));
         wwa_add_log($res_id, "ajax_create: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }catch(\Error $error){
         wwa_add_log($res_id, "ajax_create: (ERROR)".$error->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($error));
         wwa_add_log($res_id, "ajax_create: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }
@@ -354,19 +354,19 @@ function wwa_ajax_create_response(){
         }catch(\Throwable $exception){
             // Failed to verify
             wwa_add_log($res_id, "ajax_create_response: (ERROR)".$exception->getMessage());
-            wwa_add_log($res_id, wwa_generate_call_trace());
+            wwa_add_log($res_id, wwa_generate_call_trace($exception));
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Challenge not verified, exit");
             wp_die("Something went wrong.");
         }
         exit;
     }catch(\Exception $exception){
         wwa_add_log($res_id, "ajax_create_response: (ERROR)".$exception->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($exception));
         wwa_add_log($res_id, "ajax_create_response: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }catch(\Error $error){
         wwa_add_log($res_id, "ajax_create_response: (ERROR)".$error->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($error));
         wwa_add_log($res_id, "ajax_create_response: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }
@@ -501,12 +501,12 @@ function wwa_ajax_auth_start(){
         exit;
     }catch(\Exception $exception){
         wwa_add_log($res_id, "ajax_auth: (ERROR)".$exception->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($exception));
         wwa_add_log($res_id, "ajax_auth: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }catch(\Error $error){
         wwa_add_log($res_id, "ajax_auth: (ERROR)".$error->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($error));
         wwa_add_log($res_id, "ajax_auth: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }
@@ -627,19 +627,19 @@ function wwa_ajax_auth(){
         }catch(\Throwable $exception){
             // Failed to verify
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$exception->getMessage());
-            wwa_add_log($res_id, wwa_generate_call_trace());
+            wwa_add_log($res_id, wwa_generate_call_trace($exception));
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge not verified, exit");
             wp_die("Something went wrong.");
         }
         exit;
     }catch(\Exception $exception){
         wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$exception->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($exception));
         wwa_add_log($res_id, "ajax_auth_response: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }catch(\Error $error){
         wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$error->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($error));
         wwa_add_log($res_id, "ajax_auth_response: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }
@@ -737,12 +737,12 @@ function wwa_ajax_modify_authenticator(){
         exit;
     }catch(\Exception $exception){
         wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)".$exception->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($exception));
         wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }catch(\Error $error){
         wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)".$error->getMessage());
-        wwa_add_log($res_id, wwa_generate_call_trace());
+        wwa_add_log($res_id, wwa_generate_call_trace($error));
         wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Unknown error, exit");
         wp_die("Something went wrong.");
     }
