@@ -29,6 +29,7 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
         if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
             wwa_add_log($res_id, "Warning: Not in security context", true);
         }
+        wwa_add_log($res_id, "PHP Version => ".phpversion().", WordPress Version => ".get_bloginfo('version').", WP-WebAuthn Version => ".get_option('wwa_version')['version'], true);
         wwa_add_log($res_id, "Current config: first_choice => \"".wwa_get_option('first_choice')."\", website_name => \"".wwa_get_option('website_name')."\", website_domain => \"".wwa_get_option('website_domain')."\", user_verification => \"".wwa_get_option('user_verification')."\"", true);
         wwa_add_log($res_id, "Logger initialized", true);
     }
