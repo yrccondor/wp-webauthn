@@ -70,6 +70,41 @@ function wwa_generate_call_trace($exception = false){
     return "Traceback:\n                              ".implode("\n                              ", $result);
 }
 
+// Delete all credentials when deleting user
+function wwa_delete_user($user_id){
+    $res_id = wwa_generate_random_string(5);
+
+    $user_data = get_userdata($user_id);
+    $all_user_meta = wwa_get_option("user_id");
+    $user_key = "";
+    wwa_add_log($res_id, "Delete user => \"".$user_data->user_login."\"");
+
+    // Delete user meta
+    foreach($all_user_meta as $user => $id){
+        if($user === $user_data->user_login){
+            $user_key = $id;
+            wwa_add_log($res_id, "Delete user_key => \"".$id."\"");
+            unset($all_user_meta[$user]);
+        }
+    }
+
+    // Delete credentials
+    $all_credentials_meta = json_decode(wwa_get_option("user_credentials_meta"), true);
+    $all_credentials = json_decode(wwa_get_option("user_credentials"), true);
+    foreach($all_credentials_meta as $credential => $meta){
+        if($user_key === $meta["user"]){
+            wwa_add_log($res_id, "Delete credential => \"".$credential."\"");
+            unset($all_credentials_meta[$credential]);
+            unset($all_credentials[$credential]);
+        }
+    }
+    wwa_update_option("user_id", $all_user_meta);
+    wwa_update_option("user_credentials_meta", json_encode($all_credentials_meta));
+    wwa_update_option("user_credentials", json_encode($all_credentials));
+    wwa_add_log($res_id, "Done");
+}
+add_action('delete_user', 'wwa_delete_user');
+
 // Add CSS and JS in login page
 function wwa_login_js() {
     wp_enqueue_script('wwa_login', plugins_url('js/login.js',__FILE__), array(), get_option('wwa_version')['version'], true);

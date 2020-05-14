@@ -464,7 +464,7 @@ function wwa_ajax_auth_start(){
         }
 
         // Convert the Credential Sources into Public Key Credential Descriptors for excluding
-        $allowedCredentials = array_map(function (PublicKeyCredentialSource $credential) {
+        $allowedCredentials = array_map(function(PublicKeyCredentialSource $credential){
             return $credential->getPublicKeyCredentialDescriptor();
         }, $credentialSources);
 
