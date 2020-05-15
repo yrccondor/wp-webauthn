@@ -32,7 +32,7 @@ function updateList(){
             }
             let htmlStr = "";
             for(item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td>'+(item.usernameless ? php_vars.i18n_24+(configs.usernameless === "true" ? "" : php_vars.i18n_26) : php_vars.i18n_25)+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td>'+item.last_used+'</td><td>'+(item.usernameless ? php_vars.i18n_24+(configs.usernameless === "true" ? "" : php_vars.i18n_26) : php_vars.i18n_25)+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
             }
             jQuery("#authenticator-list").html(htmlStr);
             if(configs.usernameless !== "true"){
@@ -302,6 +302,7 @@ jQuery("#test, #test_usernameless").click(function(){
                         if(data === "true"){
                             jQuery(tip_id).html(php_vars.i18n_16);
                             jQuery("#test, #test_usernameless").removeAttr('disabled');
+                            updateList();
                         }else{
                             jQuery(tip_id).html(php_vars.i18n_15);
                             jQuery("#test, #test_usernameless").removeAttr('disabled');

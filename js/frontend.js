@@ -441,6 +441,7 @@ function wwa_verify(){
                         if(rawData === "true"){
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_16;
                             wwa_enable_buttons();
+                            updateList();
                         }else{
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_15;
                             wwa_enable_buttons();
@@ -477,13 +478,13 @@ function updateList(){
             }
             let htmlStr = "";
             for(let item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? wwa_php_vars.i18n_24 : (item.type === "platform" ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26))+'</td><td>'+item.added+'</td><td>'+(item.usernameless ? wwa_php_vars.i18n_1+(wwa_php_vars.usernameless === "true" ? "" : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8)+'</td><td class="wwa-key-'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_27+'</a></td></tr>';
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? wwa_php_vars.i18n_24 : (item.type === "platform" ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26))+'</td><td>'+item.added+'</td><td>'+item.last_used+'</td><td>'+(item.usernameless ? wwa_php_vars.i18n_1+(wwa_php_vars.usernameless === "true" ? "" : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8)+'</td><td class="wwa-key-'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_27+'</a></td></tr>';
             }
             wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = htmlStr}, "class");
             if(wwa_php_vars.usernameless !== "true"){
-                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = wwa_php_vars.i18n_10;dom.style.display = "block"}, "class");
+                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = wwa_php_vars.i18n_10}, "class");
             }else{
-                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = "";dom.style.display = "none"}, "class");
+                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = ""}, "class");
             }
         }else{
             wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="6">'+wwa_php_vars.i18n_17+'</td></tr>'}, "class");

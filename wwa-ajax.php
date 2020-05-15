@@ -53,6 +53,17 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         $this->write($data, $data_key, $usernameless);
     }
 
+    // Update credential's last used
+    public function updateCredentialLastUsed(string $publicKeyCredentialId): void {
+        $credential = $this->findOneMetaByCredentialId($publicKeyCredentialId);
+        if($credential !== null){
+            $credential["last_used"] = date('Y-m-d H:i:s', current_time('timestamp'));
+            $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
+            $meta[base64_encode($publicKeyCredentialId)] = $credential;
+            wwa_update_option("user_credentials_meta", json_encode($meta));
+        }
+    }
+
     // List all authenticators
     public function getShowList(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): array {
         $data = json_decode(wwa_get_option("user_credentials_meta"), true);
@@ -65,11 +76,12 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
                     "name" => base64_decode($value["human_name"]),
                     "type" => $value["authenticator_type"],
                     "added" => $value["added"],
-                    "usernameless" => isset($value["usernameless"]) ? $value["usernameless"] : false
+                    "usernameless" => isset($value["usernameless"]) ? $value["usernameless"] : false,
+                    "last_used" => isset($value["last_used"]) ? $value["last_used"] : "-"
                 ));
             }
         }
-        return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"], "usernameless" => $item["usernameless"]);}, $arr);
+        return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"], "usernameless" => $item["usernameless"], "last_used" => $item["last_used"]);}, $arr);
     }
 
     // Modify an authenticator
@@ -132,7 +144,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
             // Save credentials's meta separately
             $source = $data[$key]->getUserHandle();
             $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
-            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s', current_time('timestamp')), "authenticator_type" => $_POST["type"], "user" => $source, "usernameless" => $usernameless);
+            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s', current_time('timestamp')), "authenticator_type" => $_POST["type"], "user" => $source, "usernameless" => $usernameless, "last_used" => "-");
             wwa_update_option("user_credentials_meta", json_encode($meta));
         }
         wwa_update_option("user_credentials", json_encode($data));
@@ -649,6 +661,7 @@ function wwa_ajax_auth(){
         );
 
         $serverRequest = $creator->fromGlobals();
+        $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
 
         // If user entity is not saved, read from WordPress
         $user_key = "";
@@ -682,7 +695,6 @@ function wwa_ajax_auth(){
                 wwa_add_log($res_id, "ajax_auth_response: type => \"".$wwa_post["type"]."\"");
                 wwa_add_log($res_id, "ajax_auth_response: Usernameless authentication, try to find user by credential_id => \"".$data_array."\", userHandle => \"".$data_array["response"]["userHandle"]."\"");
 
-                $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
                 $credential_meta = $publicKeyCredentialSourceRepository->findOneMetaByCredentialId(base64_decode($data_array["rawId"]));
 
                 if($credential_meta !== null){
@@ -766,6 +778,7 @@ function wwa_ajax_auth(){
             wwa_add_log($res_id, "ajax_auth_response: Challenge verified");
 
             // Success
+            $publicKeyCredentialSourceRepository->updateCredentialLastUsed(base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]));
             if(!($wwa_post["type"] === "test" && current_user_can('read'))){
                 // Log user in
                 if (!is_user_logged_in()) {

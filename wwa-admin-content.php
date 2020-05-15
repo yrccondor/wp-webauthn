@@ -186,7 +186,7 @@ if($wwa_v_log === false){
     <fieldset>
         <label><input type="radio" name="authenticator_usernameless" class="authenticator_usernameless" value="true"> <?php _e("Enable", "wwa");?></label><br>
         <label><input type="radio" name="authenticator_usernameless" class="authenticator_usernameless" value="false" checked="checked"> <?php _e("Disable", "wwa");?></label><br>
-        <p class="description"><?php _e('If registered authenticator with this feature, you can login without enter your username.<br>Some devices like U2F-only devices and some browsers <strong>DO NOT</strong> support this feature.<br>Try <strong>NOT</strong> to delete and re-register authenticators because the credential will permanently stored in the authenticator.', 'wwa');?></p>
+        <p class="description"><?php _e('If registered authenticator with this feature, you can login without enter your username.<br>Some devices like U2F-only devices and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -201,6 +201,7 @@ if($wwa_v_log === false){
             <th><?php _e('Identifier', 'wwa');?></th>
             <th><?php _e('Type', 'wwa');?></th>
             <th><?php _ex('Registered', 'time', 'wwa');?></th>
+            <th><?php _e('Last used', 'wwa');?></th>
             <th><?php _e('Usernameless', 'wwa');?></th>
             <th><?php _e('Action', 'wwa');?></th>
         </tr>
@@ -215,6 +216,7 @@ if($wwa_v_log === false){
             <th><?php _e('Identifier', 'wwa');?></th>
             <th><?php _e('Type', 'wwa');?></th>
             <th><?php _ex('Registered', 'time', 'wwa');?></th>
+            <th><?php _e('Last used', 'wwa');?></th>
             <th><?php _e('Usernameless', 'wwa');?></th>
             <th><?php _e('Action', 'wwa');?></th>
       </tr>
