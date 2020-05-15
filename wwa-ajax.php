@@ -210,13 +210,15 @@ function wwa_ajax_create(){
         $user = array(
             "login" => $user_info->user_login,
             "id" => $user_key,
-            "display" => $user_info->display_name
+            "display" => $user_info->display_name,
+            "icon" => get_avatar_url($user_info->user_email, array("scheme" => "https"))
         );
 
         $userEntity = new PublicKeyCredentialUserEntity(
             $user["login"],
             $user["id"],
-            $user["display"]
+            $user["display"],
+            $user["icon"]
         );
 
         $credentialSourceRepository = new PublicKeyCredentialSourceRepository();
@@ -434,6 +436,7 @@ function wwa_ajax_auth_start(){
 
         $user_key = "";
         $usernameless_flag = false;
+        $user_icon = null;
         if($wwa_get["type"] === "test" && current_user_can('read')){
             if(isset($wwa_get["usernameless"])){
                 if($wwa_get["usernameless"] !== "true"){
@@ -447,6 +450,7 @@ function wwa_ajax_auth_start(){
                         wp_die("User not inited.");
                     }else{
                         $user_key = wwa_get_option("user_id")[$user_info->user_login];
+                        $user_icon = get_avatar_url($user_info->user_email, array("scheme" => "https"));
                     }
                 }else{
                     if(wwa_get_option("usernameless_login") === "true"){
@@ -466,6 +470,7 @@ function wwa_ajax_auth_start(){
             if(isset($wwa_get["user"]) && $wwa_get["user"] !== ""){
                 if(get_user_by('login', $wwa_get["user"])){
                     $user_info = get_user_by('login', $wwa_get["user"]);
+                    $user_icon = get_avatar_url($user_info->user_email, array("scheme" => "https"));
                     wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$user_info->user_login."\"");
                     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
                         wwa_add_log($res_id, "ajax_auth: User not initialized, initialize");
@@ -478,7 +483,7 @@ function wwa_ajax_auth_start(){
                     $user_info->user_login = $wwa_get["user"];
                     $user_info->display_name = $wwa_get["user"];
                     $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
-                    wwa_add_log($res_id, "ajax_auth: type => \"auth\"");
+                    wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$wwa_get["user"]."\"");
                     wwa_add_log($res_id, "ajax_auth: User not exists, create a fake id");
                 }
             }else{
@@ -496,7 +501,8 @@ function wwa_ajax_auth_start(){
             $userEntity = new PublicKeyCredentialUserEntity(
                 $user_info->user_login,
                 $user_key,
-                $user_info->display_name
+                $user_info->display_name,
+                $user_icon
             );
         }
 
@@ -654,12 +660,14 @@ function wwa_ajax_auth(){
                 wp_die("User not inited.");
             }else{
                 $user_key = wwa_get_option("user_id")[$user_info->user_login];
+                $user_icon = get_avatar_url($user_info->user_email, array("scheme" => "https"));
             }
 
             $userEntity = new PublicKeyCredentialUserEntity(
                 $user_info->user_login,
                 $user_key,
-                $user_info->display_name
+                $user_info->display_name,
+                $user_icon
             );
 
             wwa_add_log($res_id, "ajax_auth_response: type => \"test\", user => \"".$user_info->user_login."\"");
@@ -710,7 +718,8 @@ function wwa_ajax_auth(){
                                 $userEntity = new PublicKeyCredentialUserEntity(
                                     $user_info->user_login,
                                     $credential_meta["user"],
-                                    $user_info->display_name
+                                    $user_info->display_name,
+                                    get_avatar_url($user_info->user_email, array("scheme" => "https"))
                                 );
                             }else{
                                 wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential found, but user not found, exit");
@@ -831,7 +840,8 @@ function wwa_ajax_authenticator_list(){
     $userEntity = new PublicKeyCredentialUserEntity(
         $user_info->user_login,
         $user_key,
-        $user_info->display_name
+        $user_info->display_name,
+        get_avatar_url($user_info->user_email, array("scheme" => "https"))
     );
 
     $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
@@ -881,7 +891,8 @@ function wwa_ajax_modify_authenticator(){
         $userEntity = new PublicKeyCredentialUserEntity(
             $user_info->user_login,
             $user_key,
-            $user_info->display_name
+            $user_info->display_name,
+            get_avatar_url($user_info->user_email, array("scheme" => "https"))
         );
         
         wwa_add_log($res_id, "ajax_modify_authenticator: user => \"".$user_info->user_login."\"");

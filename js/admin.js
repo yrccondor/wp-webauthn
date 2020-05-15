@@ -127,7 +127,7 @@ jQuery("#bind").click(function(){
             action: 'wwa_create',
             name: jQuery("#authenticator_name").val(),
             type: jQuery("#authenticator_type").val(),
-            usernameless: jQuery(".authenticator_usernameless:checked").val()
+            usernameless: jQuery(".authenticator_usernameless:checked").val() ? jQuery(".authenticator_usernameless:checked").val() : "false"
         },
         success: function(data){
             // Get the args, code string into Uint8Array

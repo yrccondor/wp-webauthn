@@ -287,7 +287,7 @@ function wwa_bind(){
         return;
     }
     let wwa_type = this.parentNode.parentNode.getElementsByClassName("wwa-authenticator-type")[0].value;
-    let wwa_usernameless = this.parentNode.parentNode.querySelectorAll(".wwa-authenticator-usernameless:checked")[0].value;
+    let wwa_usernameless = this.parentNode.parentNode.querySelectorAll(".wwa-authenticator-usernameless:checked")[0] ? this.parentNode.parentNode.querySelectorAll(".wwa-authenticator-usernameless:checked")[0].value : "false";
     button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_3;
     wwa_disable_buttons();
     // Lock options
