@@ -8,7 +8,7 @@ function wwa_register_session(){
 add_action('init','wwa_register_session');
 
 // Destroy all sessions when user state changes
-function wwa_destroy_session() {
+function wwa_destroy_session(){
     unset($_SESSION['wwa_user_name_auth']);
     unset($_SESSION['wwa_user_auth']);
     unset($_SESSION['wwa_server']);
@@ -22,8 +22,14 @@ function wwa_destroy_session() {
 add_action('wp_logout', 'wwa_destroy_session');
 add_action('wp_login', 'wwa_destroy_session');
 
+// Destroy all sessions before wp_die
+function wwa_wp_die($message = ""){
+    wwa_destroy_session();
+    wp_die($message);
+}
+
 // Create random strings for user ID
-function wwa_generate_random_string($length = 10) {
+function wwa_generate_random_string($length = 10){
     // Use cryptographically secure pseudo-random generator in PHP 7+
     if(function_exists("random_bytes")){
         $bytes = random_bytes(round($length/2));
