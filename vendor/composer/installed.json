@@ -1071,17 +1071,17 @@
     },
     {
         "name": "symfony/polyfill-ctype",
-        "version": "v1.15.0",
-        "version_normalized": "1.15.0.0",
+        "version": "v1.17.0",
+        "version_normalized": "1.17.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-ctype.git",
-            "reference": "4719fa9c18b0464d399f1a63bf624b42b6fa8d14"
+            "reference": "e94c8b1bbe2bc77507a1056cdb06451c75b427f9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/4719fa9c18b0464d399f1a63bf624b42b6fa8d14",
-            "reference": "4719fa9c18b0464d399f1a63bf624b42b6fa8d14",
+            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e94c8b1bbe2bc77507a1056cdb06451c75b427f9",
+            "reference": "e94c8b1bbe2bc77507a1056cdb06451c75b427f9",
             "shasum": ""
         },
         "require": {
@@ -1090,11 +1090,11 @@
         "suggest": {
             "ext-ctype": "For best performance"
         },
-        "time": "2020-02-27T09:26:54+00:00",
+        "time": "2020-05-12T16:14:59+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.15-dev"
+                "dev-master": "1.17-dev"
             }
         },
         "installation-source": "dist",
@@ -1144,29 +1144,94 @@
         ]
     },
     {
-        "name": "web-auth/cose-lib",
-        "version": "v3.2.3",
-        "version_normalized": "3.2.3.0",
+        "name": "symfony/process",
+        "version": "v5.0.8",
+        "version_normalized": "5.0.8.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/web-auth/cose-lib.git",
-            "reference": "e9ba632ded582d6418573468d9535f2e94e856bf"
+            "url": "https://github.com/symfony/process.git",
+            "reference": "3179f68dff5bad14d38c4114a1dab98030801fd7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/web-auth/cose-lib/zipball/e9ba632ded582d6418573468d9535f2e94e856bf",
-            "reference": "e9ba632ded582d6418573468d9535f2e94e856bf",
+            "url": "https://api.github.com/repos/symfony/process/zipball/3179f68dff5bad14d38c4114a1dab98030801fd7",
+            "reference": "3179f68dff5bad14d38c4114a1dab98030801fd7",
             "shasum": ""
         },
         "require": {
-            "beberlei/assert": "^3.0",
+            "php": "^7.2.5"
+        },
+        "time": "2020-04-15T15:59:10+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "5.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Process\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Process Component",
+        "homepage": "https://symfony.com",
+        "funding": [
+            {
+                "url": "https://symfony.com/sponsor",
+                "type": "custom"
+            },
+            {
+                "url": "https://github.com/fabpot",
+                "type": "github"
+            },
+            {
+                "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                "type": "tidelift"
+            }
+        ]
+    },
+    {
+        "name": "web-auth/cose-lib",
+        "version": "v3.2.5",
+        "version_normalized": "3.2.5.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/web-auth/cose-lib.git",
+            "reference": "1bd8a2adaef16fa7be19bb720e4ce1919c2828ad"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/web-auth/cose-lib/zipball/1bd8a2adaef16fa7be19bb720e4ce1919c2828ad",
+            "reference": "1bd8a2adaef16fa7be19bb720e4ce1919c2828ad",
+            "shasum": ""
+        },
+        "require": {
+            "beberlei/assert": "^3.2",
             "ext-json": "*",
             "ext-mbstring": "*",
             "ext-openssl": "*",
             "fgrosse/phpasn1": "^2.1",
             "php": "^7.2"
         },
-        "time": "2020-05-02T11:38:46+00:00",
+        "time": "2020-05-05T21:48:34+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1219,21 +1284,21 @@
     },
     {
         "name": "web-auth/metadata-service",
-        "version": "v3.2.3",
-        "version_normalized": "3.2.3.0",
+        "version": "v3.2.5",
+        "version_normalized": "3.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-auth/webauthn-metadata-service.git",
-            "reference": "2430ffd764d75e46776f1b13df1b1f220a226832"
+            "reference": "2938f689704b2797d220c3f04f816d71b769aff2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/web-auth/webauthn-metadata-service/zipball/2430ffd764d75e46776f1b13df1b1f220a226832",
-            "reference": "2430ffd764d75e46776f1b13df1b1f220a226832",
+            "url": "https://api.github.com/repos/web-auth/webauthn-metadata-service/zipball/2938f689704b2797d220c3f04f816d71b769aff2",
+            "reference": "2938f689704b2797d220c3f04f816d71b769aff2",
             "shasum": ""
         },
         "require": {
-            "beberlei/assert": "^3.0",
+            "beberlei/assert": "^3.2",
             "ext-json": "*",
             "league/uri": "^6.0",
             "league/uri-components": "^2.1",
@@ -1243,9 +1308,10 @@
             "psr/log": "^1.1"
         },
         "suggest": {
-            "psr/log-implementation": "Recommended to receive logs from the library"
+            "web-token/jwt-key-mgmt": "Mandatory for fetching Metadata Statement from distant sources",
+            "web-token/jwt-signature-algorithm-ecdsa": "Mandatory for fetching Metadata Statement from distant sources"
         },
-        "time": "2020-05-02T11:38:46+00:00",
+        "time": "2020-05-05T21:48:34+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1285,21 +1351,21 @@
     },
     {
         "name": "web-auth/webauthn-lib",
-        "version": "v3.2.3",
-        "version_normalized": "3.2.3.0",
+        "version": "v3.2.5",
+        "version_normalized": "3.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-auth/webauthn-lib.git",
-            "reference": "d64f117460bf3fe3f5b84105541124e07520691e"
+            "reference": "ebc3e48fc126a33b1423342dbf6480a03f72bb5e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/d64f117460bf3fe3f5b84105541124e07520691e",
-            "reference": "d64f117460bf3fe3f5b84105541124e07520691e",
+            "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/ebc3e48fc126a33b1423342dbf6480a03f72bb5e",
+            "reference": "ebc3e48fc126a33b1423342dbf6480a03f72bb5e",
             "shasum": ""
         },
         "require": {
-            "beberlei/assert": "^3.0",
+            "beberlei/assert": "^3.2",
             "ext-json": "*",
             "ext-mbstring": "*",
             "ext-openssl": "*",
@@ -1311,6 +1377,7 @@
             "ramsey/uuid": "^3.8|^4.0",
             "spomky-labs/base64url": "^2.0",
             "spomky-labs/cbor-php": "^1.0.2",
+            "symfony/process": "^4.4|^5.0",
             "web-auth/cose-lib": "self.version",
             "web-auth/metadata-service": "self.version"
         },
@@ -1321,7 +1388,7 @@
             "web-token/jwt-signature-algorithm-eddsa": "Recommended for the AndroidSafetyNet Attestation Statement support",
             "web-token/jwt-signature-algorithm-rsa": "Mandatory for the AndroidSafetyNet Attestation Statement support"
         },
-        "time": "2020-05-05T19:30:44+00:00",
+        "time": "2020-05-13T16:48:54+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1375,8 +1442,8 @@
     },
     {
         "name": "web-token/jwt-core",
-        "version": "v2.1.5",
-        "version_normalized": "2.1.5.0",
+        "version": "v2.1.6",
+        "version_normalized": "2.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-core.git",
@@ -1456,8 +1523,8 @@
     },
     {
         "name": "web-token/jwt-key-mgmt",
-        "version": "v2.1.5",
-        "version_normalized": "2.1.5.0",
+        "version": "v2.1.6",
+        "version_normalized": "2.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-key-mgmt.git",
@@ -1542,8 +1609,8 @@
     },
     {
         "name": "web-token/jwt-signature",
-        "version": "v2.1.5",
-        "version_normalized": "2.1.5.0",
+        "version": "v2.1.6",
+        "version_normalized": "2.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature.git",
@@ -1620,12 +1687,18 @@
             "jwa",
             "jwt",
             "symfony"
+        ],
+        "funding": [
+            {
+                "url": "https://www.patreon.com/FlorentMorselli",
+                "type": "patreon"
+            }
         ]
     },
     {
         "name": "web-token/jwt-signature-algorithm-ecdsa",
-        "version": "v2.1.5",
-        "version_normalized": "2.1.5.0",
+        "version": "v2.1.6",
+        "version_normalized": "2.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature-algorithm-ecdsa.git",
@@ -1699,8 +1772,8 @@
     },
     {
         "name": "web-token/jwt-signature-algorithm-eddsa",
-        "version": "v2.1.5",
-        "version_normalized": "2.1.5.0",
+        "version": "v2.1.6",
+        "version_normalized": "2.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature-algorithm-eddsa.git",
@@ -1774,8 +1847,8 @@
     },
     {
         "name": "web-token/jwt-signature-algorithm-rsa",
-        "version": "v2.1.5",
-        "version_normalized": "2.1.5.0",
+        "version": "v2.1.6",
+        "version_normalized": "2.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature-algorithm-rsa.git",

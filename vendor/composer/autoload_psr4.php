@@ -9,6 +9,7 @@ return array(
     'Webauthn\\MetadataService\\' => array($vendorDir . '/web-auth/metadata-service/src'),
     'Webauthn\\' => array($vendorDir . '/web-auth/webauthn-lib/src'),
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
+    'Symfony\\Component\\Process\\' => array($vendorDir . '/symfony/process'),
     'Ramsey\\Uuid\\' => array($vendorDir . '/ramsey/uuid/src'),
     'Ramsey\\Collection\\' => array($vendorDir . '/ramsey/collection/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),

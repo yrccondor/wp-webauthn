@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitcf27d67859dcb253b2e44e2aed8d0b01
+class ComposerStaticInitd0a287c1e5ea3b5bd02e8d8c495bc3aa
 {
     public static $files = array (
         'a4ecaeafb8cfb009ad0e052c90355e98' => __DIR__ . '/..' . '/beberlei/assert/lib/Assert/functions.php',
@@ -21,6 +21,7 @@ class ComposerStaticInitcf27d67859dcb253b2e44e2aed8d0b01
         'S' => 
         array (
             'Symfony\\Polyfill\\Ctype\\' => 23,
+            'Symfony\\Component\\Process\\' => 26,
         ),
         'R' => 
         array (
@@ -85,6 +86,10 @@ class ComposerStaticInitcf27d67859dcb253b2e44e2aed8d0b01
         'Symfony\\Polyfill\\Ctype\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
+        ),
+        'Symfony\\Component\\Process\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/process',
         ),
         'Ramsey\\Uuid\\' => 
         array (
@@ -172,8 +177,8 @@ class ComposerStaticInitcf27d67859dcb253b2e44e2aed8d0b01
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitcf27d67859dcb253b2e44e2aed8d0b01::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitcf27d67859dcb253b2e44e2aed8d0b01::$prefixDirsPsr4;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitd0a287c1e5ea3b5bd02e8d8c495bc3aa::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitd0a287c1e5ea3b5bd02e8d8c495bc3aa::$prefixDirsPsr4;
 
         }, null, ClassLoader::class);
     }
