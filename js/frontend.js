@@ -521,7 +521,7 @@ function renameAuthenticator(id, name){
  * @param {string} name Authenticator name
  */
 function removeAuthenticator(id, name){
-    if(confirm(wwa_php_vars.i18n_18+name)){
+    if(confirm(wwa_php_vars.i18n_18+name+(document.getElementsByClassName("wwa-authenticator-list")[0].children.length === 1 ? "\n"+wwa_php_vars.i18n_34 : ""))){
         wwa_dom("wwa-key-"+id, (dom)=>{dom.innerText = wwa_php_vars.i18n_19}, "class");
         let request = wwa_ajax();
         request.get(wwa_php_vars.ajax_url, "?action=wwa_modify_authenticator&id="+encodeURIComponent(id)+"&target=remove", (data, status) => {
