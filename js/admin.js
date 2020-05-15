@@ -363,7 +363,7 @@ function renameAuthenticator(id, name){
  * @param {string} name Authenticator name
  */
 function removeAuthenticator(id, name){
-    if(confirm(php_vars.i18n_18+name)){
+    if(confirm(php_vars.i18n_18+name+(jQuery("#authenticator-list > tr").length === 1 ? "\n"+php_vars.i18n_28 : ""))){
         jQuery("#"+id).text(php_vars.i18n_19)
         jQuery.ajax({
             url: php_vars.ajax_url,
