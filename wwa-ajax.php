@@ -350,6 +350,16 @@ function wwa_ajax_create_response(){
             wp_die("Bad request.");
         }
 
+        // Check global unique credential ID
+        $credential_id = base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]);
+        $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
+        if($publicKeyCredentialSourceRepository->findOneMetaByCredentialId($credential_id) !== null){
+            wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential ID not unique, exit");
+            wp_die("Someehing went wrong.");
+        }else{
+            wwa_add_log($res_id, "ajax_create_response: Credential ID unique check passed");
+        }
+
         $psr17Factory = new Psr17Factory();
         $creator = new ServerRequestCreator(
             $psr17Factory,
@@ -379,7 +389,6 @@ function wwa_ajax_create_response(){
 
             wwa_add_log($res_id, "ajax_create_response: Challenge verified");
 
-            $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
             $publicKeyCredentialSourceRepository->saveCredentialSource($publicKeyCredentialSource, $_SESSION['wwa_usernameless']);
 
             if($_SESSION['wwa_usernameless']){
@@ -693,7 +702,7 @@ function wwa_ajax_auth(){
                 }
 
                 wwa_add_log($res_id, "ajax_auth_response: type => \"".$wwa_post["type"]."\"");
-                wwa_add_log($res_id, "ajax_auth_response: Usernameless authentication, try to find user by credential_id => \"".$data_array."\", userHandle => \"".$data_array["response"]["userHandle"]."\"");
+                wwa_add_log($res_id, "ajax_auth_response: Usernameless authentication, try to find user by credential_id => \"".$data_array["rawId"]."\", userHandle => \"".$data_array["response"]["userHandle"]."\"");
 
                 $credential_meta = $publicKeyCredentialSourceRepository->findOneMetaByCredentialId(base64_decode($data_array["rawId"]));
 
