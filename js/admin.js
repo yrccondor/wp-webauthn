@@ -27,17 +27,24 @@ function updateList(){
         },
         success: function(data){
             if(data.length === 0){
-                jQuery("#authenticator-list").html('<tr><td colspan="4">'+php_vars.i18n_17+'</td></tr>');
+                jQuery("#authenticator-list").html('<tr><td colspan="6">'+php_vars.i18n_17+'</td></tr>');
                 return;
             }
             let htmlStr = "";
             for(item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td>'+(item.usernameless ? php_vars.i18n_24+(configs.usernameless === "true" ? "" : php_vars.i18n_26) : php_vars.i18n_25)+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
             }
             jQuery("#authenticator-list").html(htmlStr);
+            if(configs.usernameless !== "true"){
+                jQuery("#usernameless_tip").text(php_vars.i18n_27);
+                jQuery("#usernameless_tip").show();
+            }else{
+                jQuery("#usernameless_tip").text("");
+                jQuery("#usernameless_tip").hide();
+            }
         },
         error: function(){
-            jQuery("#authenticator-list").html('<tr><td colspan="4">'+php_vars.i18n_8+'</td></tr>');
+            jQuery("#authenticator-list").html('<tr><td colspan="6">'+php_vars.i18n_8+'</td></tr>');
         }
     })
 }
@@ -110,17 +117,9 @@ jQuery("#bind").click(function(){
     // Disable inputs to avoid changing in process
     jQuery('#show-progress').html(php_vars.i18n_1);
     jQuery("#bind").attr('disabled', 'disabled');
-    jQuery("#authenticator_name").attr('readonly', 'readonly');
-    if(jQuery("#authenticator_type").val() === "none"){
-        jQuery("#type-platform").attr('disabled', 'disabled');
-        jQuery("#type-cross-platform").attr('disabled', 'disabled');
-    }else if(jQuery("#authenticator_type").val() === "platform"){
-        jQuery("#type-none").attr('disabled', 'disabled');
-        jQuery("#type-cross-platform").attr('disabled', 'disabled');
-    }else if(jQuery("#authenticator_type").val() === "cross-platform"){
-        jQuery("#type-none").attr('disabled', 'disabled');
-        jQuery("#type-platform").attr('disabled', 'disabled');
-    }
+    jQuery("#authenticator_name").attr('disabled', 'disabled');
+    jQuery(".authenticator_usernameless").attr('disabled', 'disabled');
+    jQuery("#authenticator_type").attr('disabled', 'disabled');
     jQuery.ajax({
         url: php_vars.ajax_url,
         type: 'GET',
@@ -128,6 +127,7 @@ jQuery("#bind").click(function(){
             action: 'wwa_create',
             name: jQuery("#authenticator_name").val(),
             type: jQuery("#authenticator_type").val(),
+            usernameless: jQuery(".authenticator_usernameless:checked").val()
         },
         success: function(data){
             // Get the args, code string into Uint8Array
@@ -185,31 +185,35 @@ jQuery("#bind").click(function(){
                     data: {
                         data: window.btoa(AuthenticatorAttestationResponse),
                         name: jQuery("#authenticator_name").val(),
-                        type: jQuery("#authenticator_type").val()
+                        type: jQuery("#authenticator_type").val(),
+                        usernameless: jQuery(".authenticator_usernameless:checked").val()
                     },
                     success: function(data){
                         if(data === "true"){
                             // Registered
                             jQuery('#show-progress').html(php_vars.i18n_3);
                             jQuery("#bind").removeAttr('disabled');
+                            jQuery("#authenticator_name").removeAttr('disabled');
                             jQuery("#authenticator_name").val("");
-                            jQuery("#authenticator_name").removeAttr('readonly');
-                            jQuery(".sub-type").removeAttr('disabled');
+                            jQuery(".authenticator_usernameless").removeAttr('disabled');
+                            jQuery("#authenticator_type").removeAttr('disabled');
                             updateList();
                         }else{
                             // Register failed
                             jQuery('#show-progress').html(php_vars.i18n_4);
                             jQuery("#bind").removeAttr('disabled');
-                            jQuery("#authenticator_name").removeAttr('readonly');
-                            jQuery(".sub-type").removeAttr('disabled');
+                            jQuery("#authenticator_name").removeAttr('disabled');
+                            jQuery(".authenticator_usernameless").removeAttr('disabled');
+                            jQuery("#authenticator_type").removeAttr('disabled');
                             updateList();
                         }
                     },
                     error: function(){
                         jQuery('#show-progress').html(php_vars.i18n_4);
                         jQuery("#bind").removeAttr('disabled');
-                        jQuery("#authenticator_name").removeAttr('readonly');
-                        jQuery(".sub-type").removeAttr('disabled');
+                        jQuery("#authenticator_name").removeAttr('disabled');
+                        jQuery(".authenticator_usernameless").removeAttr('disabled');
+                        jQuery("#authenticator_type").removeAttr('disabled');
                         updateList();
                     }
                 })
@@ -218,39 +222,49 @@ jQuery("#bind").click(function(){
                 console.warn(error);
                 jQuery('#show-progress').html(php_vars.i18n_4+": "+error);
                 jQuery("#bind").removeAttr('disabled');
-                jQuery("#authenticator_name").removeAttr('readonly');
-                jQuery(".sub-type").removeAttr('disabled');
+                jQuery("#authenticator_name").removeAttr('disabled');
+                jQuery(".authenticator_usernameless").removeAttr('disabled');
+                jQuery("#authenticator_type").removeAttr('disabled');
                 updateList();
             })
         },
         error: function(){
             jQuery('#show-progress').html(php_vars.i18n_4);
             jQuery("#bind").removeAttr('disabled');
-            jQuery("#authenticator_name").removeAttr('readonly');
-            jQuery(".sub-type").removeAttr('disabled');
+            jQuery("#authenticator_name").removeAttr('disabled');
+            jQuery(".authenticator_usernameless").removeAttr('disabled');
+            jQuery("#authenticator_type").removeAttr('disabled');
             updateList();
         }
     })
 });
 
 // Test WebAuthn
-jQuery("#test").click(function(){
-    jQuery('#show-test').text(php_vars.i18n_1);
-    jQuery("#test").attr("disabled", "disabled");
+jQuery("#test, #test_usernameless").click(function(){
+    jQuery("#test, #test_usernameless").attr("disabled", "disabled");
+    let button_id = this.id;
+    let usernameless = "false";
+    let tip_id = "#show-test";
+    if(button_id === "test_usernameless"){
+        usernameless = "true";
+        tip_id = "#show-test-usernameless";
+    }
+    jQuery(tip_id).text(php_vars.i18n_1);
     jQuery.ajax({
         url: php_vars.ajax_url,
         type: 'GET',
         data: {
             action: 'wwa_auth_start',
-            type: 'test'
+            type: 'test',
+            usernameless: usernameless
         },
         success: function(data){
             if(data === "User not inited."){
-                jQuery('#show-test').html(php_vars.i18n_15+": "+php_vars.i18n_17);
-                jQuery("#test").removeAttr('disabled');
+                jQuery(tip_id).html(php_vars.i18n_15+": "+php_vars.i18n_17);
+                jQuery("#test, #test_usernameless").removeAttr('disabled');
                 return;
             }
-            jQuery('#show-test').text(php_vars.i18n_13);
+            jQuery(tip_id).text(php_vars.i18n_13);
             data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), c=>c.charCodeAt(0));
 
             if (data.allowCredentials) {
@@ -261,7 +275,7 @@ jQuery("#test").click(function(){
             }
 
             navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
-                jQuery('#show-test').html(php_vars.i18n_14);
+                jQuery(tip_id).html(php_vars.i18n_14);
                 return credentialInfo;
             }).then(function(data) {
                 const publicKeyCredential = {
@@ -286,27 +300,27 @@ jQuery("#test").click(function(){
                     },
                     success: function(data){
                         if(data === "true"){
-                            jQuery('#show-test').html(php_vars.i18n_16);
-                            jQuery("#test").removeAttr('disabled');
+                            jQuery(tip_id).html(php_vars.i18n_16);
+                            jQuery("#test, #test_usernameless").removeAttr('disabled');
                         }else{
-                            jQuery('#show-test').html(php_vars.i18n_15);
-                            jQuery("#test").removeAttr('disabled');
+                            jQuery(tip_id).html(php_vars.i18n_15);
+                            jQuery("#test, #test_usernameless").removeAttr('disabled');
                         }
                     },
                     error: function(){
-                        jQuery('#show-test').html(php_vars.i18n_15);
-                        jQuery("#test").removeAttr('disabled');
+                        jQuery(tip_id).html(php_vars.i18n_15);
+                        jQuery("#test, #test_usernameless").removeAttr('disabled');
                     }
                 })
             }).catch((error) => {
                 console.warn(error);
-                jQuery('#show-test').html(php_vars.i18n_15+": "+error);
-                jQuery("#test").removeAttr('disabled');
+                jQuery(tip_id).html(php_vars.i18n_15+": "+error);
+                jQuery("#test, #test_usernameless").removeAttr('disabled');
             })
         },
         error: function(){
-            jQuery('#show-test').html(php_vars.i18n_15);
-            jQuery("#test").removeAttr('disabled');
+            jQuery(tip_id).html(php_vars.i18n_15);
+            jQuery("#test, #test_usernameless").removeAttr('disabled');
         }
     })
 });

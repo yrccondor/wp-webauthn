@@ -1,10 +1,10 @@
 .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column) {
    display: table-cell!important;
 }
-#show-progress .success, #show-test .success {
+#show-progress .success, #show-test .success, #show-test-usernameless .success {
     color: #2C8D46;
 }
-#show-progress .failed, #show-test .failed {
+#show-progress .failed, #show-test .failed, #show-test-usernameless .failed {
     color: #CA4A1F;
 }
 #wwa_log {
@@ -14,4 +14,10 @@
 }
 #clear_log {
     margin-top: 3px;
+}
+.wwa-table {
+    overflow-x: auto;
+}
+.wwa-table table {
+    min-width: 560px;
 }

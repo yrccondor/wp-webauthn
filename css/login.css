@@ -26,6 +26,13 @@
 .wp-webauthn-notice .wwa-failed {
     color: #CA4A1F;
 }
+.wwa-try-username {
+    transform: translateY(-60px);
+    display: inline-block;
+    font-size: 12px;
+    opacity: .7;
+    color: black;
+}
 @media(max-width: 782px){
     #wp-webauthn span {
         line-height: 38px;

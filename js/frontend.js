@@ -96,6 +96,7 @@ function arrayToBase64String(a) {
 // Disable all WP-Webauthn buttons
 function wwa_disable_buttons(){
     wwa_dom("wwa-test-submit", (dom)=>{dom.disabled = true}, "class");
+    wwa_dom("wwa-test-usernameless-submit", (dom)=>{dom.disabled = true}, "class");
     wwa_dom("wwa-bind-submit", (dom)=>{dom.disabled = true}, "class");
     wwa_dom("wwa-login-submit", (dom)=>{dom.disabled = true}, "class");
     wwa_dom("wp-submit", (dom)=>{dom.disabled = true}, "id");
@@ -104,6 +105,7 @@ function wwa_disable_buttons(){
 // Enable all WP-Webauthn buttons
 function wwa_enable_buttons(){
     wwa_dom("wwa-test-submit", (dom)=>{dom.disabled = false}, "class");
+    wwa_dom("wwa-test-usernameless-submit", (dom)=>{dom.disabled = false}, "class");
     wwa_dom("wwa-bind-submit", (dom)=>{dom.disabled = false}, "class");
     wwa_dom("wwa-login-submit", (dom)=>{dom.disabled = false}, "class");
     wwa_dom("wp-submit", (dom)=>{dom.disabled = false}, "id");
@@ -132,6 +134,7 @@ document.addEventListener('DOMContentLoaded',function(){
     // If not support
     if(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== "function"){
         wwa_dom("wwa-test-submit", (dom)=>{dom.disabled = true}, "class");
+        wwa_dom("wwa-test-usernameless-submit", (dom)=>{dom.disabled = true}, "class");
         wwa_dom("wwa-bind-submit", (dom)=>{dom.disabled = true}, "class");
         wwa_dom("wwa-show-test", (dom)=>{dom.innerText = wwa_php_vars.i18n_31}, "class");
         wwa_dom("wwa-show-progress", (dom)=>{dom.innerText = wwa_php_vars.i18n_31}, "class");
@@ -143,6 +146,7 @@ document.addEventListener('DOMContentLoaded',function(){
     wwa_dom("wwa-login-form-traditional", (dom)=>{dom.classList.add("wwa-hide-form")}, "class");
     wwa_dom("wwa-bind-submit", (dom)=>{dom.addEventListener('click', wwa_bind, false)}, "class");
     wwa_dom("wwa-test-submit", (dom)=>{dom.addEventListener('click', wwa_verify, false)}, "class");
+    wwa_dom("wwa-test-usernameless-submit", (dom)=>{dom.addEventListener('click', wwa_verify, false)}, "class");
 });
 
 // Toggle form
@@ -168,7 +172,7 @@ function wwa_auth(){
         return;
     }
     let wwa_username = this.parentNode.previousElementSibling.previousElementSibling.getElementsByClassName("wwa-user-name")[0].value;
-    if(wwa_username === ""){
+    if(wwa_username === "" && wwa_php_vars.usernameless !== "true"){
         alert(wwa_php_vars.i18n_11);
         return;
     }
@@ -231,25 +235,45 @@ function wwa_auth(){
                             }
                         }else{
                             wwa_enable_buttons();
+                            if(wwa_php_vars.usernameless === "true" && wwa_username === ""){
+                                button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7+wwa_php_vars.i18n_33;
+                                wwa_dom("wwa-try-username", (dom)=>{dom.style.transform = 'translateY(-' + (parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20) + 'px)'}, "class");
+                            }else{
+                                button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
+                            }
                             wwa_dom("wwa-user-name", (dom)=>{dom.readOnly = false}, "class");
-                            button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
                         }
                     }else{
                         wwa_enable_buttons();
+                        if(wwa_php_vars.usernameless === "true" && wwa_username === ""){
+                            button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7+wwa_php_vars.i18n_33;
+                            wwa_dom("wwa-try-username", (dom)=>{dom.style.transform = 'translateY(-' + (parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20) + 'px)'}, "class");
+                        }else{
+                            button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
+                        }
                         wwa_dom("wwa-user-name", (dom)=>{dom.readOnly = false}, "class");
-                        button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
                     }
                 })
             }).catch((error) => {
                 console.warn(error);
                 wwa_enable_buttons();
+                if(wwa_php_vars.usernameless === "true" && wwa_username === ""){
+                    button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7+wwa_php_vars.i18n_33;
+                    wwa_dom("wwa-try-username", (dom)=>{dom.style.transform = 'translateY(-' + (parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20) + 'px)'}, "class");
+                }else{
+                    button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
+                }
                 wwa_dom("wwa-user-name", (dom)=>{dom.readOnly = false}, "class");
-                button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
             })
         }else{
             wwa_enable_buttons();
+            if(wwa_php_vars.usernameless === "true" && wwa_username === ""){
+                button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7+wwa_php_vars.i18n_33;
+                wwa_dom("wwa-try-username", (dom)=>{dom.style.transform = 'translateY(-' + (parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20) + 'px)'}, "class");
+            }else{
+                button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
+            }
             wwa_dom("wwa-user-name", (dom)=>{dom.readOnly = false}, "class");
-            button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
         }
     })
 }
@@ -263,22 +287,15 @@ function wwa_bind(){
         return;
     }
     let wwa_type = this.parentNode.parentNode.getElementsByClassName("wwa-authenticator-type")[0].value;
+    let wwa_usernameless = this.parentNode.parentNode.querySelectorAll(".wwa-authenticator-usernameless:checked")[0].value;
     button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_3;
     wwa_disable_buttons();
     // Lock options
     wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = true}, "class");
-    if(wwa_type === "none"){
-        wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = true}, "class");
-        wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = true}, "class");
-    }else if(wwa_type === "platform"){
-        wwa_dom("wwa-type-none", (dom)=>{dom.disabled = true}, "class");
-        wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = true}, "class");
-    }else if(wwa_type === "cross-platform"){
-        wwa_dom("wwa-type-none", (dom)=>{dom.disabled = true}, "class");
-        wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = true}, "class");
-    }
+    wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = true}, "class");
+    wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = true}, "class");
     let request = wwa_ajax();
-    request.get(wwa_php_vars.ajax_url, "?action=wwa_create&name="+encodeURIComponent(wwa_name)+"&type="+encodeURIComponent(wwa_type), (rawData, status)=>{
+    request.get(wwa_php_vars.ajax_url, "?action=wwa_create&name="+encodeURIComponent(wwa_name)+"&type="+encodeURIComponent(wwa_type)+"&usernameless="+wwa_usernameless, (rawData, status)=>{
         if(status){
             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_28;
             let data = JSON.parse(rawData);
@@ -335,26 +352,23 @@ function wwa_bind(){
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_29;
                             wwa_enable_buttons();
                             wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = false}, "class");
-                            wwa_dom("wwa-type-none", (dom)=>{dom.disabled = false}, "class");
-                            wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = false}, "class");
-                            wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = false}, "class");
+                            wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = false}, "class");
+                            wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = false}, "class");
                             updateList();
                         }else{
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_30;
                             wwa_enable_buttons();
                             wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = false}, "class");
-                            wwa_dom("wwa-type-none", (dom)=>{dom.disabled = false}, "class");
-                            wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = false}, "class");
-                            wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = false}, "class");
+                            wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = false}, "class");
+                            wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = false}, "class");
                             updateList();
                         }
                     }else{
                         button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_30;
                         wwa_enable_buttons();
                         wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = false}, "class");
-                        wwa_dom("wwa-type-none", (dom)=>{dom.disabled = false}, "class");
-                        wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = false}, "class");
-                        wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = false}, "class");
+                        wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = false}, "class");
+                        wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = false}, "class");
                         updateList();
                     }
                 })
@@ -363,18 +377,16 @@ function wwa_bind(){
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_30;
                 wwa_enable_buttons();
                 wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = false}, "class");
-                wwa_dom("wwa-type-none", (dom)=>{dom.disabled = false}, "class");
-                wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = false}, "class");
-                wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = false}, "class");
+                wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = false}, "class");
+                wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = false}, "class");
                 updateList();
             })
         }else{
             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_30;
             wwa_enable_buttons();
             wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = false}, "class");
-            wwa_dom("wwa-type-none", (dom)=>{dom.disabled = false}, "class");
-            wwa_dom("wwa-type-platform", (dom)=>{dom.disabled = false}, "class");
-            wwa_dom("wwa-type-cross-platform", (dom)=>{dom.disabled = false}, "class");
+            wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = false}, "class");
+            wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = false}, "class");
             updateList();
         }
     })
@@ -384,9 +396,10 @@ function wwa_bind(){
 function wwa_verify(){
     let button_dom = this;
     button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_3;
+    let usernameless = this.className.indexOf("wwa-test-usernameless-submit") === -1 ? false : true;
     wwa_disable_buttons();
     let request = wwa_ajax();
-    request.get(wwa_php_vars.ajax_url, "?action=wwa_auth_start&type=test", (rawData, status)=>{
+    request.get(wwa_php_vars.ajax_url, "?action=wwa_auth_start&type=test&usernameless="+(usernameless ? "true" : "false"), (rawData, status)=>{
         if(status){
             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_4;
             if(rawData === "User not inited."){
@@ -459,16 +472,21 @@ function updateList(){
         if(status){
             let data = JSON.parse(rawData);
             if(data.length === 0){
-                wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="4">'+wwa_php_vars.i18n_23+'</td></tr>'}, "class");
+                wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="6">'+wwa_php_vars.i18n_23+'</td></tr>'}, "class");
                 return;
             }
             let htmlStr = "";
             for(let item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? wwa_php_vars.i18n_24 : (item.type === "platform" ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26))+'</td><td>'+item.added+'</td><td class="wwa-key-'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_27+'</a></td></tr>';
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? wwa_php_vars.i18n_24 : (item.type === "platform" ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26))+'</td><td>'+item.added+'</td><td>'+(item.usernameless ? wwa_php_vars.i18n_1+(wwa_php_vars.usernameless === "true" ? "" : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8)+'</td><td class="wwa-key-'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_27+'</a></td></tr>';
             }
             wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = htmlStr}, "class");
+            if(wwa_php_vars.usernameless !== "true"){
+                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = wwa_php_vars.i18n_10;dom.style.display = "block"}, "class");
+            }else{
+                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = "";dom.style.display = "none"}, "class");
+            }
         }else{
-            wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="4">'+wwa_php_vars.i18n_17+'</td></tr>'}, "class");
+            wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="6">'+wwa_php_vars.i18n_17+'</td></tr>'}, "class");
         }
     })
 }

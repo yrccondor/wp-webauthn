@@ -5,7 +5,8 @@
     border-spacing: 0;
     width: 100%;
     clear: both;
-    margin: 0;
+    margin: 0!important;
+    min-width: 700px;
 }
 .wwa-list-table * {
     word-wrap: break-word;
@@ -41,7 +42,7 @@
 .wwa-list-table td {
     vertical-align: top;
 }
-.wwa-bind-name-description, .wwa-bind-name-description {
+.wwa-bind-name-description, .wwa-bind-name-description, .wwa-bind-usernameless-description, .wwa-authenticator-list-usernameless-tip {
     opacity: .7;
     font-size: 14px;
 }
@@ -181,10 +182,10 @@
     text-shadow: none !important;
     cursor: default;
 }
-.wwa-show-test .success, .wwa-show-progress .success, .wwa-login-form .wwa-success {
+.wwa-show-test .success, .wwa-show-test-usernameless .success, .wwa-show-progress .success, .wwa-login-form .wwa-success {
     color: #2C8D46;
 }
-.wwa-show-test .failed, .wwa-show-progress .failed, .wwa-login-form .wwa-failed {
+.wwa-show-test .failed, .wwa-show-test-usernameless .failed, .wwa-show-progress .failed, .wwa-login-form .wwa-failed {
     color: #CA4A1F;
 }
 .wwa-hide-form {
@@ -211,6 +212,17 @@
     color: #00719F;
     text-decoration: underline;
     cursor: pointer;
+}
+.wwa-try-username {
+    transform: translateY(-20px);
+    display: inline-block;
+    font-size: 14px;
+    opacity: .7;
+    color: black;
+}
+.wwa-table-container {
+    width: 100%;
+    overflow-y: auto;
 }
 @media(max-width: 720px){
     .wwa-login-form .button-primary, .wwa-login-form .button-secondary {

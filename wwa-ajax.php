@@ -15,12 +15,20 @@ use Nyholm\Psr7Server\ServerRequestCreator;
  * Store all publickeys and pubilckey metas
  */
 class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRepositoryInterface {
-
     // Get one credential by credential ID
     public function findOneByCredentialId(string $publicKeyCredentialId): ?PublicKeyCredentialSource {
         $data = $this->read();
         if(isset($data[base64_encode($publicKeyCredentialId)])){
             return PublicKeyCredentialSource::createFromArray($data[base64_encode($publicKeyCredentialId)]);
+        }
+        return null;
+    }
+
+    // Get one credential's meta by credential ID
+    public function findOneMetaByCredentialId(string $publicKeyCredentialId): ?array {
+        $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
+        if(isset($meta[base64_encode($publicKeyCredentialId)])){
+            return $meta[base64_encode($publicKeyCredentialId)];
         }
         return null;
     }
@@ -38,11 +46,11 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
     }
 
     // Save credential into database
-    public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource): void {
+    public function saveCredentialSource(PublicKeyCredentialSource $publicKeyCredentialSource, bool $usernameless = false): void {
         $data = $this->read();
         $data_key = base64_encode($publicKeyCredentialSource->getPublicKeyCredentialId());
         $data[$data_key] = $publicKeyCredentialSource;
-        $this->write($data, $data_key);
+        $this->write($data, $data_key, $usernameless);
     }
 
     // List all authenticators
@@ -56,11 +64,12 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
                     "key" => rtrim(strtr(base64_encode($key), '+/', '-_'), '='),
                     "name" => base64_decode($value["human_name"]),
                     "type" => $value["authenticator_type"],
-                    "added" => $value["added"]
+                    "added" => $value["added"],
+                    "usernameless" => isset($value["usernameless"]) ? $value["usernameless"] : false
                 ));
             }
         }
-        return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"]);}, $arr);
+        return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"], "usernameless" => $item["usernameless"]);}, $arr);
     }
 
     // Modify an authenticator
@@ -118,12 +127,12 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
     }
 
     // Save credentials data
-    private function write(array $data, string $key): void {
+    private function write(array $data, string $key, bool $usernameless = false): void {
         if(isset($_POST["type"]) && ($_POST["type"] === "platform" || $_POST["type"] == "cross-platform" || $_POST["type"] === "none") && $key !== ''){
             // Save credentials's meta separately
             $source = $data[$key]->getUserHandle();
             $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
-            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s', current_time('timestamp')), "authenticator_type" => $_POST["type"], "user" => $source);
+            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s', current_time('timestamp')), "authenticator_type" => $_POST["type"], "user" => $source, "usernameless" => $usernameless);
             wwa_update_option("user_credentials_meta", json_encode($meta));
         }
         wwa_update_option("user_credentials", json_encode($data));
@@ -153,7 +162,7 @@ function wwa_ajax_create(){
         }
 
         // Check queries
-        if(!isset($_GET["name"]) || !isset($_GET["type"])){
+        if(!isset($_GET["name"]) || !isset($_GET["type"]) || !isset($_GET["usernameless"])){
             wwa_add_log($res_id, "ajax_create: (ERROR)Missing parameters, exit");
             wp_die("Bad Request.");
         }else{
@@ -161,7 +170,8 @@ function wwa_ajax_create(){
             $wwa_get = array();
             $wwa_get["name"] = sanitize_text_field($_GET["name"]);
             $wwa_get["type"] = sanitize_text_field($_GET["type"]);
-            wwa_add_log($res_id, "ajax_create: name => \"".$wwa_get["name"]."\", type => \"".$wwa_get["type"]."\"");
+            $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
+            wwa_add_log($res_id, "ajax_create: name => \"".$wwa_get["name"]."\", type => \"".$wwa_get["type"]."\", usernameless => \"".$wwa_get["usernameless"]."\"");
         }
 
         if($wwa_get["name"] === ""){
@@ -238,10 +248,18 @@ function wwa_ajax_create(){
             $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_DISCOURAGED;
         }
 
+        $resident_key = false;
+        // Set usernameless authentication
+        if(wwa_get_option("usernameless_login") === "true" && $wwa_get["usernameless"] === "true"){
+            wwa_add_log($res_id, "ajax_create: Usernameless set, user_verification => \"true\"");
+            $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
+            $resident_key = true;
+        }
+
         // Create authenticator selection
         $authenticatorSelectionCriteria = new AuthenticatorSelectionCriteria(
             $authenticator_type,
-            false,
+            $resident_key,
             $user_verification
         );
 
@@ -256,6 +274,7 @@ function wwa_ajax_create(){
         // Save for future use
         $_SESSION['wwa_server'] = serialize($server);
         $_SESSION['wwa_pkcco'] = base64_encode(serialize($publicKeyCredentialCreationOptions));
+        $_SESSION['wwa_usernameless'] = $resident_key;
 
         header('Content-Type: application/json');
         echo json_encode($publicKeyCredentialCreationOptions);
@@ -293,7 +312,7 @@ function wwa_ajax_create_response(){
         }
 
         // Check POST
-        if(!isset($_POST["data"]) || !isset($_POST["name"]) || !isset($_POST["type"])){
+        if(!isset($_POST["data"]) || !isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["usernameless"])){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Missing parameters, exit");
             wp_die("Bad Request.");
         }else{
@@ -301,12 +320,13 @@ function wwa_ajax_create_response(){
             $wwa_post = array();
             $wwa_post["name"] = sanitize_text_field($_POST["name"]);
             $wwa_post["type"] = sanitize_text_field($_POST["type"]);
-            wwa_add_log($res_id, "ajax_create_response: name => \"".$wwa_post["name"]."\", type => \"".$wwa_post["type"]."\"");
+            $wwa_post["usernameless"] = sanitize_text_field($_POST["usernameless"]);
+            wwa_add_log($res_id, "ajax_create_response: name => \"".$wwa_post["name"]."\", type => \"".$wwa_post["type"]."\", usernameless => \"".$wwa_post["usernameless"]."\"");
             wwa_add_log($res_id, "ajax_create_response: data => ".base64_decode($_POST["data"]));
         }
 
         // May not get the challenge yet
-        if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco'])){
+        if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco']) || !isset($_SESSION['wwa_usernameless'])){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Challenge not found in session, exit");
             wp_die("Bad request.");
         }
@@ -346,9 +366,14 @@ function wwa_ajax_create_response(){
             wwa_add_log($res_id, "ajax_create_response: Challenge verified");
 
             $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
-            $publicKeyCredentialSourceRepository->saveCredentialSource($publicKeyCredentialSource);
+            $publicKeyCredentialSourceRepository->saveCredentialSource($publicKeyCredentialSource, $_SESSION['wwa_usernameless']);
 
-            wwa_add_log($res_id, "ajax_create_response: Authenticator added");
+            if($_SESSION['wwa_usernameless']){
+                wwa_add_log($res_id, "ajax_create_response: Authenticator added with usernameless authentication feature");
+            }else{
+                wwa_add_log($res_id, "ajax_create_response: Authenticator added");
+            }
+
             // Success
             echo 'true';
         }catch(\Throwable $exception){
@@ -396,26 +421,52 @@ function wwa_ajax_auth_start(){
             if(isset($_GET["user"])){
                 $wwa_get["user"] = sanitize_text_field($_GET["user"]);
             }
+            if(isset($_GET["usernameless"])){
+                $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
+            }
+        }
+
+        if($wwa_get["type"] === "test" && !current_user_can('read')){
+            // Test but not logged in
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Permission denied, exit");
+            wp_die("Bad request.");
         }
 
         $user_key = "";
+        $usernameless_flag = false;
         if($wwa_get["type"] === "test" && current_user_can('read')){
-            // Logged in and testing, if the user haven't bound any authenticator yet, exit
-            $user_info = wp_get_current_user();
+            if(isset($wwa_get["usernameless"])){
+                if($wwa_get["usernameless"] !== "true"){
+                    // Logged in and testing, if the user haven't bound any authenticator yet, exit
+                    $user_info = wp_get_current_user();
 
-            wwa_add_log($res_id, "ajax_auth: type => \"test\", user => \"".$user_info->user_login."\"");
+                    wwa_add_log($res_id, "ajax_auth: type => \"test\", user => \"".$user_info->user_login."\", usernameless => \"false\"");
 
-            if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
-                wwa_add_log($res_id, "ajax_auth: (ERROR)User not initialized, exit");
-                wp_die("User not inited.");
+                    if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
+                        wwa_add_log($res_id, "ajax_auth: (ERROR)User not initialized, exit");
+                        wp_die("User not inited.");
+                    }else{
+                        $user_key = wwa_get_option("user_id")[$user_info->user_login];
+                    }
+                }else{
+                    if(wwa_get_option("usernameless_login") === "true"){
+                        wwa_add_log($res_id, "ajax_auth: type => \"test\", usernameless => \"true\"");
+                        $usernameless_flag = true;
+                    }else{
+                        wwa_add_log($res_id, "ajax_auth: (ERROR)Wrong parameters, exit");
+                        wp_die("Bad Request.");
+                    }
+                }
             }else{
-                $user_key = wwa_get_option("user_id")[$user_info->user_login];
+                wwa_add_log($res_id, "ajax_auth: (ERROR)Missing parameters, exit");
+                wp_die("Bad Request.");
             }
         }else{
             // Not testing, create a fake user ID if the user does not exist or haven't bound any authenticator yet
-            if(isset($wwa_get["user"])){
+            if(isset($wwa_get["user"]) && $wwa_get["user"] !== ""){
                 if(get_user_by('login', $wwa_get["user"])){
-                    $user_info = get_user_by('login', $wwa_get["user"]);wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$user_info->user_login."\"");
+                    $user_info = get_user_by('login', $wwa_get["user"]);
+                    wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$user_info->user_login."\"");
                     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
                         wwa_add_log($res_id, "ajax_auth: User not initialized, initialize");
                         $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
@@ -431,16 +482,23 @@ function wwa_ajax_auth_start(){
                     wwa_add_log($res_id, "ajax_auth: User not exists, create a fake id");
                 }
             }else{
-                wwa_add_log($res_id, "ajax_auth: (ERROR)Missing parameters, exit");
-                wp_die("Bad Request.");
+                if(wwa_get_option("usernameless_login") === "true"){
+                    $usernameless_flag = true;
+                    wwa_add_log($res_id, "ajax_auth: Empty username, try usernameless authentication");
+                }else{
+                    wwa_add_log($res_id, "ajax_auth: (ERROR)Missing parameters, exit");
+                    wp_die("Bad Request.");
+                }
             }
         }
 
-        $userEntity = new PublicKeyCredentialUserEntity(
-            $user_info->user_login,
-            $user_key,
-            $user_info->display_name
-        );
+        if(!$usernameless_flag){
+            $userEntity = new PublicKeyCredentialUserEntity(
+                $user_info->user_login,
+                $user_key,
+                $user_info->display_name
+            );
+        }
 
         $credentialSourceRepository = new PublicKeyCredentialSourceRepository();
         $rpEntity = new PublicKeyCredentialRpEntity(
@@ -454,21 +512,27 @@ function wwa_ajax_auth_start(){
             null
         );
 
-        // Get the list of authenticators associated to the user
-        $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
+        if($usernameless_flag){
+            // Usernameless authentication, return empty allowed credentials list
+            wwa_add_log($res_id, "ajax_auth: Usernameless authentication, allowedCredentials => []");
+            $allowedCredentials = array();
+        }else{
+            // Get the list of authenticators associated to the user
+            $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
 
-        // Logged in and testing, if the user haven't bind a authenticator yet, exit
-        if(count($credentialSources) === 0 && $wwa_get["type"] === "test" && current_user_can('read')){
-            wwa_add_log($res_id, "ajax_auth: (ERROR)No authenticator, exit");
-            wp_die("User not inited.");
+            // Logged in and testing, if the user haven't bind a authenticator yet, exit
+            if(count($credentialSources) === 0 && $wwa_get["type"] === "test" && current_user_can('read')){
+                wwa_add_log($res_id, "ajax_auth: (ERROR)No authenticator, exit");
+                wp_die("User not inited.");
+            }
+
+            // Convert the Credential Sources into Public Key Credential Descriptors for excluding
+            $allowedCredentials = array_map(function(PublicKeyCredentialSource $credential){
+                return $credential->getPublicKeyCredentialDescriptor();
+            }, $credentialSources);
+
+            wwa_add_log($res_id, "ajax_auth: allowedCredentials => ".json_encode($allowedCredentials));
         }
-
-        // Convert the Credential Sources into Public Key Credential Descriptors for excluding
-        $allowedCredentials = array_map(function(PublicKeyCredentialSource $credential){
-            return $credential->getPublicKeyCredentialDescriptor();
-        }, $credentialSources);
-
-        wwa_add_log($res_id, "ajax_auth: allowedCredentials => ".json_encode($allowedCredentials));
 
         // Set user verification
         if(wwa_get_option("user_verification") === "true"){
@@ -477,6 +541,11 @@ function wwa_ajax_auth_start(){
         }else{
             wwa_add_log($res_id, "ajax_auth: user_verification => \"false\"");
             $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_DISCOURAGED;
+        }
+
+        if($usernameless_flag){
+            wwa_add_log($res_id, "ajax_auth: Usernameless authentication, user_verification => \"true\"");
+            $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
         }
 
         // Create a auth challenge
@@ -488,10 +557,14 @@ function wwa_ajax_auth_start(){
         // Save for future use
         $_SESSION['wwa_server_auth'] = serialize($server);
         $_SESSION['wwa_pkcco_auth'] = base64_encode(serialize($publicKeyCredentialRequestOptions));
-        $_SESSION['wwa_user_name_auth'] = $user_info->user_login;
+        $_SESSION['wwa_auth_type'] = $wwa_get["type"];
+        if(!$usernameless_flag){
+            $_SESSION['wwa_user_name_auth'] = $user_info->user_login;
+        }
+        $_SESSION['wwa_usernameless_auth'] = $usernameless_flag;
 
-        // Save the user entity if is not logged in
-        if(!($wwa_get["type"] === "test" && current_user_can('read'))){
+        // Save the user entity if is not logged in and not usernameless
+        if(!($wwa_get["type"] === "test" && current_user_can('read')) && !$usernameless_flag){
             $_SESSION['wwa_user_auth'] = serialize($userEntity);
         }
 
@@ -535,15 +608,31 @@ function wwa_ajax_auth(){
             $wwa_post["type"] = sanitize_text_field($_POST["type"]);
         }
 
+        if($wwa_post["type"] !== $_SESSION['wwa_auth_type']){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
+            wp_die("Bad Request.");
+        }
+
         // May not get the challenge yet
-        if(!isset($_SESSION['wwa_server_auth']) || !isset($_SESSION['wwa_pkcco_auth']) || !isset($_SESSION['wwa_user_name_auth']) || ($wwa_post["type"] !== "test" && $wwa_post["type"] !== "auth")){
+        if(!isset($_SESSION['wwa_server_auth']) || !isset($_SESSION['wwa_pkcco_auth']) || !isset($_SESSION['wwa_usernameless_auth']) || ($wwa_post["type"] !== "test" && $wwa_post["type"] !== "auth")){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge not found in session, exit");
             wp_die("Bad request.");
         }
-        if(!($wwa_post["type"] === "test" && current_user_can('read')) && !isset($_SESSION['wwa_user_auth'])){
+        if($_SESSION['wwa_usernameless_auth'] === false && !isset($_SESSION['wwa_user_name_auth'])){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Username not found in session, exit");
+            wp_die("Bad request.");
+        }
+        if($wwa_post["type"] === "test" && !current_user_can('read')){
+            // Test but not logged in
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Permission denied, exit");
             wp_die("Bad request.");
         }
+        if(!($wwa_post["type"] === "test" && current_user_can('read')) && ($_SESSION['wwa_usernameless_auth'] === false && !isset($_SESSION['wwa_user_auth']))){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Permission denied, exit");
+            wp_die("Bad request.");
+        }
+
+        $usernameless_flag = $_SESSION['wwa_usernameless_auth'];
 
         $psr17Factory = new Psr17Factory();
         $creator = new ServerRequestCreator(
@@ -557,7 +646,7 @@ function wwa_ajax_auth(){
 
         // If user entity is not saved, read from WordPress
         $user_key = "";
-        if($wwa_post["type"] === "test" && current_user_can('read')){
+        if($wwa_post["type"] === "test" && current_user_can('read') && !$usernameless_flag){
             $user_info = wp_get_current_user();
 
             if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
@@ -575,8 +664,74 @@ function wwa_ajax_auth(){
 
             wwa_add_log($res_id, "ajax_auth_response: type => \"test\", user => \"".$user_info->user_login."\"");
         }else{
-            wwa_add_log($res_id, "ajax_auth_response: type => \"auth\", user => \"".$_SESSION['wwa_user_name_auth']."\"");
-            $userEntity = unserialize($_SESSION['wwa_user_auth']);
+            if($usernameless_flag){
+                $data_array = json_decode(base64_decode($_POST["data"]), true);
+                if(!isset($data_array["response"]["userHandle"]) || !isset($data_array["rawId"])){
+                    wwa_add_log($res_id, "ajax_auth_response: (ERROR)Client data not correct, exit");
+                    wp_die("Bad request.");
+                }
+
+                wwa_add_log($res_id, "ajax_auth_response: type => \"".$wwa_post["type"]."\"");
+                wwa_add_log($res_id, "ajax_auth_response: Usernameless authentication, try to find user by credential_id => \"".$data_array."\", userHandle => \"".$data_array["response"]["userHandle"]."\"");
+
+                $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
+                $credential_meta = $publicKeyCredentialSourceRepository->findOneMetaByCredentialId(base64_decode($data_array["rawId"]));
+
+                if($credential_meta !== null){
+                    if($credential_meta["usernameless"] === true){
+                        wwa_add_log($res_id, "ajax_auth_response: Credential found, usernameless => \"true\", user_key => \"".$credential_meta["user"]."\"");
+
+                        // Try to find user
+                        $all_user = wwa_get_option("user_id");
+                        $user_login_name = false;
+                        foreach($all_user as $user => $user_id){
+                            if($user_id === $credential_meta["user"]){
+                                $user_login_name = $user;
+                                break;
+                            }
+                        }
+
+                        // Match userHandle
+                        if($credential_meta["user"] === base64_decode($data_array["response"]["userHandle"])){
+                            // Found user
+                            if($user_login_name !== false){
+                                wwa_add_log($res_id, "ajax_auth_response: Found user => \"".$user_login_name."\", user_key => \"".$credential_meta["user"]."\"");
+
+                                // Testing, verify user
+                                if($wwa_post["type"] === "test" && current_user_can('read')){
+                                    $user_wp = wp_get_current_user();
+                                    if($user_login_name !== $user_wp->user_login){
+                                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential found, but user not match, exit");
+                                        wp_die("Bad request.");
+                                    }
+                                }
+    
+                                $user_info = get_user_by('login', $user_login_name);
+                                $userEntity = new PublicKeyCredentialUserEntity(
+                                    $user_info->user_login,
+                                    $credential_meta["user"],
+                                    $user_info->display_name
+                                );
+                            }else{
+                                wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential found, but user not found, exit");
+                                wp_die("Bad request.");
+                            }
+                        }else{
+                            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential found, but userHandle not matched, exit");
+                            wp_die("Bad request.");
+                        }
+                    }else{
+                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential found, but usernameless => \"false\", exit");
+                        wp_die("Bad request.");
+                    }
+                }else{
+                    wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential not found, exit");
+                    wp_die("Bad request.");
+                }
+            }else{
+                wwa_add_log($res_id, "ajax_auth_response: type => \"auth\", user => \"".$_SESSION['wwa_user_name_auth']."\"");
+                $userEntity = unserialize($_SESSION['wwa_user_auth']);
+            }
         }
 
         wwa_add_log($res_id, "ajax_auth_response: data => ".base64_decode($_POST["data"]));
@@ -607,12 +762,16 @@ function wwa_ajax_auth(){
                 if (!is_user_logged_in()) {
                     include('wwa-compatibility.php');
 
-                    $user_login = $_SESSION['wwa_user_name_auth'];
+                    if(!$usernameless_flag){
+                        $user_login = $_SESSION['wwa_user_name_auth'];
+                    }else{
+                        $user_login = $user_login_name;
+                    }
 
                     $user =  get_user_by('login', $user_login);
                     $user_id = $user->ID;
 
-                    wwa_add_log($res_id, "ajax_auth_response: Log in user => \"".$_SESSION['wwa_user_name_auth']."\"");
+                    wwa_add_log($res_id, "ajax_auth_response: Log in user => \"".$user_login."\"");
 
                     wp_set_current_user($user_id, $user_login);
                     if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'){

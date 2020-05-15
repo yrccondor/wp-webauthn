@@ -13,8 +13,11 @@ function wwa_destroy_session() {
     unset($_SESSION['wwa_user_auth']);
     unset($_SESSION['wwa_server']);
     unset($_SESSION['wwa_pkcco']);
+    unset($_SESSION['wwa_usernameless']);
     unset($_SESSION['wwa_server_auth']);
     unset($_SESSION['wwa_pkcco_auth']);
+    unset($_SESSION['wwa_usernameless_auth']);
+    unset($_SESSION['wwa_auth_type']);
 }
 add_action('wp_logout', 'wwa_destroy_session');
 add_action('wp_login', 'wwa_destroy_session');
@@ -108,7 +111,7 @@ add_action('delete_user', 'wwa_delete_user');
 // Add CSS and JS in login page
 function wwa_login_js() {
     wp_enqueue_script('wwa_login', plugins_url('js/login.js',__FILE__), array(), get_option('wwa_version')['version'], true);
-    wp_localize_script('wwa_login', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'admin_url' => admin_url(),'i18n_1' => __('Auth','wwa'),'i18n_2' => __('Authenticate with WebAuthn','wwa'),'i18n_3' => __('Hold on...','wwa'),'i18n_4' => __('Please proceed...','wwa'),'i18n_5' => __('Authenticating...','wwa'),'i18n_6' => '<span class="wwa-success"><span class="dashicons dashicons-yes"></span> '.__('Authenticated','wwa').'</span>','i18n_7' => '<span class="wwa-failed"><span class="dashicons dashicons-no-alt"></span> '.__('Auth failed','wwa').'</span>','i18n_9' => __('Username','wwa'),'i18n_10' => __('Username or Email Address','wwa'),'i18n_11' => __('<strong>Error</strong>: The username field is empty.','wwa')));
+    wp_localize_script('wwa_login', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'admin_url' => admin_url(),'usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')),'i18n_1' => __('Auth','wwa'),'i18n_2' => __('Authenticate with WebAuthn','wwa'),'i18n_3' => __('Hold on...','wwa'),'i18n_4' => __('Please proceed...','wwa'),'i18n_5' => __('Authenticating...','wwa'),'i18n_6' => '<span class="wwa-success"><span class="dashicons dashicons-yes"></span> '.__('Authenticated','wwa').'</span>','i18n_7' => '<span class="wwa-failed"><span class="dashicons dashicons-no-alt"></span> '.__('Auth failed','wwa').'</span>','i18n_9' => __('Username','wwa'),'i18n_10' => __('Username or Email Address','wwa'),'i18n_11' => __('<strong>Error</strong>: The username field is empty.','wwa'),'i18n_12' => '<br><span class="wwa-try-username">'.__('Try to enter the username','wwa').'</span>'));
     if(wwa_get_option('first_choice') === 'true'){
         wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js',__FILE__), array(), get_option('wwa_version')['version'], true);
     }

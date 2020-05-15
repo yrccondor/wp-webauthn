@@ -41,6 +41,7 @@ function wwa_init_data(){
             'website_name' => get_bloginfo('name'),
             'website_domain' => $site_domain === NULL ? "" : $site_domain,
             'user_verification' => 'false',
+            'usernameless_login' => 'false',
             'logging' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
