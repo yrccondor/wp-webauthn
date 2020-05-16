@@ -311,7 +311,7 @@ msgid ""
 "using that account."
 msgstr ""
 "你将为<strong>当前登录的账户</strong>添加一个认证器。同一个账户可以绑定多个不"
-"同的验证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。"
+"同的认证器。<br>如果需要为其他用户绑定认证器，请使用其他账户登录。"
 
 #: wwa-admin-content.php:165, wwa-shortcodes.php:75
 msgid "Type of authenticator"
