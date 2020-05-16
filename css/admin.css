@@ -1,5 +1,5 @@
 .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column) {
-   display: table-cell!important;
+   display: table-cell;
 }
 #show-progress .success, #show-test .success, #show-test-usernameless .success {
     color: #2C8D46;
@@ -20,4 +20,7 @@
 }
 .wwa-table table {
     min-width: 650px;
+}
+.usernameless-th, .usernameless-td {
+    display: none;
 }

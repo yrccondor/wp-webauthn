@@ -224,6 +224,9 @@
     width: 100%;
     overflow-y: auto;
 }
+.wwa-usernameless-th, .wwa-usernameless-td {
+    display: none;
+}
 @media(max-width: 720px){
     .wwa-login-form .button-primary, .wwa-login-form .button-secondary {
         padding: 0 14px;

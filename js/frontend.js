@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded',function(){
     wwa_dom("wwa-bind-submit", (dom)=>{dom.addEventListener('click', wwa_bind, false)}, "class");
     wwa_dom("wwa-test-submit", (dom)=>{dom.addEventListener('click', wwa_verify, false)}, "class");
     wwa_dom("wwa-test-usernameless-submit", (dom)=>{dom.addEventListener('click', wwa_verify, false)}, "class");
+    updateList();
 });
 
 // Toggle form
@@ -473,21 +474,36 @@ function updateList(){
         if(status){
             let data = JSON.parse(rawData);
             if(data.length === 0){
-                wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="6">'+wwa_php_vars.i18n_23+'</td></tr>'}, "class");
+                if(wwa_php_vars.usernameless === "true"){
+                    wwa_dom(".wwa-usernameless-th, .wwa-usernameless-td", (dom)=>{dom.style.display = "table-cell"});
+                }else{
+                    wwa_dom(".wwa-usernameless-th, .wwa-usernameless-td", (dom)=>{dom.style.display = "none"});
+                }
+                wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="'+(document.getElementsByClassName("wwa-usernameless-th")[0].style.display === "none" ? "5" : "6")+'">'+wwa_php_vars.i18n_23+'</td></tr>'}, "class");
+                wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = ""}, "class");
                 return;
             }
             let htmlStr = "";
+            let has_usernameless = false;
             for(let item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? wwa_php_vars.i18n_24 : (item.type === "platform" ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26))+'</td><td>'+item.added+'</td><td>'+item.last_used+'</td><td>'+(item.usernameless ? wwa_php_vars.i18n_1+(wwa_php_vars.usernameless === "true" ? "" : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8)+'</td><td class="wwa-key-'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_27+'</a></td></tr>';
+                if(item.usernameless){
+                    has_usernameless = true;
+                }
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? wwa_php_vars.i18n_24 : (item.type === "platform" ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26))+'</td><td>'+item.added+'</td><td>'+item.last_used+'</td><td class="wwa-usernameless-td">'+(item.usernameless ? wwa_php_vars.i18n_1+(wwa_php_vars.usernameless === "true" ? "" : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8)+'</td><td class="wwa-key-'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+wwa_php_vars.i18n_27+'</a></td></tr>';
             }
             wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = htmlStr}, "class");
-            if(wwa_php_vars.usernameless !== "true"){
+            if(has_usernameless || wwa_php_vars.usernameless === "true"){
+                wwa_dom(".wwa-usernameless-th, .wwa-usernameless-td", (dom)=>{dom.style.display = "table-cell"});
+            }else{
+                wwa_dom(".wwa-usernameless-th, .wwa-usernameless-td", (dom)=>{dom.style.display = "none"});
+            }
+            if(has_usernameless && wwa_php_vars.usernameless !== "true"){
                 wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = wwa_php_vars.i18n_10}, "class");
             }else{
                 wwa_dom("wwa-authenticator-list-usernameless-tip", (dom)=>{dom.innerText = ""}, "class");
             }
         }else{
-            wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="6">'+wwa_php_vars.i18n_17+'</td></tr>'}, "class");
+            wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="'+(document.getElementsByClassName("wwa-usernameless-th")[0].style.display === "none" ? "5" : "6")+'">'+wwa_php_vars.i18n_17+'</td></tr>'}, "class");
         }
     })
 }

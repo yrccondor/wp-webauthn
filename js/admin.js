@@ -27,15 +27,31 @@ function updateList(){
         },
         success: function(data){
             if(data.length === 0){
-                jQuery("#authenticator-list").html('<tr><td colspan="6">'+php_vars.i18n_17+'</td></tr>');
+                if(configs.usernameless === "true"){
+                    jQuery(".usernameless-th, .usernameless-td").show();
+                }else{
+                    jQuery(".usernameless-th, .usernameless-td").hide();
+                }
+                jQuery("#authenticator-list").html('<tr><td colspan="'+(jQuery(".usernameless-th").css("display") === "none" ? "5" : "6")+'">'+php_vars.i18n_17+'</td></tr>');
+                jQuery("#usernameless_tip").text("");
+                jQuery("#usernameless_tip").hide();
                 return;
             }
             let htmlStr = "";
+            let has_usernameless = false;
             for(item of data){
-                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td>'+item.last_used+'</td><td>'+(item.usernameless ? php_vars.i18n_24+(configs.usernameless === "true" ? "" : php_vars.i18n_26) : php_vars.i18n_25)+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
+                if(item.usernameless){
+                    has_usernameless = true;
+                }
+                htmlStr += '<tr><td>'+item.name+'</td><td>'+(item.type === "none" ? php_vars.i18n_9 : (item.type === "platform" ? php_vars.i18n_10 : php_vars.i18n_11))+'</td><td>'+item.added+'</td><td>'+item.last_used+'</td><td class="usernameless-td">'+(item.usernameless ? php_vars.i18n_24+(configs.usernameless === "true" ? "" : php_vars.i18n_26) : php_vars.i18n_25)+'</td><td id="'+item.key+'"><a href="javascript:renameAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_20+'</a> | <a href="javascript:removeAuthenticator(\''+item.key+'\', \''+item.name+'\')">'+php_vars.i18n_12+'</a></td></tr>';
             }
             jQuery("#authenticator-list").html(htmlStr);
-            if(configs.usernameless !== "true"){
+            if(has_usernameless || configs.usernameless === "true"){
+                jQuery(".usernameless-th, .usernameless-td").show();
+            }else{
+                jQuery(".usernameless-th, .usernameless-td").hide();
+            }
+            if(has_usernameless && configs.usernameless !== "true"){
                 jQuery("#usernameless_tip").text(php_vars.i18n_27);
                 jQuery("#usernameless_tip").show();
             }else{
@@ -44,7 +60,7 @@ function updateList(){
             }
         },
         error: function(){
-            jQuery("#authenticator-list").html('<tr><td colspan="6">'+php_vars.i18n_8+'</td></tr>');
+            jQuery("#authenticator-list").html('<tr><td colspan="'+(jQuery(".usernameless-th").css("display") === "none" ? "5" : "6")+'">'+php_vars.i18n_8+'</td></tr>');
         }
     })
 }

@@ -123,7 +123,7 @@ if($wwa_v_ul === false){
     <fieldset>
     <label><input type="radio" name="usernameless_login" value="true" <?php if($wwa_v_ul=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
     <label><input type="radio" name="usernameless_login" value="false" <?php if($wwa_v_ul=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
-    <p class="description"><?php _e('Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when registering authenticator with usernameless authentication feature.</strong>', 'wwa');?></p>
+    <p class="description"><?php _e('Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when registering authenticator with usernameless authentication feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -186,7 +186,7 @@ if($wwa_v_log === false){
     <fieldset>
         <label><input type="radio" name="authenticator_usernameless" class="authenticator_usernameless" value="true"> <?php _e("Enable", "wwa");?></label><br>
         <label><input type="radio" name="authenticator_usernameless" class="authenticator_usernameless" value="false" checked="checked"> <?php _e("Disable", "wwa");?></label><br>
-        <p class="description"><?php _e('If registered authenticator with this feature, you can login without enter your username.<br>Some devices like U2F-only devices and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
+        <p class="description"><?php _e('If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -202,13 +202,13 @@ if($wwa_v_log === false){
             <th><?php _e('Type', 'wwa');?></th>
             <th><?php _ex('Registered', 'time', 'wwa');?></th>
             <th><?php _e('Last used', 'wwa');?></th>
-            <th><?php _e('Usernameless', 'wwa');?></th>
+            <th class="usernameless-th"><?php _e('Usernameless', 'wwa');?></th>
             <th><?php _e('Action', 'wwa');?></th>
         </tr>
     </thead>
     <tbody id="authenticator-list">
         <tr>
-            <td colspan="6"><?php _e('Loading...', 'wwa');?></td>
+            <td colspan="5"><?php _e('Loading...', 'wwa');?></td>
         </tr>
     </tbody>
     <tfoot>
@@ -217,7 +217,7 @@ if($wwa_v_log === false){
             <th><?php _e('Type', 'wwa');?></th>
             <th><?php _ex('Registered', 'time', 'wwa');?></th>
             <th><?php _e('Last used', 'wwa');?></th>
-            <th><?php _e('Usernameless', 'wwa');?></th>
+            <th class="usernameless-th"><?php _e('Usernameless', 'wwa');?></th>
             <th><?php _e('Action', 'wwa');?></th>
       </tr>
     </tfoot>
