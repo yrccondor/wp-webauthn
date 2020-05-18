@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, secure, password
 Requires at least: 5.0
 Tested up to: 5.4
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 Requires PHP: 7.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -18,6 +18,8 @@ WebAuthn is a new way for you to authenticate in web. It helps you replace your 
 When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
 
 WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install it, and you are in the future of web authentication.
+
+WP-WebAuthn also supports usernameless authentication.
 
 This plugin has 4 built-in shortcodes, so you can add components like register form to frontend pages.
 
@@ -40,6 +42,12 @@ Notice: PHP extensions gmp and mbstring are required.
 
 == Frequently Asked Questions ==
  
+= What languages does this plugin support? =
+ 
+This plugin supports English and Chinese(Simplified) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
+
+All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
+
 = What should I do if the plugin could not work? =
  
 Make sure your are using HTTPS or host your site in `localhost`. Then ckeck whether you have installed the gmp extension for PHP.
@@ -50,12 +58,6 @@ If you can't solve the problem, [open an issue](https://github.com/yrccondor/wp-
  
 The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You can learn more on [Can I Use](https://caniuse.com/#feat=webauthn).
 
-= What languages does this plugin support? =
- 
-This plugin supports English and Chinese(Simplified) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
-
-All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
-
 == Screenshots ==
 
 1. Verifying
@@ -63,6 +65,15 @@ All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-web
 3. The settings page
 
 == Changelog ==
+
+= 1.0.9 =
+Add: Login without usernameless
+Add: Last used
+Update: Third-party libraries
+Improve: Delete authenticators when deleting user
+Improve: Destroy all sessions before wp_die() or at the end of authentications
+Improve: Log traceback
+Improve: i18n
 
 = 1.0.8 =
 Improve: Compatibility with Two Factor plugin
