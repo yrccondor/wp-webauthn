@@ -13,7 +13,7 @@ function wwa_destroy_session(){
     unset($_SESSION['wwa_user_auth']);
     unset($_SESSION['wwa_server']);
     unset($_SESSION['wwa_pkcco']);
-    unset($_SESSION['wwa_usernameless']);
+    unset($_SESSION['wwa_bind_config']);
     unset($_SESSION['wwa_server_auth']);
     unset($_SESSION['wwa_pkcco_auth']);
     unset($_SESSION['wwa_usernameless_auth']);

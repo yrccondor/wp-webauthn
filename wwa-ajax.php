@@ -186,8 +186,15 @@ function wwa_ajax_create(){
             wwa_add_log($res_id, "ajax_create: name => \"".$wwa_get["name"]."\", type => \"".$wwa_get["type"]."\", usernameless => \"".$wwa_get["usernameless"]."\"");
         }
 
+        // Empty authenticator name
         if($wwa_get["name"] === ""){
             wwa_add_log($res_id, "ajax_create: (ERROR)Empty name, exit");
+            wwa_wp_die("Bad Request.");
+        }
+
+        // Usernameless authentication not allowed
+        if($wwa_get["usernameless"] === "true" && wwa_get_option("usernameless_login") !== "true"){
+            wwa_add_log($res_id, "ajax_create: (ERROR)Usernameless authentication not allowed, exit");
             wwa_wp_die("Bad Request.");
         }
 
@@ -264,7 +271,7 @@ function wwa_ajax_create(){
 
         $resident_key = false;
         // Set usernameless authentication
-        if(wwa_get_option("usernameless_login") === "true" && $wwa_get["usernameless"] === "true"){
+        if($wwa_get["usernameless"] === "true"){
             wwa_add_log($res_id, "ajax_create: Usernameless set, user_verification => \"true\"");
             $user_verification = AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED;
             $resident_key = true;
@@ -288,7 +295,7 @@ function wwa_ajax_create(){
         // Save for future use
         $_SESSION['wwa_server'] = serialize($server);
         $_SESSION['wwa_pkcco'] = base64_encode(serialize($publicKeyCredentialCreationOptions));
-        $_SESSION['wwa_usernameless'] = $resident_key;
+        $_SESSION['wwa_bind_config'] = array("name" => $wwa_get["name"], "type" => $wwa_get["type"], "usernameless" => $resident_key);
 
         header('Content-Type: application/json');
         echo json_encode($publicKeyCredentialCreationOptions);
@@ -340,22 +347,28 @@ function wwa_ajax_create_response(){
         }
 
         // May not get the challenge yet
-        if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco']) || !isset($_SESSION['wwa_usernameless'])){
+        if(!isset($_SESSION['wwa_server']) || !isset($_SESSION['wwa_pkcco']) || !isset($_SESSION["wwa_bind_config"])){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Challenge not found in session, exit");
             wwa_wp_die("Bad request.");
         }
 
-        if($wwa_post["type"] !== "platform" && $wwa_post["type"] !== "cross-platform" && $wwa_post["type"] !== "none"){
+        // Check parameters
+        if($_SESSION["wwa_bind_config"]["type"] !== "platform" && $_SESSION["wwa_bind_config"]["type"] !== "cross-platform" && $_SESSION["wwa_bind_config"]["type"] !== "none"){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Wrong type, exit");
             wwa_wp_die("Bad request.");
+        }
+
+        if($_SESSION["wwa_bind_config"]["type"] !== $wwa_post["type"] || $_SESSION["wwa_bind_config"]["name"] !== $wwa_post["name"]){
+            wwa_add_log($res_id, "ajax_create_response: (ERROR)Wrong parameters, exit");
+            wwa_wp_die("Bad Request.");
         }
 
         // Check global unique credential ID
         $credential_id = base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]);
         $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
         if($publicKeyCredentialSourceRepository->findOneMetaByCredentialId($credential_id) !== null){
-            wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential ID not unique, exit");
-            wwa_wp_die("Someehing went wrong.");
+            wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential ID not unique, ID => \"".base64_encode($credential_id)."\" , exit");
+            wwa_wp_die("Something went wrong.");
         }else{
             wwa_add_log($res_id, "ajax_create_response: Credential ID unique check passed");
         }
@@ -389,9 +402,9 @@ function wwa_ajax_create_response(){
 
             wwa_add_log($res_id, "ajax_create_response: Challenge verified");
 
-            $publicKeyCredentialSourceRepository->saveCredentialSource($publicKeyCredentialSource, $_SESSION['wwa_usernameless']);
+            $publicKeyCredentialSourceRepository->saveCredentialSource($publicKeyCredentialSource, $_SESSION["wwa_bind_config"]['usernameless']);
 
-            if($_SESSION['wwa_usernameless']){
+            if($_SESSION["wwa_bind_config"]['usernameless']){
                 wwa_add_log($res_id, "ajax_create_response: Authenticator added with usernameless authentication feature");
             }else{
                 wwa_add_log($res_id, "ajax_create_response: Authenticator added");
@@ -449,6 +462,11 @@ function wwa_ajax_auth_start(){
             }
             if(isset($_GET["usernameless"])){
                 $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
+                // Usernameless authentication not allowed
+                if($wwa_get["usernameless"] === "true" && wwa_get_option("usernameless_login") !== "true"){
+                    wwa_add_log($res_id, "ajax_create: (ERROR)Usernameless authentication not allowed, exit");
+                    wwa_wp_die("Bad Request.");
+                }
             }
         }
 
@@ -461,7 +479,7 @@ function wwa_ajax_auth_start(){
         $user_key = "";
         $usernameless_flag = false;
         $user_icon = null;
-        if($wwa_get["type"] === "test" && current_user_can('read')){
+        if($wwa_get["type"] === "test"){
             if(isset($wwa_get["usernameless"])){
                 if($wwa_get["usernameless"] !== "true"){
                     // Logged in and testing, if the user haven't bound any authenticator yet, exit
