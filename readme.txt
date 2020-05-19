@@ -110,6 +110,9 @@ Initial version
 
 == Upgrade Notice ==
 
+= 1.0.9 =
+Improve security & add usernameless login and other features
+
 = 1.0.8 =
 Improve: Compatibility with Two Factor plugin
 
