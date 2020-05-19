@@ -185,7 +185,21 @@ function wwa_auth(){
     request.get(wwa_php_vars.ajax_url, "?action=wwa_auth_start&user="+encodeURIComponent(wwa_username)+"&type=auth", (rawData, status)=>{
         if(status){
             button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_4;
-            let data = JSON.parse(rawData);
+            let data = rawData;
+            try{
+                data = JSON.parse(rawData);
+            }catch(e){
+                console.warn(rawData);
+                wwa_enable_buttons();
+                if(wwa_php_vars.usernameless === "true" && wwa_username === ""){
+                    button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7+wwa_php_vars.i18n_33;
+                    wwa_dom("wwa-try-username", (dom)=>{dom.style.transform = 'translateY(-' + (parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20) + 'px)'}, "class");
+                }else{
+                    button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
+                }
+                wwa_dom("wwa-user-name", (dom)=>{dom.readOnly = false}, "class");
+                return;
+            }
             data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), c=>c.charCodeAt(0));
     
             if (data.allowCredentials) {
@@ -299,7 +313,19 @@ function wwa_bind(){
     request.get(wwa_php_vars.ajax_url, "?action=wwa_create&name="+encodeURIComponent(wwa_name)+"&type="+encodeURIComponent(wwa_type)+"&usernameless="+wwa_usernameless, (rawData, status)=>{
         if(status){
             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_28;
-            let data = JSON.parse(rawData);
+            let data = rawData;
+            try{
+                data = JSON.parse(rawData);
+            }catch(e){
+                console.warn(rawData);
+                button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_30;
+                wwa_enable_buttons();
+                wwa_dom("wwa-authenticator-name", (dom)=>{dom.readOnly = false}, "class");
+                wwa_dom("wwa-authenticator-type", (dom)=>{dom.disabled = false}, "class");
+                wwa_dom("wwa-authenticator-usernameless", (dom)=>{dom.disabled = false}, "class");
+                updateList();
+                return;
+            }
             let challenge = new Uint8Array(32);
             let user_id = new Uint8Array(32);
             challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), c=>c.charCodeAt(0));
@@ -408,7 +434,15 @@ function wwa_verify(){
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_15;
                 return;
             }
-            let data = JSON.parse(rawData);
+            let data = rawData;
+            try{
+                data = JSON.parse(rawData);
+            }catch(e){
+                console.warn(rawData);
+                button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_15;
+                wwa_enable_buttons();
+                return;
+            }
             data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), c=>c.charCodeAt(0));
 
             if (data.allowCredentials) {
@@ -472,7 +506,14 @@ function updateList(){
     let request = wwa_ajax();
     request.get(wwa_php_vars.ajax_url, "?action=wwa_authenticator_list", (rawData, status) => {
         if(status){
-            let data = JSON.parse(rawData);
+            let data = rawData;
+            try{
+                data = JSON.parse(rawData);
+            }catch(e){
+                console.warn(rawData);
+                wwa_dom("wwa-authenticator-list", (dom)=>{dom.innerHTML = '<tr><td colspan="'+(document.getElementsByClassName("wwa-usernameless-th")[0].style.display === "none" ? "5" : "6")+'">'+wwa_php_vars.i18n_17+'</td></tr>'}, "class");
+                return;
+            }
             if(data.length === 0){
                 if(wwa_php_vars.usernameless === "true"){
                     wwa_dom(".wwa-usernameless-th, .wwa-usernameless-td", (dom)=>{dom.style.display = "table-cell"});

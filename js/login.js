@@ -239,7 +239,21 @@ function check(){
         request.get(php_vars.ajax_url, "?action=wwa_auth_start&user="+encodeURIComponent(document.getElementById("user_login").value)+"&type=auth", (rawData, status)=>{
             if(status){
                 wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_4}, "class");
-                let data = JSON.parse(rawData);
+                let data = rawData;
+                try{ 
+                    data = JSON.parse(rawData);
+                }catch(e){
+                    console.warn(rawData);
+                    if(php_vars.usernameless === "true" && document.getElementById("user_login").value === ""){
+                        wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_7+php_vars.i18n_12}, "class");
+                        wwa_dom("wwa-try-username", (dom)=>{dom.style.transform = 'translateY(-' + (parseInt(document.getElementsByClassName("wp-webauthn-notice")[0].style.lineHeight) - 24) + 'px)'}, "class");
+                    }else{
+                        wwa_dom("wp-webauthn-notice", (dom)=>{dom.innerHTML = php_vars.i18n_7}, "class");
+                    }
+                    wwa_dom("user_login", (dom)=>{dom.readOnly = false}, "id");
+                    wwa_dom("#wp-webauthn-check, #wp-webauthn", (dom)=>{dom.disabled = false});
+                    return;
+                }
                 data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), c=>c.charCodeAt(0));
     
                 if (data.allowCredentials) {

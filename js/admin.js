@@ -26,6 +26,11 @@ function updateList(){
             action: 'wwa_authenticator_list'
         },
         success: function(data){
+            if(typeof data === "string"){
+                console.warn(data);
+                jQuery("#authenticator-list").html('<tr><td colspan="'+(jQuery(".usernameless-th").css("display") === "none" ? "5" : "6")+'">'+php_vars.i18n_8+'</td></tr>');
+                return;
+            }
             if(data.length === 0){
                 if(configs.usernameless === "true"){
                     jQuery(".usernameless-th, .usernameless-td").show();
@@ -77,6 +82,11 @@ function updateLog(){
             action: 'wwa_get_log'
         },
         success: function(data){
+            if(typeof data === "string"){
+                console.warn(data);
+                jQuery("#wwa_log").text(php_vars.i18n_8);
+                return;
+            }
             if(data.length === 0){
                 document.getElementById("clear_log").disabled = true;
                 jQuery("#wwa_log").text("");
@@ -146,6 +156,16 @@ jQuery("#bind").click(function(){
             usernameless: jQuery(".authenticator_usernameless:checked").val() ? jQuery(".authenticator_usernameless:checked").val() : "false"
         },
         success: function(data){
+            if(typeof data === "string"){
+                console.warn(data);
+                jQuery('#show-progress').html(php_vars.i18n_4+": "+data);
+                jQuery("#bind").removeAttr('disabled');
+                jQuery("#authenticator_name").removeAttr('disabled');
+                jQuery(".authenticator_usernameless").removeAttr('disabled');
+                jQuery("#authenticator_type").removeAttr('disabled');
+                updateList();
+                return;
+            }
             // Get the args, code string into Uint8Array
             jQuery('#show-progress').text(php_vars.i18n_2);
             let challenge = new Uint8Array(32);
@@ -275,6 +295,12 @@ jQuery("#test, #test_usernameless").click(function(){
             usernameless: usernameless
         },
         success: function(data){
+            if(typeof data === "string"){
+                console.warn(data);
+                jQuery(tip_id).html(php_vars.i18n_15+": "+data);
+                jQuery("#test, #test_usernameless").removeAttr('disabled');
+                return;
+            }
             if(data === "User not inited."){
                 jQuery(tip_id).html(php_vars.i18n_15+": "+php_vars.i18n_17);
                 jQuery("#test, #test_usernameless").removeAttr('disabled');
