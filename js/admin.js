@@ -222,7 +222,7 @@ jQuery("#bind").click(function(){
                         data: window.btoa(AuthenticatorAttestationResponse),
                         name: jQuery("#authenticator_name").val(),
                         type: jQuery("#authenticator_type").val(),
-                        usernameless: jQuery(".authenticator_usernameless:checked").val()
+                        usernameless: jQuery(".authenticator_usernameless:checked").val() ? jQuery(".authenticator_usernameless:checked").val() : "false"
                     },
                     success: function(data){
                         if(data === "true"){

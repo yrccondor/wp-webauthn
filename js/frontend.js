@@ -373,7 +373,7 @@ function wwa_bind(){
                 return publicKeyCredential;
             }).then(JSON.stringify).then(function(AuthenticatorAttestationResponse) {
                 let response = wwa_ajax();
-                response.post(wwa_php_vars.ajax_url+"?action=wwa_create_response", "data="+encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))+"&name="+encodeURIComponent(wwa_name)+"&type="+encodeURIComponent(wwa_type), (rawData, status)=>{
+                response.post(wwa_php_vars.ajax_url+"?action=wwa_create_response", "data="+encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))+"&name="+encodeURIComponent(wwa_name)+"&type="+encodeURIComponent(wwa_type)+"&usernameless="+wwa_usernameless, (rawData, status)=>{
                     if(status){
                         if(rawData === "true"){
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_29;
