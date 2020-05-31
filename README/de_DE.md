@@ -6,7 +6,7 @@
 <img src="https://img.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
 </p>
 
-<h1 align="center">WP-WebAuthn - Benutzerhandbuch</h1>
+<h1 align="center">WP-WebAuthn</h1>
 
 <p align="center">Mit WP-WebAuthn können Sie sich ohne Passwort sicher bei Ihrer WordPress-Site anmelden</p>
 
