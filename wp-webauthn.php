@@ -3,7 +3,7 @@
 Plugin Name: WP-WebAuthn
 Plugin URI: https://flyhigher.top
 Description: WP-WebAuthn allows you to safely login to your WordPress site without password.
-Version: 1.0.10
+Version: 1.0.11
 Author: Axton
 Author URI: https://axton.cc
 License: GPLv3

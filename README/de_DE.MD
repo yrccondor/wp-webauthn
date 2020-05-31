@@ -1,3 +1,7 @@
+<div align="right"><a title="English" href="https://github.com/yrccondor/wp-webauthn/blob/master/README.md">English</a> | <a title="Simplified Chinese" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/zh_CN.md">简体中文</a> | Deutsch</div>
+
+<br>
+
 <p align="center">
 <img src="https://img.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
 </p>
@@ -52,7 +56,6 @@ Open Source Software unter GPL v3.0 Lizenz.
 
 [Ye Shu](https://github.com/yechs) - (Englische Übersetzung)
 
-[milkice](https://github.com/milkice233)
-
 [lukasj98](https://github.com/lukasj98) - (Deutsche Übersetzung)
 
+[milkice](https://github.com/milkice233)

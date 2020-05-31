@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, secure, password
 Requires at least: 5.0
 Tested up to: 5.4
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 Requires PHP: 7.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -12,6 +12,8 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 WP-WebAuthn enables passwordless login through U2F devices for your site.
 
 == Description ==
+
+**This plugin supports English(default language), Simplified Chinese and German currently.**
 
 WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras and more.
 
@@ -44,7 +46,7 @@ Notice: PHP extensions gmp and mbstring are required.
  
 = What languages does this plugin support? =
  
-This plugin supports English and Chinese(Simplified) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
+This plugin supports English, Chinese(Simplified) and German currently. If you are using WordPress in none of those languages, English will be displayed as default language.
 
 All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
 
@@ -65,6 +67,9 @@ The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You
 3. The settings page
 
 == Changelog ==
+
+= 1.0.11 =
+Add: German translation
 
 = 1.0.10 =
 Fix: Failed to register authenticators when "Allow to login without username" is disabled
@@ -112,6 +117,9 @@ Fix: iOS users may be failed to register authenticators due to the user verifica
 Initial version
 
 == Upgrade Notice ==
+
+= 1.0.11 =
+Update translation
 
 = 1.0.10 =
 Fixed an error in registration process

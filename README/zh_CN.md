@@ -8,7 +8,7 @@
 
 <h1 align="center">WP-WebAuthn</h1>
 
-<p align="center">WP-WebAuthn allows you to safely login to your WordPress site without password.</p>
+<p align="center">WP-WebAuthn 使你可以安全地通过 U2F 设备登录账户而无需输入密码。</p>
 
 <p align="center"><a href="https://github.com/yrccondor/wp-webauthn/releases"><img alt="releases" src="https://img.shields.io/github/release/yrccondor/wp-webauthn.svg"/></a>
 <img alt="WordPress" src="https://img.shields.io/badge/WordPress-5.0%2B-blue.svg"/>
@@ -16,47 +16,47 @@
 <a href="https://flyhigher.top"><img alt="Author" src="https://img.shields.io/badge/made%20with-%e2%9d%a4-ff69b4.svg"/></a>
 <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_shield"><img alt="FOSSA Status" src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=shield"/></a></p>
 
-## Introduction
+## 介绍
 
-WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras and more.
+WebAuthn 是新一代网络认证技术，旨在通过 USB 认证器、指纹识别、Windows Hello 等替代密码以使网络认证更加高效且安全。
 
 <p align="center">
 <img src="https://img.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
 </p>
 
-When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
+在使用 WebAuthn 时，你只需点击一次按钮并在认证器上执行简单的认证操作即可在数秒内登录。**完全不需要密码。**
 
-WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install it, and you are in the future of web authentication.
+WP-WebAuthn 是一个可以在你的站点上启用 WebAuthn 的 WordPress 插件。只需安装 WP-WebAuthn，你就可以体验最新的网络验证技术了。
 
-WP-WebAuthn also supports usernameless authentication.
+WP-WebAuthn 也支持无用户名登录。
 
-This plugin has 4 built-in shortcodes, so you can add components like register form to frontend pages.
+这个插件包含 4 个短代码，你可以通过这些短代码在前端页面中插入认证器注册表单等组件。
 
-Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
+在使用插件前，请参阅[文档](http://doc.flyhigher.top/wp-webauthn)。
 
-## Installation
+## 安装
 
-**PHP extension gmp and mbstring is required.**
+**需要安装 PHP 扩展 gmp 和 mbstring。**
 
-Just download the plugin from releases and install it, then you are done.
+你只需从 releases 下载插件并上传安装。更多操作请参阅[文档](http://doc.flyhigher.top/wp-webauthn)。
 
-You can also install [WP-WebAuthn](https://wordpress.org/plugins/wp-webauthn/) from WordPress plugin directory.
+你也可以在 WordPress 后台搜索安装 [WP-WebAuthn](https://wordpress.org/plugins/wp-webauthn/)。
 
-## License
+## 许可证
 
 <a href="https://github.com/yrccondor/wp-webauthn/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-GPL%20V3.0-orange.svg"/></a>
 
-Open sourced under GPL v3.0 license.
+使用 GPL v3.0 许可证开源。
 
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_large)
 
-## Thanks to
+## 感谢
 
 [web-auth/webauthn-framework](https://github.com/web-auth/webauthn-framework)
 
-[Ye Shu](https://github.com/yechs) (English Translator)
+[Ye Shu](https://github.com/yechs) (英语翻译)
 
-[lukasj98](https://github.com/lukasj98) (German Translator)
+[lukasj98](https://github.com/lukasj98) (德语翻译)
 
 [milkice](https://github.com/milkice233)
