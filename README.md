@@ -54,3 +54,5 @@ Open sourced under GPL v3.0 license.
 [Ye Shu](https://github.com/yechs) (English Translator)
 
 [milkice](https://github.com/milkice233)
+
+[lukasj98](https://github.com/lukasj98) (German Translator)
