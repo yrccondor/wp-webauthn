@@ -455,7 +455,7 @@ msgstr "Anmelden"
 #: wwa-functions.php:120, wwa-shortcodes.php:4, wwa-shortcodes.php:43,
 #: wwa-shortcodes.php:46
 msgid "Authenticate with WebAuthn"
-msgstr "Anmeldung mit Fingerabdruck etc. (WebAuthn)"
+msgstr "Login mit Fingerabdruck etc. "
 
 #: wwa-functions.php:120, wwa-shortcodes.php:4
 msgid "Hold on..."
