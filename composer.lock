@@ -415,16 +415,16 @@
         },
         {
             "name": "nyholm/psr7",
-            "version": "1.2.1",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nyholm/psr7.git",
-                "reference": "55ff6b76573f5b242554c9775792bd59fb52e11c"
+                "reference": "c17f4f73985f62054a331cbc4ffdf9868c4ef256"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/55ff6b76573f5b242554c9775792bd59fb52e11c",
-                "reference": "55ff6b76573f5b242554c9775792bd59fb52e11c",
+                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/c17f4f73985f62054a331cbc4ffdf9868c4ef256",
+                "reference": "c17f4f73985f62054a331cbc4ffdf9868c4ef256",
                 "shasum": ""
             },
             "require": {
@@ -439,8 +439,9 @@
             },
             "require-dev": {
                 "http-interop/http-factory-tests": "dev-master",
-                "php-http/psr7-integration-tests": "dev-master",
-                "phpunit/phpunit": "^7.5"
+                "php-http/psr7-integration-tests": "^1.0",
+                "phpunit/phpunit": "^7.5",
+                "symfony/error-handler": "^4.4"
             },
             "type": "library",
             "extra": {
@@ -473,20 +474,30 @@
                 "psr-17",
                 "psr-7"
             ],
-            "time": "2019-09-05T13:24:16+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/Zegnat",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nyholm",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-05-23T11:29:07+00:00"
         },
         {
             "name": "nyholm/psr7-server",
-            "version": "0.4.1",
+            "version": "0.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nyholm/psr7-server.git",
-                "reference": "e6a526e9170e6e33a13efc2b61703ca476b7ea68"
+                "reference": "aab2962c970a1776447894e4fd3825a3d69dee61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nyholm/psr7-server/zipball/e6a526e9170e6e33a13efc2b61703ca476b7ea68",
-                "reference": "e6a526e9170e6e33a13efc2b61703ca476b7ea68",
+                "url": "https://api.github.com/repos/Nyholm/psr7-server/zipball/aab2962c970a1776447894e4fd3825a3d69dee61",
+                "reference": "aab2962c970a1776447894e4fd3825a3d69dee61",
                 "shasum": ""
             },
             "require": {
@@ -496,7 +507,7 @@
             },
             "require-dev": {
                 "nyholm/nsa": "^1.1",
-                "nyholm/psr7": "^1.0",
+                "nyholm/psr7": "^1.3",
                 "phpunit/phpunit": "^7.0"
             },
             "type": "library",
@@ -525,7 +536,17 @@
                 "psr-17",
                 "psr-7"
             ],
-            "time": "2019-11-05T20:36:33+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/Zegnat",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nyholm",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-06-06T10:33:29+00:00"
         },
         {
             "name": "php-http/message-factory",
@@ -1115,26 +1136,103 @@
             "time": "2020-05-12T16:14:59+00:00"
         },
         {
-            "name": "symfony/process",
-            "version": "v5.0.8",
+            "name": "symfony/polyfill-php80",
+            "version": "v1.17.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/process.git",
-                "reference": "3179f68dff5bad14d38c4114a1dab98030801fd7"
+                "url": "https://github.com/symfony/polyfill-php80.git",
+                "reference": "5e30b2799bc1ad68f7feb62b60a73743589438dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/3179f68dff5bad14d38c4114a1dab98030801fd7",
-                "reference": "3179f68dff5bad14d38c4114a1dab98030801fd7",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/5e30b2799bc1ad68f7feb62b60a73743589438dd",
+                "reference": "5e30b2799bc1ad68f7feb62b60a73743589438dd",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2.5"
+                "php": ">=7.0.8"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.0-dev"
+                    "dev-master": "1.17-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php80\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ion Bazan",
+                    "email": "ion.bazan@gmail.com"
+                },
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-05-12T16:47:27+00:00"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v5.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/process.git",
+                "reference": "7f6378c1fa2147eeb1b4c385856ce9de0d46ebd1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/process/zipball/7f6378c1fa2147eeb1b4c385856ce9de0d46ebd1",
+                "reference": "7f6378c1fa2147eeb1b4c385856ce9de0d46ebd1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/polyfill-php80": "^1.15"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.1-dev"
                 }
             },
             "autoload": {
@@ -1175,11 +1273,11 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-04-15T15:59:10+00:00"
+            "time": "2020-05-30T20:35:19+00:00"
         },
         {
             "name": "web-auth/cose-lib",
-            "version": "v3.2.5",
+            "version": "v3.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-auth/cose-lib.git",
@@ -1251,7 +1349,7 @@
         },
         {
             "name": "web-auth/metadata-service",
-            "version": "v3.2.5",
+            "version": "v3.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-auth/webauthn-metadata-service.git",
@@ -1316,16 +1414,16 @@
         },
         {
             "name": "web-auth/webauthn-lib",
-            "version": "v3.2.5",
+            "version": "v3.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-auth/webauthn-lib.git",
-                "reference": "ebc3e48fc126a33b1423342dbf6480a03f72bb5e"
+                "reference": "1a44bbd972652e8184901bdf1ce0fa529524b21d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/ebc3e48fc126a33b1423342dbf6480a03f72bb5e",
-                "reference": "ebc3e48fc126a33b1423342dbf6480a03f72bb5e",
+                "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/1a44bbd972652e8184901bdf1ce0fa529524b21d",
+                "reference": "1a44bbd972652e8184901bdf1ce0fa529524b21d",
                 "shasum": ""
             },
             "require": {
@@ -1341,7 +1439,7 @@
                 "ramsey/uuid": "^3.8|^4.0",
                 "spomky-labs/base64url": "^2.0",
                 "spomky-labs/cbor-php": "^1.0.2",
-                "symfony/process": "^4.4|^5.0",
+                "symfony/process": "^3.0|^4.0|^5.0",
                 "web-auth/cose-lib": "self.version",
                 "web-auth/metadata-service": "self.version"
             },
@@ -1401,20 +1499,20 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2020-05-13T16:48:54+00:00"
+            "time": "2020-05-16T11:47:15+00:00"
         },
         {
             "name": "web-token/jwt-core",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-core.git",
-                "reference": "3e794092db3d85737dcc5ce2a21beeeaf801cd85"
+                "reference": "c5f73d1992ce8cff1f9b59c755d95ce2f01fa28a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-core/zipball/3e794092db3d85737dcc5ce2a21beeeaf801cd85",
-                "reference": "3e794092db3d85737dcc5ce2a21beeeaf801cd85",
+                "url": "https://api.github.com/repos/web-token/jwt-core/zipball/c5f73d1992ce8cff1f9b59c755d95ce2f01fa28a",
+                "reference": "c5f73d1992ce8cff1f9b59c755d95ce2f01fa28a",
                 "shasum": ""
             },
             "require": {
@@ -1480,20 +1578,26 @@
                 "jwt",
                 "symfony"
             ],
-            "time": "2019-12-27T22:22:20+00:00"
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-05-29T20:21:59+00:00"
         },
         {
             "name": "web-token/jwt-key-mgmt",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-key-mgmt.git",
-                "reference": "27d5e3e2281ae1f9bbe1ab2e1664f871111fb3e2"
+                "reference": "9d9ce13b8060136d412e8a49dbc38fd69962069e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-key-mgmt/zipball/27d5e3e2281ae1f9bbe1ab2e1664f871111fb3e2",
-                "reference": "27d5e3e2281ae1f9bbe1ab2e1664f871111fb3e2",
+                "url": "https://api.github.com/repos/web-token/jwt-key-mgmt/zipball/9d9ce13b8060136d412e8a49dbc38fd69962069e",
+                "reference": "9d9ce13b8060136d412e8a49dbc38fd69962069e",
                 "shasum": ""
             },
             "require": {
@@ -1564,20 +1668,26 @@
                 "jwt",
                 "symfony"
             ],
-            "time": "2019-12-27T22:22:20+00:00"
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-05-29T20:21:59+00:00"
         },
         {
             "name": "web-token/jwt-signature",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature.git",
-                "reference": "18d80f83dc391bfd76bfb34079f7bc28920be958"
+                "reference": "41da248b6a7a4e98bd6fb8ffa5b74ac4dece280e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-signature/zipball/18d80f83dc391bfd76bfb34079f7bc28920be958",
-                "reference": "18d80f83dc391bfd76bfb34079f7bc28920be958",
+                "url": "https://api.github.com/repos/web-token/jwt-signature/zipball/41da248b6a7a4e98bd6fb8ffa5b74ac4dece280e",
+                "reference": "41da248b6a7a4e98bd6fb8ffa5b74ac4dece280e",
                 "shasum": ""
             },
             "require": {
@@ -1650,20 +1760,20 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2020-01-23T20:44:53+00:00"
+            "time": "2020-05-29T20:21:59+00:00"
         },
         {
             "name": "web-token/jwt-signature-algorithm-ecdsa",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-ecdsa.git",
-                "reference": "2415c5ac44f4aad66ef90ad0904aa8a46526b3c2"
+                "reference": "340cd45a092440b407e6af43373664d8c6318ab9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-ecdsa/zipball/2415c5ac44f4aad66ef90ad0904aa8a46526b3c2",
-                "reference": "2415c5ac44f4aad66ef90ad0904aa8a46526b3c2",
+                "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-ecdsa/zipball/340cd45a092440b407e6af43373664d8c6318ab9",
+                "reference": "340cd45a092440b407e6af43373664d8c6318ab9",
                 "shasum": ""
             },
             "require": {
@@ -1723,20 +1833,26 @@
                 "jwt",
                 "symfony"
             ],
-            "time": "2019-12-27T22:22:20+00:00"
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-05-29T20:21:59+00:00"
         },
         {
             "name": "web-token/jwt-signature-algorithm-eddsa",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-eddsa.git",
-                "reference": "8421039c8f4729a98385a7074d960c6ecb1d0bbb"
+                "reference": "891af3e77d40d3d4e53d6ed021d0bf1d4c32b9c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-eddsa/zipball/8421039c8f4729a98385a7074d960c6ecb1d0bbb",
-                "reference": "8421039c8f4729a98385a7074d960c6ecb1d0bbb",
+                "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-eddsa/zipball/891af3e77d40d3d4e53d6ed021d0bf1d4c32b9c4",
+                "reference": "891af3e77d40d3d4e53d6ed021d0bf1d4c32b9c4",
                 "shasum": ""
             },
             "require": {
@@ -1796,24 +1912,29 @@
                 "jwt",
                 "symfony"
             ],
-            "time": "2019-12-27T22:22:20+00:00"
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-05-29T20:21:59+00:00"
         },
         {
             "name": "web-token/jwt-signature-algorithm-rsa",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-signature-algorithm-rsa.git",
-                "reference": "871f3cbcaa5cd8c7856cf1269056f6039586521f"
+                "reference": "2732e6d12bb84f41c2f000ca822e03b6a1e76531"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-rsa/zipball/871f3cbcaa5cd8c7856cf1269056f6039586521f",
-                "reference": "871f3cbcaa5cd8c7856cf1269056f6039586521f",
+                "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-rsa/zipball/2732e6d12bb84f41c2f000ca822e03b6a1e76531",
+                "reference": "2732e6d12bb84f41c2f000ca822e03b6a1e76531",
                 "shasum": ""
             },
             "require": {
-                "ext-gmp": "*",
                 "lib-openssl": "*",
                 "web-token/jwt-signature": "^2.1"
             },
@@ -1873,7 +1994,13 @@
                 "jwt",
                 "symfony"
             ],
-            "time": "2019-12-27T22:22:20+00:00"
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/FlorentMorselli",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-05-29T20:21:59+00:00"
         }
     ],
     "packages-dev": [],

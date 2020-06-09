@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.4.2
+
+### Fixed
+
+- Support for numerical headers
+
 ## 0.4.1
 
 ### Fixed
@@ -32,14 +38,14 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ## 0.1.2
 
-### Added 
+### Added
 
 - `ServerRequestCreatorInterface`
 - `ServerRequestCreator::getHeadersFromServer`
 
 ## 0.1.1
 
-### Added 
+### Added
 
 Better testing
 

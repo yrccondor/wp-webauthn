@@ -51,8 +51,6 @@ interface ServerRequestCreatorInterface
      * Get parsed headers from ($_SERVER) array.
      *
      * @param array $server typically $_SERVER or similar structure
-     *
-     * @return array
      */
     public static function getHeadersFromServer(array $server): array;
 }
