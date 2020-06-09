@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded',function(){
     }
     wwa_dom("wp-webauthn-notice", (dom)=>{dom.style.height = (document.getElementsByClassName("user-pass-wrap")[0].offsetHeight - 10) + 'px'}, "class");
     wwa_dom("wp-webauthn-notice", (dom)=>{dom.style.lineHeight = (document.getElementsByClassName("user-pass-wrap")[0].offsetHeight - 10) + 'px'}, "class");
-    let btnWidth = document.getElementById("wp-submit").clientWidth;
+    let btnWidth = document.getElementById("wp-submit") ? document.getElementById("wp-submit").clientWidth : 0;
     if(btnWidth < 20 || btnWidth === undefined){
         wwa_dom("wp-webauthn-check", (dom)=>{dom.style.width = "auto"}, "id");
     }else{
