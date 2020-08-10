@@ -1,12 +1,4 @@
 <?php
-// Start session
-function wwa_register_session(){
-    if(!session_id()){
-        session_start();
-    }
-}
-add_action('init','wwa_register_session');
-
 // Destroy all sessions when user state changes
 function wwa_destroy_session(){
     unset($_SESSION['wwa_user_name_auth']);
