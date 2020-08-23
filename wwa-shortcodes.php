@@ -40,7 +40,7 @@ function wwa_login_form_shortcode($vals){
     }
 
     if($traditional === "true"){
-        $html_form .= '<div class="wwa-login-form-traditional">'.wp_login_form($args).'<p class="wwa-t2w"><span>'.__('Authenticate with WebAuthn','wwa').'</span></p></div>';
+        $html_form .= '<div class="wwa-login-form-traditional">'.wp_login_form($args).'<br><p class="wwa-t2w"><span>'.__('Authenticate with WebAuthn','wwa').'</span></p></div>';
     }
 
     $html_form .= '<div class="wwa-login-form-webauthn"><p class="wwa-login-username"><label for="wwa-user-name">'.__('Username','wwa').'</label><input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.$username.'" size="20"></p><div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn','wwa').'</div><p class="wwa-login-submit-p"><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth','wwa').'">'.$to_wwa.'<span class="wwa-w2t">'.__('Authenticate with password','wwa').'</span></p></div></div>';
