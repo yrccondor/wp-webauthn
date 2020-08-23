@@ -1,7 +1,7 @@
 'use strict';
 
 // Send an AJAX request and get the response
-let wwa_ajax = function () {
+const wwa_ajax = function () {
     let xmlHttpReq = new XMLHttpRequest();
     return {
         /** Send an AJAX GET request and get the response
