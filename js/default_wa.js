@@ -1,3 +1,5 @@
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll('#lostpasswordform, #registerform').length > 0) {
         return;
@@ -5,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.onload = () => {
         if (!(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== 'function')) {
             // If supported, toggle
-            if (document.getElementsByClassName('user-pass-wrap') > 0) {
+            if (document.getElementsByClassName('user-pass-wrap').length > 0) {
                 wwa_dom('.user-pass-wrap, .forgetmenot, #wp-submit', (dom) => { dom.style.display = 'none' });
             } else {
                 // WordPress 5.2-

@@ -48,7 +48,7 @@ const wwa_ajax = function () {
  * @param {object} callback Callbck function
  * @param {string} method Selecte method
  */
-let wwa_dom = (selector, callback = () => { }, method = 'query') => {
+const wwa_dom = (selector, callback = () => { }, method = 'query') => {
     let dom_list = [];
     if (method === 'id') {
         let dom = document.getElementById(selector);

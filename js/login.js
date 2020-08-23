@@ -1,5 +1,7 @@
+'use strict';
+
 // Send an AJAX request and get the response
-const wwa_ajax = function () {
+let wwa_ajax = function () {
     let xmlHttpReq = new XMLHttpRequest();
     return {
         /** Send an AJAX GET request and get the response
@@ -46,7 +48,7 @@ const wwa_ajax = function () {
  * @param {object} callback Callbck function
  * @param {string} method Selecte method
  */
-let wwa_dom = (selector, callback = () => { }, method = 'query') => {
+const wwa_dom = (selector, callback = () => { }, method = 'query') => {
     let dom_list = [];
     if (method === 'id') {
         let dom = document.getElementById(selector);
@@ -180,7 +182,7 @@ function toggle() {
     }
     if (wwaSupported) {
         if (document.getElementsByClassName('wp-webauthn-notice')[0].style.display === 'block') {
-            if (document.getElementsByClassName('user-pass-wrap') > 0) {
+            if (document.getElementsByClassName('user-pass-wrap').length > 0) {
                 wwa_dom('.user-pass-wrap, .forgetmenot, #wp-submit', (dom) => { dom.style.display = 'block' });
             } else {
                 // WordPress 5.2-
@@ -203,7 +205,7 @@ function toggle() {
                 }
             }
         } else {
-            if (document.getElementsByClassName('user-pass-wrap') > 0) {
+            if (document.getElementsByClassName('user-pass-wrap').length > 0) {
                 wwa_dom('.user-pass-wrap, .forgetmenot, #wp-submit', (dom) => { dom.style.display = 'none' });
             } else {
                 // WordPress 5.2-
