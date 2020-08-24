@@ -168,7 +168,9 @@ class KeyConverter
      */
     private static function loadKeyFromPEM(string $pem, ?string $password = null): array
     {
-        $pem = self::loadEncryptedKey($pem, $password);
+        if (1 === preg_match('#DEK-Info: (.+),(.+)#', $pem, $matches)) {
+            $pem = self::decodePem($pem, $matches, $password);
+        }
 
         if (!extension_loaded('openssl')) {
             throw new RuntimeException('Please install the OpenSSL extension');
@@ -193,10 +195,9 @@ class KeyConverter
 
                 return $ec_key->toArray();
             case OPENSSL_KEYTYPE_RSA:
-                 $rsa_key = RSAKey::createFromPEM($pem);
-                $rsa_key->optimize();
+                $rsa_key = RSAKey::createFromPEM($pem);
 
-                 return $rsa_key->toArray();
+                return $rsa_key->toArray();
             default:
                 throw new InvalidArgumentException('Unsupported key type');
         }
@@ -255,24 +256,5 @@ class KeyConverter
         $pem = chunk_split(base64_encode($der_data), 64, PHP_EOL);
 
         return '-----BEGIN CERTIFICATE-----'.PHP_EOL.$pem.'-----END CERTIFICATE-----'.PHP_EOL;
-    }
-
-    private static function loadEncryptedKey(?string $pem, ?string $password): string
-    {
-        if (1 === preg_match('#DEK-Info: (.+),(.+)#', $pem, $matches)) {
-            $pem = self::decodePem($pem, $matches, $password);
-        }
-        if (1 === preg_match('#BEGIN ENCRYPTED PRIVATE KEY#', $pem, $matches)) {
-            $res = openssl_pkey_get_private($pem, $password);
-            if (false === $res) {
-                throw new InvalidArgumentException('Unable to load the key.');
-            }
-            $res = openssl_pkey_export($res, $pem);
-            if (false === $res) {
-                throw new InvalidArgumentException('Unable to load the key.');
-            }
-        }
-
-        return $pem;
     }
 }

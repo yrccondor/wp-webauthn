@@ -32,6 +32,7 @@ use function idn_to_ascii;
 use function implode;
 use function in_array;
 use function inet_pton;
+use function is_object;
 use function is_scalar;
 use function method_exists;
 use function preg_match;
@@ -310,7 +311,7 @@ final class Uri implements UriInterface
      */
     private function formatScheme(?string $scheme): ?string
     {
-        if ('' === $scheme || null === $scheme) {
+        if (null === $scheme) {
             return $scheme;
         }
 
@@ -319,7 +320,7 @@ final class Uri implements UriInterface
             return $formatted_scheme;
         }
 
-        throw new SyntaxError(sprintf('The scheme `%s` is invalid', $scheme));
+        throw new SyntaxError(sprintf('The scheme `%s` is invalid.', $scheme));
     }
 
     /**
@@ -438,7 +439,7 @@ final class Uri implements UriInterface
             $arr
         );
 
-        if ($arr === []) {
+        if ([] === $arr) {
             throw new SyntaxError(sprintf('Host `%s` is invalid', $host));
         }
 
@@ -1110,11 +1111,11 @@ final class Uri implements UriInterface
     private function assertValidState(): void
     {
         if (null !== $this->authority && ('' !== $this->path && '/' !== $this->path[0])) {
-            throw new SyntaxError('If an authority is present the path must be empty or start with a `/`');
+            throw new SyntaxError('If an authority is present the path must be empty or start with a `/`.');
         }
 
         if (null === $this->authority && 0 === strpos($this->path, '//')) {
-            throw new SyntaxError(sprintf('If there is no authority the path `%s` can not start with a `//`', $this->path));
+            throw new SyntaxError(sprintf('If there is no authority the path `%s` can not start with a `//`.', $this->path));
         }
 
         $pos = strpos($this->path, ':');
@@ -1133,7 +1134,7 @@ final class Uri implements UriInterface
             return;
         }
 
-        throw new SyntaxError(sprintf('The uri `%s` is invalid for the data scheme', (string) $this));
+        throw new SyntaxError(sprintf('The uri `%s` is invalid for the `%s` scheme.', (string) $this, $this->scheme));
     }
 
     /**
@@ -1359,8 +1360,12 @@ final class Uri implements UriInterface
             return $str;
         }
 
-        if (!is_scalar($str) && !method_exists($str, '__toString')) {
-            throw new \TypeError(sprintf('The component must be a string, a scalar or a stringable object %s given', gettype($str)));
+        if (is_object($str) && method_exists($str, '__toString')) {
+            $str = (string) $str;
+        }
+
+        if (!is_scalar($str)) {
+            throw new \TypeError(sprintf('The component must be a string, a scalar or a stringable object %s given.', gettype($str)));
         }
 
         $str = (string) $str;
@@ -1368,7 +1373,7 @@ final class Uri implements UriInterface
             return $str;
         }
 
-        throw new SyntaxError(sprintf('The component `%s` contains invalid characters', $str));
+        throw new SyntaxError(sprintf('The component `%s` contains invalid characters.', $str));
     }
 
     /**
@@ -1441,7 +1446,7 @@ final class Uri implements UriInterface
     {
         $path = $this->filterString($path);
         if (null === $path) {
-            throw new \TypeError('A path must be a string NULL given');
+            throw new \TypeError('A path must be a string NULL given.');
         }
 
         $path = $this->formatPath($path);
