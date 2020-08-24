@@ -8,7 +8,7 @@
 
 <h1 align="center">WP-WebAuthn</h1>
 
-<p align="center">WP-WebAuthn 使你可以安全地通过 U2F 设备登录账户而无需输入密码。</p>
+<p align="center">WP-WebAuthn 使你可以安全地通过 U2F/FIDO2 设备登录账户而无需输入密码。</p>
 
 <p align="center"><a href="https://github.com/yrccondor/wp-webauthn/releases"><img alt="releases" src="https://img.shields.io/github/release/yrccondor/wp-webauthn.svg"/></a>
 <img alt="WordPress" src="https://img.shields.io/badge/WordPress-5.0%2B-blue.svg"/>
