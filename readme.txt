@@ -3,7 +3,7 @@ Contributors: axton
 Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, secure, password
 Requires at least: 5.0
-Tested up to: 5.4
+Tested up to: 5.5
 Stable tag: 1.0.16
 Requires PHP: 7.2
 License: GPLv3
