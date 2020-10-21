@@ -40,6 +40,7 @@ function wwa_init_data(){
             'first_choice' => 'true',
             'website_name' => get_bloginfo('name'),
             'website_domain' => $site_domain === NULL ? "" : $site_domain,
+            'remember_me' => 'false',
             'user_verification' => 'false',
             'usernameless_login' => 'false',
             'logging' => 'false'

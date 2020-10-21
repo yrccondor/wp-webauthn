@@ -16,7 +16,7 @@ if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_
     add_settings_error("wwa_settings", "https_error", __("WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.", "wwa"));
 }
 // Only admin can change settings
-if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
+if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false") && ($_POST['remember_me'] === "true" || $_POST['remember_me'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
     $res_id = wwa_generate_random_string(5);
     if(sanitize_text_field($_POST['logging']) === 'true' && wwa_get_option('logging') === 'false'){
         // Initialize log
@@ -30,35 +30,47 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
             wwa_add_log($res_id, "Warning: Not in security context", true);
         }
         wwa_add_log($res_id, "PHP Version => ".phpversion().", WordPress Version => ".get_bloginfo('version').", WP-WebAuthn Version => ".get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, "Current config: first_choice => \"".wwa_get_option('first_choice')."\", website_name => \"".wwa_get_option('website_name')."\", website_domain => \"".wwa_get_option('website_domain')."\", user_verification => \"".wwa_get_option('user_verification')."\", usernameless_login => \"".wwa_get_option('usernameless_login')."\"", true);
+        wwa_add_log($res_id, "Current config: first_choice => \"".wwa_get_option('first_choice')."\", website_name => \"".wwa_get_option('website_name')."\", website_domain => \"".wwa_get_option('website_domain')."\", remember_me => \"".wwa_get_option('remember_me')."\", user_verification => \"".wwa_get_option('user_verification')."\", usernameless_login => \"".wwa_get_option('usernameless_login')."\"", true);
         wwa_add_log($res_id, "Logger initialized", true);
     }
     wwa_update_option('logging', sanitize_text_field($_POST['logging']));
+
     $post_first_choice = sanitize_text_field($_POST['first_choice']);
     if($post_first_choice !== wwa_get_option('first_choice')){
         wwa_add_log($res_id, "first_choice: \"".wwa_get_option('first_choice')."\"->\"".$post_first_choice."\"");
     }
     wwa_update_option('first_choice', $post_first_choice);
+
     $post_website_name = sanitize_text_field($_POST['website_name']);
     if($post_website_name !== wwa_get_option('website_name')){
         wwa_add_log($res_id, "website_name: \"".wwa_get_option('website_name')."\"->\"".$post_website_name."\"");
     }
     wwa_update_option('website_name', $post_website_name);
+
     $post_website_domain = str_replace("https:", "", str_replace("/", "", sanitize_text_field($_POST['website_domain'])));
     if($post_website_domain !== wwa_get_option('website_domain')){
         wwa_add_log($res_id, "website_domain: \"".wwa_get_option('website_domain')."\"->\"".$post_website_domain."\"");
     }
     wwa_update_option('website_domain', $post_website_domain);
+
+    $post_remember_me = sanitize_text_field($_POST['remember_me']);
+    if($post_remember_me !== wwa_get_option('remember_me')){
+        wwa_add_log($res_id, "remember_me: \"".wwa_get_option('remember_me')."\"->\"".$post_remember_me."\"");
+    }
+    wwa_update_option('remember_me', $post_remember_me);
+
     $post_user_verification = sanitize_text_field($_POST['user_verification']);
     if($post_user_verification !== wwa_get_option('user_verification')){
         wwa_add_log($res_id, "user_verification: \"".wwa_get_option('user_verification')."\"->\"".$post_user_verification."\"");
     }
     wwa_update_option('user_verification', $post_user_verification);
+
     $post_usernameless_login = sanitize_text_field($_POST['usernameless_login']);
     if($post_usernameless_login !== wwa_get_option('usernameless_login')){
         wwa_add_log($res_id, "usernameless_login: \"".wwa_get_option('usernameless_login')."\"->\"".$post_usernameless_login."\"");
     }
     wwa_update_option('usernameless_login', $post_usernameless_login);
+
     add_settings_error("wwa_settings", "save_success", __("Settings saved.", "wwa"), "success");
 }elseif((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true')){
     add_settings_error("wwa_settings", "save_error", __("Settings NOT saved.", "wwa"));
@@ -98,6 +110,22 @@ wp_nonce_field('wwa_options_update');
 <td>
     <input required name="website_domain" type="text" id="website_domain" value="<?php echo wwa_get_option('website_domain');?>" class="regular-text">
     <p class="description"><?php _e('This field <strong>MUST</strong> be exactly the same with the current domain or parent domain.', 'wwa');?></p>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="remember_me"><?php _e('Allow to remember login', 'wwa');?></label></th>
+<td>
+<?php $wwa_v_rm=wwa_get_option('remember_me');
+if($wwa_v_rm === false){
+    wwa_update_option('remember_me', 'false');
+    $wwa_v_rm = 'false';
+}
+?>
+    <fieldset>
+    <label><input type="radio" name="remember_me" value="true" <?php if($wwa_v_rm=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
+    <label><input type="radio" name="remember_me" value="false" <?php if($wwa_v_rm=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
+    <p class="description"><?php _e('Show the \'Remember Me\' checkbox beside the login form when using WebAuthn.', 'wwa');?></p>
+    </fieldset>
 </td>
 </tr>
 <tr>

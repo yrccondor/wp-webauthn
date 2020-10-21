@@ -227,7 +227,7 @@ function wwa_auth() {
                 return publicKeyCredential;
             }).then(JSON.stringify).then((AuthenticatorResponse) => {
                 let response = wwa_ajax();
-                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&user=${encodeURIComponent(wwa_username)}`, (data, status) => {
+                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&user=${encodeURIComponent(wwa_username)}&remember=${document.getElementById('wwa-rememberme') ? (document.getElementById('wwa-rememberme').checked ? 'true' : 'false') : 'false'}`, (data, status) => {
                     if (status) {
                         if (data === 'true') {
                             wwa_enable_buttons();

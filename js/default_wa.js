@@ -8,10 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== 'function')) {
             // If supported, toggle
             if (document.getElementsByClassName('user-pass-wrap').length > 0) {
-                wwa_dom('.user-pass-wrap, .forgetmenot, #wp-submit', (dom) => { dom.style.display = 'none' });
+                wwa_dom('.user-pass-wrap, #wp-submit', (dom) => { dom.style.display = 'none' });
+                if (php_vars.remember_me === 'false' ) {
+                    wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                }
             } else {
                 // WordPress 5.2-
-                wwa_dom('.forgetmenot, #wp-submit', (dom) => { dom.style.display = 'none' });
+                wwa_dom('#wp-submit', (dom) => { dom.style.display = 'none' });
+                if (php_vars.remember_me === 'false' ) {
+                    wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                }
                 document.getElementById('loginform').getElementsByTagName('p')[1].style.display = 'none';
             }
             wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'block' }, 'class');

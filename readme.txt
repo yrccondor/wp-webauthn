@@ -33,6 +33,8 @@ Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before
 
 You can contribute to this plugin on [GitHub](https://github.com/yrccondor/wp-webauthn).
 
+Please note that this plugin does NOT support Internet Explorer (including IE 11).
+
 == Installation ==
 
 Notice: PHP extensions gmp and mbstring are required.
@@ -59,8 +61,6 @@ If you can't solve the problem, [open an issue](https://github.com/yrccondor/wp-
 = Which browsers support WebAuthn? =
  
 The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You can learn more on [Can I Use](https://caniuse.com/#feat=webauthn).
-
-Please note that Internet Explorer (including IE 11) is not supported.
 
 == Screenshots ==
 

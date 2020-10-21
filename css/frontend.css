@@ -197,6 +197,9 @@
     font-size: 18px;
     padding-bottom: 20px;
 }
+.wwa-login-form-webauthn {
+    margin-bottom: 30px;
+}
 .wwa-t2w {
     font-size: 14px;
     transform: translateY(-7px);
@@ -226,6 +229,13 @@
 }
 .wwa-usernameless-th, .wwa-usernameless-td {
     display: none;
+}
+#wwa-rememberme {
+    vertical-align: text-bottom;
+}
+.wwa-remember-label {
+    margin-bottom: 17px!important;
+    margin-top: 2px!important;
 }
 @media(max-width: 720px){
     .wwa-login-form .button-primary, .wwa-login-form .button-secondary {

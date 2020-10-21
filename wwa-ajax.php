@@ -647,16 +647,22 @@ function wwa_ajax_auth(){
         wwa_add_log($res_id, "ajax_auth_response: Client response received");
 
         // Check POST
-        if(!isset($_POST["type"]) || !isset($_POST["data"])){
+        if(!isset($_POST["type"]) || !isset($_POST["data"]) || !isset($_POST["remember"])){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Missing parameters, exit");
             wwa_wp_die("Bad Request.");
         }else{
             // Sanitize the input
             $wwa_post = array();
             $wwa_post["type"] = sanitize_text_field($_POST["type"]);
+            $wwa_post["remember"] = sanitize_text_field($_POST["remember"]);
         }
 
         if($wwa_post["type"] !== $_SESSION['wwa_auth_type']){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
+            wwa_wp_die("Bad Request.");
+        }
+
+        if($wwa_post["remember"] !== "true" && $wwa_post["remember"] !== "false"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.");
         }
@@ -825,13 +831,21 @@ function wwa_ajax_auth(){
 
                     wwa_add_log($res_id, "ajax_auth_response: Log in user => \"".$user_login."\"");
 
+                    $remember_flag = false;
+
+                    if ($wwa_post["remember"] === 'true' && (wwa_get_option('remember_me') === false ? "false" : wwa_get_option('remember_me')) !== 'false') {
+                        $remember_flag = true;
+                        wwa_add_log($res_id, "ajax_auth_response: Remember login for 14 days");
+                    }
+
                     wp_set_current_user($user_id, $user_login);
                     if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'){
-                        wp_set_auth_cookie($user_id, false, true);
+                        wp_set_auth_cookie($user_id, $remember_flag, true);
                     }else{
-                        wp_set_auth_cookie($user_id, false);
+                        wp_set_auth_cookie($user_id, $remember_flag);
                     }
                     do_action('wp_login', $user_login, $user);
+
                 }
             }
             echo "true";

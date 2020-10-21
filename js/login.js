@@ -206,10 +206,16 @@ function toggle() {
             }
         } else {
             if (document.getElementsByClassName('user-pass-wrap').length > 0) {
-                wwa_dom('.user-pass-wrap, .forgetmenot, #wp-submit', (dom) => { dom.style.display = 'none' });
+                wwa_dom('.user-pass-wrap, #wp-submit', (dom) => { dom.style.display = 'none' });
+                if (php_vars.remember_me === 'false' ) {
+                    wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                }
             } else {
                 // WordPress 5.2-
-                wwa_dom('.forgetmenot, #wp-submit', (dom) => { dom.style.display = 'none' });
+                wwa_dom('#wp-submit', (dom) => { dom.style.display = 'none' });
+                if (php_vars.remember_me === 'false' ) {
+                    wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                }
                 document.getElementById('loginform').getElementsByTagName('p')[1].style.display = 'none';
             }
             wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'block' }, 'class');
@@ -317,7 +323,7 @@ function check() {
                     return publicKeyCredential;
                 }).then(JSON.stringify).then((AuthenticatorResponse) => {
                     let response = wwa_ajax();
-                    response.post(`${php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&user=${encodeURIComponent(document.getElementById('user_login').value)}`, (data, status) => {
+                    response.post(`${php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&user=${encodeURIComponent(document.getElementById('user_login').value)}&remember=${document.getElementById('rememberme') ? (document.getElementById('rememberme').checked ? 'true' : 'false') : 'false'}`, (data, status) => {
                         if (status) {
                             if (data === 'true') {
                                 wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_6 }, 'class');
