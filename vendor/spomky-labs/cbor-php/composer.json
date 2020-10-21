@@ -25,16 +25,14 @@
     },
     "require": {
         "php": ">=7.3",
-        "brick/math": "^0.8.15"
+        "brick/math": "^0.8.15|^0.9.0"
     },
     "require-dev": {
-        "php-coveralls/php-coveralls": "^2.0",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-beberlei-assert": "^0.12",
         "phpstan/phpstan-deprecation-rules": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
-        "phpstan/phpstan-strict-rules": "^0.12",
-        "phpunit/phpunit": "^9.0"
+        "phpstan/phpstan-strict-rules": "^0.12"
     },
     "suggest": {
         "ext-gmp": "GMP or BCMath extensions will drastically improve the library performance",

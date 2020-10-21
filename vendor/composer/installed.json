@@ -71,17 +71,17 @@
     },
     {
         "name": "brick/math",
-        "version": "0.8.17",
-        "version_normalized": "0.8.17.0",
+        "version": "0.9.1",
+        "version_normalized": "0.9.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/brick/math.git",
-            "reference": "e6f8e7d04346a95be89580f8c2c22d6c3fa65556"
+            "reference": "283a40c901101e66de7061bd359252c013dcc43c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/brick/math/zipball/e6f8e7d04346a95be89580f8c2c22d6c3fa65556",
-            "reference": "e6f8e7d04346a95be89580f8c2c22d6c3fa65556",
+            "url": "https://api.github.com/repos/brick/math/zipball/283a40c901101e66de7061bd359252c013dcc43c",
+            "reference": "283a40c901101e66de7061bd359252c013dcc43c",
             "shasum": "",
             "mirrors": [
                 {
@@ -99,7 +99,7 @@
             "phpunit/phpunit": "^7.5.15|^8.5",
             "vimeo/psalm": "^3.5"
         },
-        "time": "2020-08-18T23:41:20+00:00",
+        "time": "2020-08-18T23:57:15+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -131,17 +131,17 @@
     },
     {
         "name": "fgrosse/phpasn1",
-        "version": "v2.1.1",
-        "version_normalized": "2.1.1.0",
+        "version": "v2.2.0",
+        "version_normalized": "2.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/fgrosse/PHPASN1.git",
-            "reference": "7ebf2a09084a7bbdb7b879c66fdf7ad80461bbe8"
+            "reference": "d1978f7abd580f3fc33561e7f71d4c12c7531fad"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/fgrosse/PHPASN1/zipball/7ebf2a09084a7bbdb7b879c66fdf7ad80461bbe8",
-            "reference": "7ebf2a09084a7bbdb7b879c66fdf7ad80461bbe8",
+            "url": "https://api.github.com/repos/fgrosse/PHPASN1/zipball/d1978f7abd580f3fc33561e7f71d4c12c7531fad",
+            "reference": "d1978f7abd580f3fc33561e7f71d4c12c7531fad",
             "shasum": "",
             "mirrors": [
                 {
@@ -158,10 +158,12 @@
             "satooshi/php-coveralls": "~2.0"
         },
         "suggest": {
+            "ext-bcmath": "BCmath is the fallback extension for big integer calculations",
+            "ext-curl": "For loading OID information from the web if they have not bee defined statically",
             "ext-gmp": "GMP is the preferred extension for big integer calculations",
-            "php-curl": "For loading OID information from the web if they have not bee defined statically"
+            "phpseclib/bcmath_compat": "BCmath polyfill for servers where neither GMP nor BCmath is available"
         },
-        "time": "2018-12-02T01:34:34+00:00",
+        "time": "2020-10-11T16:28:18+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -456,17 +458,17 @@
     },
     {
         "name": "nyholm/psr7",
-        "version": "1.3.0",
-        "version_normalized": "1.3.0.0",
+        "version": "1.3.1",
+        "version_normalized": "1.3.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Nyholm/psr7.git",
-            "reference": "c17f4f73985f62054a331cbc4ffdf9868c4ef256"
+            "reference": "21b71a31eab5c0c2caf967b9c0fd97020254ed75"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Nyholm/psr7/zipball/c17f4f73985f62054a331cbc4ffdf9868c4ef256",
-            "reference": "c17f4f73985f62054a331cbc4ffdf9868c4ef256",
+            "url": "https://api.github.com/repos/Nyholm/psr7/zipball/21b71a31eab5c0c2caf967b9c0fd97020254ed75",
+            "reference": "21b71a31eab5c0c2caf967b9c0fd97020254ed75",
             "shasum": "",
             "mirrors": [
                 {
@@ -476,7 +478,7 @@
             ]
         },
         "require": {
-            "php": "^7.1",
+            "php": ">=7.1",
             "php-http/message-factory": "^1.0",
             "psr/http-factory": "^1.0",
             "psr/http-message": "^1.0"
@@ -491,7 +493,7 @@
             "phpunit/phpunit": "^7.5",
             "symfony/error-handler": "^4.4"
         },
-        "time": "2020-05-23T11:29:07+00:00",
+        "time": "2020-06-13T15:59:10+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -895,17 +897,17 @@
     },
     {
         "name": "ramsey/collection",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ramsey/collection.git",
-            "reference": "044184884e3c803e4cbb6451386cb71562939b18"
+            "reference": "24d93aefb2cd786b7edd9f45b554aea20b28b9b1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ramsey/collection/zipball/044184884e3c803e4cbb6451386cb71562939b18",
-            "reference": "044184884e3c803e4cbb6451386cb71562939b18",
+            "url": "https://api.github.com/repos/ramsey/collection/zipball/24d93aefb2cd786b7edd9f45b554aea20b28b9b1",
+            "reference": "24d93aefb2cd786b7edd9f45b554aea20b28b9b1",
             "shasum": "",
             "mirrors": [
                 {
@@ -935,7 +937,7 @@
             "squizlabs/php_codesniffer": "^3.5",
             "vimeo/psalm": "^3.12.2"
         },
-        "time": "2020-08-11T00:57:21+00:00",
+        "time": "2020-09-10T20:58:17+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1067,17 +1069,17 @@
     },
     {
         "name": "spomky-labs/base64url",
-        "version": "v2.0.2",
-        "version_normalized": "2.0.2.0",
+        "version": "v2.0.3",
+        "version_normalized": "2.0.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Spomky-Labs/base64url.git",
-            "reference": "69e77e7d7c5407a253dacdd7bfe6b8978b7a4fb2"
+            "reference": "48ea8ff600cefe56b82d3d5b768b6f4f3bfe05a1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Spomky-Labs/base64url/zipball/69e77e7d7c5407a253dacdd7bfe6b8978b7a4fb2",
-            "reference": "69e77e7d7c5407a253dacdd7bfe6b8978b7a4fb2",
+            "url": "https://api.github.com/repos/Spomky-Labs/base64url/zipball/48ea8ff600cefe56b82d3d5b768b6f4f3bfe05a1",
+            "reference": "48ea8ff600cefe56b82d3d5b768b6f4f3bfe05a1",
             "shasum": "",
             "mirrors": [
                 {
@@ -1098,7 +1100,7 @@
             "phpstan/phpstan-strict-rules": "^0.11",
             "phpunit/phpunit": "^7.0|^8.0|^9.0"
         },
-        "time": "2020-08-01T14:15:43+00:00",
+        "time": "2020-08-30T13:35:33+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1127,17 +1129,17 @@
     },
     {
         "name": "spomky-labs/cbor-php",
-        "version": "v2.0.0",
-        "version_normalized": "2.0.0.0",
+        "version": "v2.0.1",
+        "version_normalized": "2.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Spomky-Labs/cbor-php.git",
-            "reference": "a07565be29e0375c1e5183fec699252032794475"
+            "reference": "9776578000be884cd7864eeb7c37a4ac92d8c995"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Spomky-Labs/cbor-php/zipball/a07565be29e0375c1e5183fec699252032794475",
-            "reference": "a07565be29e0375c1e5183fec699252032794475",
+            "url": "https://api.github.com/repos/Spomky-Labs/cbor-php/zipball/9776578000be884cd7864eeb7c37a4ac92d8c995",
+            "reference": "9776578000be884cd7864eeb7c37a4ac92d8c995",
             "shasum": "",
             "mirrors": [
                 {
@@ -1147,23 +1149,21 @@
             ]
         },
         "require": {
-            "brick/math": "^0.8.15",
+            "brick/math": "^0.8.15|^0.9.0",
             "php": ">=7.3"
         },
         "require-dev": {
-            "php-coveralls/php-coveralls": "^2.0",
             "phpstan/phpstan": "^0.12",
             "phpstan/phpstan-beberlei-assert": "^0.12",
             "phpstan/phpstan-deprecation-rules": "^0.12",
             "phpstan/phpstan-phpunit": "^0.12",
-            "phpstan/phpstan-strict-rules": "^0.12",
-            "phpunit/phpunit": "^9.0"
+            "phpstan/phpstan-strict-rules": "^0.12"
         },
         "suggest": {
             "ext-bcmath": "GMP or BCMath extensions will drastically improve the library performance. BCMath extension needed to handle the Big Float and Decimal Fraction Tags",
             "ext-gmp": "GMP or BCMath extensions will drastically improve the library performance"
         },
-        "time": "2020-07-12T22:36:35+00:00",
+        "time": "2020-08-31T20:08:03+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1372,17 +1372,17 @@
     },
     {
         "name": "symfony/process",
-        "version": "v5.1.3",
-        "version_normalized": "5.1.3.0",
+        "version": "v5.1.7",
+        "version_normalized": "5.1.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/process.git",
-            "reference": "1864216226af21eb76d9477f691e7cbf198e0402"
+            "reference": "d3a2e64866169586502f0cd9cab69135ad12cee9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/process/zipball/1864216226af21eb76d9477f691e7cbf198e0402",
-            "reference": "1864216226af21eb76d9477f691e7cbf198e0402",
+            "url": "https://api.github.com/repos/symfony/process/zipball/d3a2e64866169586502f0cd9cab69135ad12cee9",
+            "reference": "d3a2e64866169586502f0cd9cab69135ad12cee9",
             "shasum": "",
             "mirrors": [
                 {
@@ -1395,7 +1395,7 @@
             "php": ">=7.2.5",
             "symfony/polyfill-php80": "^1.15"
         },
-        "time": "2020-07-23T08:36:24+00:00",
+        "time": "2020-09-02T16:23:27+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1444,8 +1444,8 @@
     },
     {
         "name": "web-auth/cose-lib",
-        "version": "v3.2.8",
-        "version_normalized": "3.2.8.0",
+        "version": "v3.2.10",
+        "version_normalized": "3.2.10.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-auth/cose-lib.git",
@@ -1524,8 +1524,8 @@
     },
     {
         "name": "web-auth/metadata-service",
-        "version": "v3.2.8",
-        "version_normalized": "3.2.8.0",
+        "version": "v3.2.10",
+        "version_normalized": "3.2.10.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-auth/webauthn-metadata-service.git",
@@ -1597,17 +1597,17 @@
     },
     {
         "name": "web-auth/webauthn-lib",
-        "version": "v3.2.8",
-        "version_normalized": "3.2.8.0",
+        "version": "v3.2.10",
+        "version_normalized": "3.2.10.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-auth/webauthn-lib.git",
-            "reference": "156b9f7c0e4b0074233db6c1565641561b53d893"
+            "reference": "b3df2a171ff224d4a3c2b1e8dfae3212abe722fc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/156b9f7c0e4b0074233db6c1565641561b53d893",
-            "reference": "156b9f7c0e4b0074233db6c1565641561b53d893",
+            "url": "https://api.github.com/repos/web-auth/webauthn-lib/zipball/b3df2a171ff224d4a3c2b1e8dfae3212abe722fc",
+            "reference": "b3df2a171ff224d4a3c2b1e8dfae3212abe722fc",
             "shasum": "",
             "mirrors": [
                 {
@@ -1640,7 +1640,7 @@
             "web-token/jwt-signature-algorithm-eddsa": "Recommended for the AndroidSafetyNet Attestation Statement support",
             "web-token/jwt-signature-algorithm-rsa": "Mandatory for the AndroidSafetyNet Attestation Statement support"
         },
-        "time": "2020-08-01T16:33:25+00:00",
+        "time": "2020-08-31T19:42:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1694,17 +1694,17 @@
     },
     {
         "name": "web-token/jwt-core",
-        "version": "v2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "v2.2.5",
+        "version_normalized": "2.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-core.git",
-            "reference": "0909efa4fe2c3e2d537922b3ea1b65eb8203686c"
+            "reference": "8115d846f3a9ee817dca03024eb4c17a3c0ff81a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/web-token/jwt-core/zipball/0909efa4fe2c3e2d537922b3ea1b65eb8203686c",
-            "reference": "0909efa4fe2c3e2d537922b3ea1b65eb8203686c",
+            "url": "https://api.github.com/repos/web-token/jwt-core/zipball/8115d846f3a9ee817dca03024eb4c17a3c0ff81a",
+            "reference": "8115d846f3a9ee817dca03024eb4c17a3c0ff81a",
             "shasum": "",
             "mirrors": [
                 {
@@ -1714,6 +1714,7 @@
             ]
         },
         "require": {
+            "brick/math": "^0.8.17|^0.9",
             "ext-json": "*",
             "ext-mbstring": "*",
             "fgrosse/phpasn1": "^2.0",
@@ -1726,7 +1727,7 @@
         "require-dev": {
             "phpunit/phpunit": "^8.0"
         },
-        "time": "2020-08-22T13:17:25+00:00",
+        "time": "2020-09-29T21:35:58+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1787,8 +1788,8 @@
     },
     {
         "name": "web-token/jwt-key-mgmt",
-        "version": "v2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "v2.2.5",
+        "version_normalized": "2.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-key-mgmt.git",
@@ -1885,8 +1886,8 @@
     },
     {
         "name": "web-token/jwt-signature",
-        "version": "v2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "v2.2.5",
+        "version_normalized": "2.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature.git",
@@ -1979,8 +1980,8 @@
     },
     {
         "name": "web-token/jwt-signature-algorithm-ecdsa",
-        "version": "v2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "v2.2.5",
+        "version_normalized": "2.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature-algorithm-ecdsa.git",
@@ -2066,8 +2067,8 @@
     },
     {
         "name": "web-token/jwt-signature-algorithm-eddsa",
-        "version": "v2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "v2.2.5",
+        "version_normalized": "2.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature-algorithm-eddsa.git",
@@ -2153,17 +2154,17 @@
     },
     {
         "name": "web-token/jwt-signature-algorithm-rsa",
-        "version": "v2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "v2.2.5",
+        "version_normalized": "2.2.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/web-token/jwt-signature-algorithm-rsa.git",
-            "reference": "c3566d81b884fc562dd06c6cb56e18f6a32ff357"
+            "reference": "ba94b8868bd8fdd481f448097ab900a8cb2c0eed"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-rsa/zipball/c3566d81b884fc562dd06c6cb56e18f6a32ff357",
-            "reference": "c3566d81b884fc562dd06c6cb56e18f6a32ff357",
+            "url": "https://api.github.com/repos/web-token/jwt-signature-algorithm-rsa/zipball/ba94b8868bd8fdd481f448097ab900a8cb2c0eed",
+            "reference": "ba94b8868bd8fdd481f448097ab900a8cb2c0eed",
             "shasum": "",
             "mirrors": [
                 {
@@ -2173,7 +2174,7 @@
             ]
         },
         "require": {
-            "brick/math": "^0.8.17",
+            "brick/math": "^0.8.17|^0.9",
             "ext-openssl": "*",
             "web-token/jwt-signature": "^2.1"
         },
@@ -2184,7 +2185,7 @@
             "ext-bcmath": "GMP or BCMath is highly recommended to improve the library performance",
             "ext-gmp": "GMP or BCMath is highly recommended to improve the library performance"
         },
-        "time": "2020-08-22T13:17:25+00:00",
+        "time": "2020-08-22T13:37:56+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {

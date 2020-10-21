@@ -58,30 +58,6 @@ final class BigInteger extends BigNumber
     }
 
     /**
-     * Parses a string containing an integer in an arbitrary base.
-     *
-     * @deprecated will be removed in version 0.9 - use fromBase() instead
-     *
-     * The string can optionally be prefixed with the `+` or `-` sign.
-     * For bases greater than 10, both uppercase and lowercase letters are allowed.
-     *
-     * @param string $number The number to parse.
-     * @param int    $base   The base of the number, between 2 and 36.
-     *
-     * @return BigInteger
-     *
-     * @throws \InvalidArgumentException If the number is invalid or the base is out of range.
-     */
-    public static function parse(string $number, int $base = 10) : BigInteger
-    {
-        try {
-            return self::fromBase($number, $base);
-        } catch (NumberFormatException $e) {
-            throw new \InvalidArgumentException($e->getMessage(), 0, $e);
-        }
-    }
-
-    /**
      * Creates a number from a string in a given base.
      *
      * The string can optionally be prefixed with the `+` or `-` sign.
@@ -220,14 +196,14 @@ final class BigInteger extends BigNumber
         $twosComplement = false;
 
         if ($signed) {
-            $x = ord($value[0]);
+            $x = \ord($value[0]);
 
             if (($twosComplement = ($x >= 0x80))) {
                 $value = ~$value;
             }
         }
 
-        $number = self::fromBase(bin2hex($value), 16);
+        $number = self::fromBase(\bin2hex($value), 16);
 
         if ($twosComplement) {
             return $number->plus(1)->negated();
@@ -264,10 +240,10 @@ final class BigInteger extends BigNumber
             $randomBytesGenerator = 'random_bytes';
         }
 
-        $byteLength = intdiv($numBits - 1, 8) + 1;
+        $byteLength = \intdiv($numBits - 1, 8) + 1;
 
         $extraBits = ($byteLength * 8 - $numBits);
-        $bitmask   = chr(0xFF >> $extraBits);
+        $bitmask   = \chr(0xFF >> $extraBits);
 
         $randomBytes    = $randomBytesGenerator($byteLength);
         $randomBytes[0] = $randomBytes[0] & $bitmask;
@@ -650,8 +626,8 @@ final class BigInteger extends BigNumber
      *
      * This operation only works on positive numbers.
      *
-     * @param BigNumber|int|float|string $exp The positive exponent.
-     * @param BigNumber|int|float|string $mod The modulus. Must not be zero.
+     * @param BigNumber|int|float|string $exp The exponent. Must be positive or zero.
+     * @param BigNumber|int|float|string $mod The modulus. Must be strictly positive.
      *
      * @return BigInteger
      *
@@ -674,24 +650,6 @@ final class BigInteger extends BigNumber
         $result = Calculator::get()->modPow($this->value, $exp->value, $mod->value);
 
         return new BigInteger($result);
-    }
-
-    /**
-     * Returns this number raised into power with modulo.
-     *
-     * @deprecated Use modPow() instead.
-     *
-     * @param BigNumber|int|float|string $exp The positive exponent.
-     * @param BigNumber|int|float|string $mod The modulus. Must not be zero.
-     *
-     * @return BigInteger
-     *
-     * @throws NegativeNumberException If any of the operands is negative.
-     * @throws DivisionByZeroException If the modulus is zero.
-     */
-    public function powerMod($exp, $mod) : BigInteger
-    {
-        return $this->modPow($exp, $mod);
     }
 
     /**
@@ -809,6 +767,16 @@ final class BigInteger extends BigNumber
     }
 
     /**
+     * Returns the bitwise-not of this BigInteger.
+     *
+     * @return BigInteger
+     */
+    public function not() : BigInteger
+    {
+        return $this->negated()->minus(1);
+    }
+
+    /**
      * Returns the integer left shifted by a given number of bits.
      *
      * @param int $distance The distance to shift.
@@ -872,7 +840,7 @@ final class BigInteger extends BigNumber
             return $this->abs()->minus(1)->getBitLength();
         }
 
-        return strlen($this->toBase(2));
+        return \strlen($this->toBase(2));
     }
 
     /**
@@ -905,7 +873,7 @@ final class BigInteger extends BigNumber
      */
     public function isEven() : bool
     {
-        return in_array($this->value[-1], ['0', '2', '4', '6', '8'], true);
+        return \in_array($this->value[-1], ['0', '2', '4', '6', '8'], true);
     }
 
     /**
@@ -915,7 +883,7 @@ final class BigInteger extends BigNumber
      */
     public function isOdd() : bool
     {
-        return in_array($this->value[-1], ['1', '3', '5', '7', '9'], true);
+        return \in_array($this->value[-1], ['1', '3', '5', '7', '9'], true);
     }
 
     /**
@@ -1094,21 +1062,21 @@ final class BigInteger extends BigNumber
 
         $hex = $this->abs()->toBase(16);
 
-        if (strlen($hex) % 2 !== 0) {
+        if (\strlen($hex) % 2 !== 0) {
             $hex = '0' . $hex;
         }
 
-        $baseHexLength = strlen($hex);
+        $baseHexLength = \strlen($hex);
 
         if ($signed) {
             if ($this->isNegative()) {
-                $hex = bin2hex(~hex2bin($hex));
+                $hex = \bin2hex(~\hex2bin($hex));
                 $hex = self::fromBase($hex, 16)->plus(1)->toBase(16);
 
-                $hexLength = strlen($hex);
+                $hexLength = \strlen($hex);
 
                 if ($hexLength < $baseHexLength) {
-                    $hex = str_repeat('0', $baseHexLength - $hexLength) . $hex;
+                    $hex = \str_repeat('0', $baseHexLength - $hexLength) . $hex;
                 }
 
                 if ($hex[0] < '8') {
@@ -1121,7 +1089,7 @@ final class BigInteger extends BigNumber
             }
         }
 
-        return hex2bin($hex);
+        return \hex2bin($hex);
     }
 
     /**
