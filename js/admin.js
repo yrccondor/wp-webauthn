@@ -40,15 +40,25 @@ function updateList() {
                 jQuery('#authenticator-list').html(`<tr><td colspan="${jQuery('.usernameless-th').css('display') === 'none' ? '5' : '6'}">${php_vars.i18n_17}</td></tr>`);
                 jQuery('#usernameless_tip').text('');
                 jQuery('#usernameless_tip').hide();
+                jQuery('#type_tip').text('');
+                jQuery('#type_tip').hide();
                 return;
             }
             let htmlStr = '';
             let has_usernameless = false;
+            let has_disabled_type = false;
             for (item of data) {
+                let item_type_disabled = false;
                 if (item.usernameless) {
                     has_usernameless = true;
                 }
-                htmlStr += `<tr><td>${item.name}</td><td>${item.type === 'none' ? php_vars.i18n_9 : (item.type === 'platform' ? php_vars.i18n_10 : php_vars.i18n_11)}</td><td>${item.added}</td><td>${item.last_used}</td><td class="usernameless-td">${item.usernameless ? php_vars.i18n_24 + (configs.usernameless === 'true' ? '' : php_vars.i18n_26) : php_vars.i18n_25}</td><td id="${item.key}"><a href="javascript:renameAuthenticator('${item.key}', '${item.name}')">${php_vars.i18n_20}</a> | <a href="javascript:removeAuthenticator('${item.key}', '${item.name}')">${php_vars.i18n_12}</a></td></tr>`;
+                if (configs.allow_authenticator_type !== 'none') {
+                    if (configs.allow_authenticator_type !== item.type) {
+                        has_disabled_type = true;
+                        item_type_disabled = true;
+                    }
+                }
+                htmlStr += `<tr><td>${item.name}</td><td>${item.type === 'none' ? php_vars.i18n_9 : (item.type === 'platform' ? php_vars.i18n_10 : php_vars.i18n_11)}${item_type_disabled ? ' ' + php_vars.i18n_29 : ''}</td><td>${item.added}</td><td>${item.last_used}</td><td class="usernameless-td">${item.usernameless ? php_vars.i18n_24 + (configs.usernameless === 'true' ? '' : php_vars.i18n_26) : php_vars.i18n_25}</td><td id="${item.key}"><a href="javascript:renameAuthenticator('${item.key}', '${item.name}')">${php_vars.i18n_20}</a> | <a href="javascript:removeAuthenticator('${item.key}', '${item.name}')">${php_vars.i18n_12}</a></td></tr>`;
             }
             jQuery('#authenticator-list').html(htmlStr);
             if (has_usernameless || configs.usernameless === 'true') {
@@ -62,6 +72,17 @@ function updateList() {
             } else {
                 jQuery('#usernameless_tip').text('');
                 jQuery('#usernameless_tip').hide();
+            }
+            if (has_disabled_type && configs.allow_authenticator_type !== 'none') {
+                if (configs.allow_authenticator_type === 'platform') {
+                    jQuery('#type_tip').text(php_vars.i18n_30);
+                } else {
+                    jQuery('#type_tip').text(php_vars.i18n_31);
+                }
+                jQuery('#type_tip').show();
+            } else {
+                jQuery('#type_tip').text('');
+                jQuery('#type_tip').hide();
             }
         },
         error: function () {
@@ -316,6 +337,16 @@ jQuery('#test, #test_usernameless').click((e) => {
                 });
             }
 
+            if (data.allowCredentials && configs.allow_authenticator_type && configs.allow_authenticator_type !== 'none') {
+                for (let credential of data.allowCredentials) {
+                    if (configs.allow_authenticator_type === 'cross-platform') {
+                        credential.transports = ['usb', 'nfc', 'ble'];
+                    } else if (configs.allow_authenticator_type === 'platform') {
+                        credential.transports = ['internal'];
+                    }
+                }
+            }
+
             navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
                 jQuery(tip_id).html(php_vars.i18n_14);
                 return credentialInfo;
@@ -338,7 +369,8 @@ jQuery('#test, #test_usernameless').click((e) => {
                     type: 'POST',
                     data: {
                         data: window.btoa(AuthenticatorResponse),
-                        type: 'test'
+                        type: 'test',
+                        remember: 'false'
                     },
                     success: function (data) {
                         if (data === 'true') {

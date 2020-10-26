@@ -42,7 +42,7 @@
 .wwa-list-table td {
     vertical-align: top;
 }
-.wwa-bind-name-description, .wwa-bind-name-description, .wwa-bind-usernameless-description, .wwa-authenticator-list-usernameless-tip {
+.wwa-bind-name-description, .wwa-bind-name-description, .wwa-bind-usernameless-description, .wwa-authenticator-list-usernameless-tip, .wwa-authenticator-list-type-tip {
     opacity: .7;
     font-size: 14px;
 }
@@ -197,6 +197,9 @@
     font-size: 18px;
     padding-bottom: 20px;
 }
+.wp-webauthn-notice {
+    pointer-events: none;
+}
 .wwa-login-form-webauthn {
     margin-bottom: 30px;
 }
@@ -222,6 +225,7 @@
     font-size: 14px;
     opacity: .7;
     color: black;
+    pointer-events: none;
 }
 .wwa-table-container {
     width: 100%;

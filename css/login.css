@@ -16,6 +16,7 @@
     margin-bottom: 10px;
     opacity: .8;
     display: none;
+    pointer-events: none;
 }
 .wp-webauthn-notice span {
     line-height: unset;
@@ -32,6 +33,7 @@
     font-size: 12px;
     opacity: .7;
     color: black;
+    pointer-events: none;
 }
 @media(max-width: 782px){
     #wp-webauthn span {

@@ -1,7 +1,7 @@
 <?php
 // Insert CSS and JS
 wp_enqueue_script('wwa_admin', plugins_url('js/admin.js',__FILE__));
-wp_localize_script('wwa_admin', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'i18n_1' => __('Initializing...','wwa'),'i18n_2' => __('Please follow instructions to finish registration...','wwa'),'i18n_3' => '<span class="success">'._x('Registered', 'action','wwa').'</span>','i18n_4' => '<span class="failed">'.__('Registration failed','wwa').'</span>','i18n_5' => __('Your browser does not support WebAuthn','wwa'),'i18n_6' => __('Registrating...','wwa'),'i18n_7' => __('Please enter the authenticator identifier','wwa'),'i18n_8' => __('Loading failed, maybe try refreshing?','wwa'),'i18n_9' => __('Any','wwa'),'i18n_10' => __('Platform authenticator','wwa'),'i18n_11' => __('Roaming authenticator','wwa'),'i18n_12' => __('Remove','wwa'),'i18n_13' => __('Please follow instructions to finish verification...','wwa'),'i18n_14' => __('Verifying...','wwa'),'i18n_15' => '<span class="failed">'.__('Verification failed','wwa').'</span>','i18n_16' => '<span class="success">'.__('Verification passed! You can now log in through WebAuthn','wwa').'</span>','i18n_17' => __('No registered authenticators','wwa'),'i18n_18' => __('Confirm removal of authenticator: ','wwa'),'i18n_19' => __('Removing...','wwa'),'i18n_20' => __('Rename','wwa'),'i18n_21' => __('Rename the authenticator','wwa'),'i18n_22' => __('Renaming...','wwa'),'i18n_23' => __('Log count: ','wwa'),'i18n_24' => __('Ready','wwa'),'i18n_25' => __('No','wwa'),'i18n_26' => __(' (Unavailable)','wwa'),'i18n_27' => __('The site administrator has disabled usernameless login feature.','wwa'),'i18n_28' => __('After removing this authenticator, you will not be able to login with WebAuthn','wwa')));
+wp_localize_script('wwa_admin', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'i18n_1' => __('Initializing...','wwa'),'i18n_2' => __('Please follow instructions to finish registration...','wwa'),'i18n_3' => '<span class="success">'._x('Registered', 'action','wwa').'</span>','i18n_4' => '<span class="failed">'.__('Registration failed','wwa').'</span>','i18n_5' => __('Your browser does not support WebAuthn','wwa'),'i18n_6' => __('Registrating...','wwa'),'i18n_7' => __('Please enter the authenticator identifier','wwa'),'i18n_8' => __('Loading failed, maybe try refreshing?','wwa'),'i18n_9' => __('Any','wwa'),'i18n_10' => __('Platform authenticator','wwa'),'i18n_11' => __('Roaming authenticator','wwa'),'i18n_12' => __('Remove','wwa'),'i18n_13' => __('Please follow instructions to finish verification...','wwa'),'i18n_14' => __('Verifying...','wwa'),'i18n_15' => '<span class="failed">'.__('Verification failed','wwa').'</span>','i18n_16' => '<span class="success">'.__('Verification passed! You can now log in through WebAuthn','wwa').'</span>','i18n_17' => __('No registered authenticators','wwa'),'i18n_18' => __('Confirm removal of authenticator: ','wwa'),'i18n_19' => __('Removing...','wwa'),'i18n_20' => __('Rename','wwa'),'i18n_21' => __('Rename the authenticator','wwa'),'i18n_22' => __('Renaming...','wwa'),'i18n_23' => __('Log count: ','wwa'),'i18n_24' => __('Ready','wwa'),'i18n_25' => __('No','wwa'),'i18n_26' => __(' (Unavailable)','wwa'),'i18n_27' => __('The site administrator has disabled usernameless login feature.','wwa'),'i18n_28' => __('After removing this authenticator, you will not be able to login with WebAuthn','wwa'),'i18n_29' => __('(Disabled)','wwa'),'i18n_30' => __('The site administrator only allow platform authenticators currently.','wwa'),'i18n_31' => __('The site administrator only allow roaming authenticators currently.','wwa')));
 wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
 ?>
 <div class="wrap"><h1>WP-WebAuthn</h1>
@@ -16,7 +16,7 @@ if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_
     add_settings_error("wwa_settings", "https_error", __("WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.", "wwa"));
 }
 // Only admin can change settings
-if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false") && ($_POST['remember_me'] === "true" || $_POST['remember_me'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
+if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false") && ($_POST['remember_me'] === "true" || $_POST['remember_me'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['allow_authenticator_type'] === "none" || $_POST['allow_authenticator_type'] === "platform" || $_POST['allow_authenticator_type'] === "cross-platform") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
     $res_id = wwa_generate_random_string(5);
     if(sanitize_text_field($_POST['logging']) === 'true' && wwa_get_option('logging') === 'false'){
         // Initialize log
@@ -30,7 +30,7 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
             wwa_add_log($res_id, "Warning: Not in security context", true);
         }
         wwa_add_log($res_id, "PHP Version => ".phpversion().", WordPress Version => ".get_bloginfo('version').", WP-WebAuthn Version => ".get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, "Current config: first_choice => \"".wwa_get_option('first_choice')."\", website_name => \"".wwa_get_option('website_name')."\", website_domain => \"".wwa_get_option('website_domain')."\", remember_me => \"".wwa_get_option('remember_me')."\", user_verification => \"".wwa_get_option('user_verification')."\", usernameless_login => \"".wwa_get_option('usernameless_login')."\"", true);
+        wwa_add_log($res_id, "Current config: first_choice => \"".wwa_get_option('first_choice')."\", website_name => \"".wwa_get_option('website_name')."\", website_domain => \"".wwa_get_option('website_domain')."\", remember_me => \"".wwa_get_option('remember_me')."\", user_verification => \"".wwa_get_option('user_verification')."\", allow_authenticator_type => \"".wwa_get_option('allow_authenticator_type')."\", usernameless_login => \"".wwa_get_option('usernameless_login')."\"", true);
         wwa_add_log($res_id, "Logger initialized", true);
     }
     wwa_update_option('logging', sanitize_text_field($_POST['logging']));
@@ -65,6 +65,12 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
     }
     wwa_update_option('user_verification', $post_user_verification);
 
+    $post_allow_authenticator_type = sanitize_text_field($_POST['allow_authenticator_type']);
+    if($post_allow_authenticator_type !== wwa_get_option('allow_authenticator_type')){
+        wwa_add_log($res_id, "allow_authenticator_type: \"".wwa_get_option('allow_authenticator_type')."\"->\"".$post_allow_authenticator_type."\"");
+    }
+    wwa_update_option('allow_authenticator_type', $post_allow_authenticator_type);
+
     $post_usernameless_login = sanitize_text_field($_POST['usernameless_login']);
     if($post_usernameless_login !== wwa_get_option('usernameless_login')){
         wwa_add_log($res_id, "usernameless_login: \"".wwa_get_option('usernameless_login')."\"->\"".$post_usernameless_login."\"");
@@ -77,7 +83,7 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
 }
 settings_errors("wwa_settings");
 
-wp_localize_script('wwa_admin', 'configs', array('usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login'))));
+wp_localize_script('wwa_admin', 'configs', array('usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')), 'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type'))));
 
 // Only admin can change settings
 if(current_user_can("edit_plugins")){ ?>
@@ -140,6 +146,23 @@ if($wwa_v_rm === false){
 </td>
 </tr>
 <tr>
+<th scope="row"><label for="allow_authenticator_type"><?php _e('Allow a specific type of authenticator', 'wwa');?></label></th>
+<td>
+<?php $wwa_v_at=wwa_get_option('allow_authenticator_type');
+if($wwa_v_at === false){
+    wwa_update_option('allow_authenticator_type', 'none');
+    $wwa_v_at = 'none';
+}
+?>
+<select name="allow_authenticator_type" id="allow_authenticator_type">
+    <option value="none"<?php if($wwa_v_at=='none'){?> selected<?php }?>><?php _e('Any', 'wwa');?></option>
+    <option value="platform"<?php if($wwa_v_at=='platform'){?> selected<?php }?>><?php _e('Platform (e.g. built-in fingerprint sensors)', 'wwa');?></option>
+    <option value="cross-platform"<?php if($wwa_v_at=='cross-platform'){?> selected<?php }?>><?php _e('Roaming (e.g. USB security keys)', 'wwa');?></option>
+</select>
+<p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type when authenticating and user can only register authenticators of selected type. ', 'wwa');?></p>
+</td>
+</tr>
+<tr>
 <th scope="row"><label for="usernameless_login"><?php _e('Allow to login without username', 'wwa');?></label></th>
 <td>
 <?php $wwa_v_ul=wwa_get_option('usernameless_login');
@@ -151,7 +174,7 @@ if($wwa_v_ul === false){
     <fieldset>
     <label><input type="radio" name="usernameless_login" value="true" <?php if($wwa_v_ul=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
     <label><input type="radio" name="usernameless_login" value="false" <?php if($wwa_v_ul=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
-    <p class="description"><?php _e('Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when registering authenticator with usernameless authentication feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
+    <p class="description"><?php _e('Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when authenticating with usernameless authentication feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -192,10 +215,13 @@ if($wwa_v_log === false){
 <tr>
 <th scope="row"><label for="authenticator_type"><?php _e('Type of authenticator', 'wwa');?></label></th>
 <td>
+<?php
+$allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : wwa_get_option('allow_authenticator_type');
+?>
 <select name="authenticator_type" id="authenticator_type">
-    <option value="none" id="type-none" class="sub-type"><?php _e('Any', 'wwa');?></option>
-    <option value="platform" id="type-platform" class="sub-type"><?php _e('Platform authenticator (e.g. a built-in fingerprint sensor) only', 'wwa');?></option>
-    <option value="cross-platform" id="type-cross-platform" class="sub-type"><?php _e('Roaming authenticator (e.g., a USB security key) only', 'wwa');?></option>
+    <option value="none" id="type-none" class="sub-type"<?php if($allowed_type !== 'none'){echo ' disabled';}?>><?php _e('Any', 'wwa');?></option>
+    <option value="platform" id="type-platform" class="sub-type"<?php if($allowed_type === 'cross-platform'){echo ' disabled';}?>><?php _e('Platform (e.g. built-in fingerprint sensors)', 'wwa');?></option>
+    <option value="cross-platform" id="type-cross-platform" class="sub-type"<?php if($allowed_type === 'platform'){echo ' disabled';}?>><?php _e('Roaming (e.g. USB security keys)', 'wwa');?></option>
 </select>
 <p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wwa');?></p>
 </td>
@@ -252,6 +278,7 @@ if($wwa_v_log === false){
 </table>
 </div>
 <p id="usernameless_tip"></p>
+<p id="type_tip"></p>
 <br>
 <h2><?php _e('Verify registration', 'wwa');?></h2>
 <p class="description"><?php _e('Click verify to verify that the registered authenticators are working.', 'wwa');?></p>

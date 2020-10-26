@@ -305,6 +305,16 @@ function check() {
                     });
                 }
 
+                if (data.allowCredentials && php_vars.allow_authenticator_type && php_vars.allow_authenticator_type !== 'none') {
+                    for (let credential of data.allowCredentials) {
+                        if (php_vars.allow_authenticator_type === 'cross-platform') {
+                            credential.transports = ['usb', 'nfc', 'ble'];
+                        } else if (php_vars.allow_authenticator_type === 'platform') {
+                            credential.transports = ['internal'];
+                        }
+                    }
+                }
+
                 navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
                     wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_5 }, 'class');
                     return credentialInfo;

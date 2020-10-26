@@ -43,6 +43,7 @@ function wwa_init_data(){
             'remember_me' => 'false',
             'user_verification' => 'false',
             'usernameless_login' => 'false',
+            'allow_authenticator_type' => 'none',
             'logging' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);

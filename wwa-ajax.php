@@ -4,7 +4,6 @@ use Webauthn\Server;
 use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialUserEntity;
 use Webauthn\PublicKeyCredentialCreationOptions;
-use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialSourceRepository as PublicKeyCredentialSourceRepositoryInterface;
 use Webauthn\PublicKeyCredentialSource;
 use Webauthn\AuthenticatorSelectionCriteria;
@@ -43,6 +42,17 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
             }
         }
         return $sources;
+    }
+
+    public function findCredentialsForUserEntityByType(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity, string $credentialType): array {
+        $credentialsForUserEntity = $this->findAllForUserEntity($publicKeyCredentialUserEntity);
+        $credentialsByType = [];
+        foreach($credentialsForUserEntity as $credential){
+            if($this->findOneMetaByCredentialId($credential->getPublicKeyCredentialId())["authenticator_type"] === $credentialType){
+                $credentialsByType[] = $credential;
+            }
+        }
+        return $credentialsByType;
     }
 
     // Save credential into database
@@ -196,6 +206,15 @@ function wwa_ajax_create(){
         if($wwa_get["usernameless"] === "true" && wwa_get_option("usernameless_login") !== "true"){
             wwa_add_log($res_id, "ajax_create: (ERROR)Usernameless authentication not allowed, exit");
             wwa_wp_die("Bad Request.");
+        }
+
+        // Check authenticator type
+        $allow_authenticator_type = wwa_get_option("allow_authenticator_type");
+        if($allow_authenticator_type !== false && $allow_authenticator_type !== 'none'){
+            if($allow_authenticator_type != $wwa_get["type"]){
+                wwa_add_log($res_id, "ajax_create: (ERROR)Credential type error, type => \"".$wwa_get["type"]."\", allow_authenticator_type => \"".$allow_authenticator_type."\", exit");
+                wwa_wp_die("Bad Request.");
+            }
         }
 
         $rpEntity = new PublicKeyCredentialRpEntity(
@@ -566,7 +585,14 @@ function wwa_ajax_auth_start(){
             $allowedCredentials = array();
         }else{
             // Get the list of authenticators associated to the user
-            $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
+            // $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
+            $allow_authenticator_type = wwa_get_option('allow_authenticator_type');
+            if($allow_authenticator_type === false || $allow_authenticator_type === 'none'){
+                $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
+            }else if($allow_authenticator_type !== false && $allow_authenticator_type !== 'none'){
+                wwa_add_log($res_id, "ajax_auth: allow_authenticator_type => \"".$allow_authenticator_type."\", filter authenticators");
+                $credentialSources = $credentialSourceRepository->findCredentialsForUserEntityByType($userEntity, $allow_authenticator_type);
+            }
 
             // Logged in and testing, if the user haven't bind a authenticator yet, exit
             if(count($credentialSources) === 0 && $wwa_get["type"] === "test" && current_user_can('read')){
@@ -734,6 +760,13 @@ function wwa_ajax_auth(){
                 $credential_meta = $publicKeyCredentialSourceRepository->findOneMetaByCredentialId(base64_decode($data_array["rawId"]));
 
                 if($credential_meta !== null){
+                    $allow_authenticator_type = wwa_get_option("allow_authenticator_type");
+                    if($allow_authenticator_type !== false && $allow_authenticator_type !== 'none'){
+                        if($credential_meta["authenticator_type"] !== $allow_authenticator_type){
+                            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential type error, authenticator_type => \"".$credential_meta["authenticator_type"]."\", allow_authenticator_type => \"".$allow_authenticator_type."\", exit");
+                            wwa_wp_die("Bad request.");
+                        }
+                    }
                     if($credential_meta["usernameless"] === true){
                         wwa_add_log($res_id, "ajax_auth_response: Credential found, usernameless => \"true\", user_key => \"".$credential_meta["user"]."\"");
 
