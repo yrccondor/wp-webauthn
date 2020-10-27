@@ -688,7 +688,11 @@ function wwa_ajax_auth(){
             wwa_wp_die("Bad Request.");
         }
 
+        // Check remember me
         if($wwa_post["remember"] !== "true" && $wwa_post["remember"] !== "false"){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
+            wwa_wp_die("Bad Request.");
+        }else if(wwa_get_option('remember_me') !== 'true' && $wwa_post["remember"] === "true"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.");
         }
