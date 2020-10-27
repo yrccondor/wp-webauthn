@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, secure, password
 Requires at least: 5.0
 Tested up to: 5.5
-Stable tag: 1.0.16
+Stable tag: 1.1.0
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -70,6 +70,13 @@ The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You
 
 == Changelog ==
 
+= 1.1.0 =
+Add: Allow to remember login option
+Add: Only allow a specific type of authenticator option
+Fix: Toggle button may not working in login form
+Update: Chinese translation
+Update: Third-party libraries
+
 = 1.0.16 =
 Fix: Javascript error on login page in WordPress 5.2 & below
 Update: Third-party libraries
@@ -132,6 +139,9 @@ Fix: iOS users may be failed to register authenticators due to the user verifica
 Initial version
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+2 new features & bug fixing
 
 = 1.0.16 =
 Fix Javascript error on login page in WordPress 5.2 & below
