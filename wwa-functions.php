@@ -20,6 +20,19 @@ function wwa_wp_die($message = ""){
     wp_die($message);
 }
 
+// Init data for new options
+function wwa_init_new_options(){
+    if(wwa_get_option('allow_authenticator_type') === false){
+        wwa_update_option('allow_authenticator_type', 'none');
+    }
+    if(wwa_get_option('remember_me') === false){
+        wwa_update_option('remember_me', 'false');
+    }
+    if(wwa_get_option('usernameless_login') === false){
+        wwa_update_option('usernameless_login', 'false');
+    }
+}
+
 // Create random strings for user ID
 function wwa_generate_random_string($length = 10){
     // Use cryptographically secure pseudo-random generator in PHP 7+

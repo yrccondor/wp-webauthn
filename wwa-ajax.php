@@ -166,6 +166,8 @@ function wwa_ajax_create(){
     try{
         $res_id = wwa_generate_random_string(5);
 
+        wwa_init_new_options();
+
         if(!session_id()){
             wwa_add_log($res_id, "ajax_create: Start session");
             session_start();
@@ -339,6 +341,8 @@ function wwa_ajax_create_response(){
     try{
         $res_id = wwa_generate_random_string(5);
 
+        wwa_init_new_options();
+
         if(!session_id()){
             wwa_add_log($res_id, "ajax_create_response: Start session");
             session_start();
@@ -460,6 +464,8 @@ add_action('wp_ajax_wwa_create_response' , 'wwa_ajax_create_response');
 function wwa_ajax_auth_start(){
     try{
         $res_id = wwa_generate_random_string(5);
+
+        wwa_init_new_options();
 
         if(!session_id()){
             wwa_add_log($res_id, "auth: Start session");
@@ -664,6 +670,8 @@ add_action('wp_ajax_nopriv_wwa_auth_start' , 'wwa_ajax_auth_start');
 function wwa_ajax_auth(){
     try{
         $res_id = wwa_generate_random_string(5);
+
+        wwa_init_new_options();
 
         if(!session_id()){
             wwa_add_log($res_id, "auth_response: Start session");
@@ -916,6 +924,8 @@ add_action('wp_ajax_nopriv_wwa_auth' , 'wwa_ajax_auth');
 function wwa_ajax_authenticator_list(){
     $res_id = wwa_generate_random_string(5);
 
+    wwa_init_new_options();
+
     if(!current_user_can("read")){
         wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Missing parameters, exit");
         wwa_wp_die("Something went wrong.");
@@ -951,6 +961,8 @@ add_action('wp_ajax_wwa_authenticator_list' , 'wwa_ajax_authenticator_list');
 function wwa_ajax_modify_authenticator(){
     try{
         $res_id = wwa_generate_random_string(5);
+
+        wwa_init_new_options();
 
         wwa_add_log($res_id, "ajax_modify_authenticator: Start");
 
