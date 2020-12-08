@@ -9,13 +9,13 @@ Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-WP-WebAuthn enables passwordless login through U2F devices for your site.
+WP-WebAuthn enables passwordless login through FIDO2 and U2F devices like FaceID or Windows Hello for your site.
 
 == Description ==
 
 **This plugin supports English(default language), Simplified Chinese and German currently.**
 
-WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras and more.
+WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras, FaceID/TouchID and more.
 
 When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
 
@@ -33,7 +33,7 @@ Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before
 
 You can contribute to this plugin on [GitHub](https://github.com/yrccondor/wp-webauthn).
 
-Please note that this plugin does NOT support Internet Explorer (including IE 11).
+Please note that this plugin does NOT support Internet Explorer (including IE 11). To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Installation ==
 
@@ -61,6 +61,8 @@ If you can't solve the problem, [open an issue](https://github.com/yrccondor/wp-
 = Which browsers support WebAuthn? =
  
 The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You can learn more on [Can I Use](https://caniuse.com/#feat=webauthn).
+
+To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Screenshots ==
 

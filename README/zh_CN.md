@@ -18,7 +18,7 @@
 
 ## 介绍
 
-WebAuthn 是新一代网络认证技术，旨在通过 USB 认证器、指纹识别、Windows Hello 等替代密码以使网络认证更加高效且安全。
+WebAuthn 是新一代网络认证技术，旨在通过 USB 认证器、指纹识别、Windows Hello、 FaceID/TouchID 等替代密码以使网络认证更加高效且安全。
 
 <p align="center">
 <img src="https://img.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">

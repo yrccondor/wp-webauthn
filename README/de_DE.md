@@ -18,7 +18,7 @@
 
 ## Introduction
 
-WebAuthn ist eine neue Möglichkeit, sich im Web zu authentifizieren. Sie können Ihre Passwörter durch Geräte wie USB-Sticks, Fingerabdruckscanner, Windows Hello-kompatible Kameras und mehr ersetzen.
+WebAuthn ist eine neue Möglichkeit, sich im Web zu authentifizieren. Sie können Ihre Passwörter durch Geräte wie USB-Sticks, Fingerabdruckscanner, Windows Hello-kompatible Kameras, FaceID/TouchID und mehr ersetzen.
 
 <p align="center">
 <img src="https://img.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
