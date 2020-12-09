@@ -1,9 +1,9 @@
 === WP-WebAuthn ===
 Contributors: axton
 Donate link: https://flyhigher.top/about
-Tags: u2f, fido, fido2, webauthn, login, secure, password
+Tags: u2f, fido, fido2, webauthn, login, security, password, authentication
 Requires at least: 5.0
-Tested up to: 5.5
+Tested up to: 5.6
 Stable tag: 1.1.0
 Requires PHP: 7.2
 License: GPLv3
