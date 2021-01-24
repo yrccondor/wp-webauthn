@@ -3,7 +3,7 @@
 <br>
 
 <p align="center">
-<img src="https://img.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
+<img src="https://acdn.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
 </p>
 
 <h1 align="center">WP-WebAuthn</h1>
@@ -21,7 +21,7 @@
 WebAuthn 是新一代网络认证技术，旨在通过 USB 认证器、指纹识别、Windows Hello、 FaceID/TouchID 等替代密码以使网络认证更加高效且安全。
 
 <p align="center">
-<img src="https://img.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
+<img src="https://acdn.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
 </p>
 
 在使用 WebAuthn 时，你只需点击一次按钮并在认证器上执行简单的认证操作即可在数秒内登录。**完全不需要密码。**

@@ -3,7 +3,7 @@
 <br>
 
 <p align="center">
-<img src="https://img.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
+<img src="https://acdn.flyhigher.top/gh-wwa-logo.png" alt="WP-WebAuthn">
 </p>
 
 <h1 align="center">WP-WebAuthn</h1>
@@ -21,7 +21,7 @@
 WebAuthn ist eine neue Möglichkeit, sich im Web zu authentifizieren. Sie können Ihre Passwörter durch Geräte wie USB-Sticks, Fingerabdruckscanner, Windows Hello-kompatible Kameras, FaceID/TouchID und mehr ersetzen.
 
 <p align="center">
-<img src="https://img.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
+<img src="https://acdn.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
 </p>
 
 Wenn Sie WebAuthn verwenden, müssen Sie nur einmal klicken und eine einfache Überprüfung des Authentifikators durchführen. Dann sind Sie angemeldet. Kein Kennwort erforderlich.
