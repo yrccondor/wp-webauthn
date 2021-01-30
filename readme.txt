@@ -45,21 +45,21 @@ Notice: PHP extensions gmp and mbstring are required.
 4. Make sure that all settings are set, and you can start to register authenticators
 
 == Frequently Asked Questions ==
- 
+
 = What languages does this plugin support? =
- 
+
 This plugin supports English, Chinese(Simplified) and German currently. If you are using WordPress in none of those languages, English will be displayed as default language.
 
 All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
 
 = What should I do if the plugin could not work? =
- 
+
 Make sure your are using HTTPS or host your site in `localhost`. Then ckeck whether you have installed the gmp extension for PHP.
 
 If you can't solve the problem, [open an issue](https://github.com/yrccondor/wp-webauthn/issues/new) on [GitHub](https://github.com/yrccondor/wp-webauthn) with plugin log.
- 
+
 = Which browsers support WebAuthn? =
- 
+
 The latest version of Chrome, FireFox, Edge and Safari are support WebAuthn. You can learn more on [Can I Use](https://caniuse.com/#feat=webauthn).
 
 To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
