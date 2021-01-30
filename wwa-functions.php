@@ -1,22 +1,36 @@
 <?php
-// Destroy all sessions when user state changes
-function wwa_destroy_session(){
-    unset($_SESSION['wwa_user_name_auth']);
-    unset($_SESSION['wwa_user_auth']);
-    unset($_SESSION['wwa_server']);
-    unset($_SESSION['wwa_pkcco']);
-    unset($_SESSION['wwa_bind_config']);
-    unset($_SESSION['wwa_server_auth']);
-    unset($_SESSION['wwa_pkcco_auth']);
-    unset($_SESSION['wwa_usernameless_auth']);
-    unset($_SESSION['wwa_auth_type']);
+// WordPress transient adapter
+function wwa_set_temp_val($name, $value, $client_id){
+    return set_transient('wwa_'.$name.$client_id, serialize($value), 90);
 }
-add_action('wp_logout', 'wwa_destroy_session');
-add_action('wp_login', 'wwa_destroy_session');
 
-// Destroy all sessions before wp_die
-function wwa_wp_die($message = ''){
-    wwa_destroy_session();
+function wwa_get_temp_val($name, $client_id){
+    $val = get_transient('wwa_'.$name.$client_id);
+    return $val === false ? false : unserialize($val);
+}
+
+function wwa_delete_temp_val($name, $client_id){
+    return delete_transient('wwa_'.$name.$client_id);
+}
+
+// Destroy all transients
+function wwa_destroy_temp_val($client_id){
+    wwa_delete_temp_val('wwa_user_name_auth', $client_id);
+    wwa_delete_temp_val('wwa_user_auth', $client_id);
+    wwa_delete_temp_val('wwa_server', $client_id);
+    wwa_delete_temp_val('wwa_pkcco', $client_id);
+    wwa_delete_temp_val('wwa_bind_config', $client_id);
+    wwa_delete_temp_val('wwa_server_auth', $client_id);
+    wwa_delete_temp_val('wwa_pkcco_auth', $client_id);
+    wwa_delete_temp_val('wwa_usernameless_auth', $client_id);
+    wwa_delete_temp_val('wwa_auth_type', $client_id);
+}
+
+// Destroy all transients before wp_die
+function wwa_wp_die($message = '', $client_id = false){
+    if($client_id !== false){
+        wwa_destroy_temp_val($client_id);
+    }
     wp_die($message);
 }
 

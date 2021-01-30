@@ -209,6 +209,10 @@ function wwa_auth() {
                 });
             }
 
+            // Save client ID
+            const clientID = data.clientID;
+            delete data.clientID;
+
             navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
                 button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_5;
                 return credentialInfo;
@@ -227,7 +231,7 @@ function wwa_auth() {
                 return publicKeyCredential;
             }).then(JSON.stringify).then((AuthenticatorResponse) => {
                 let response = wwa_ajax();
-                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&user=${encodeURIComponent(wwa_username)}&remember=${wwa_php_vars.remember_me === 'false' ? 'false' : (document.getElementById('wwa-rememberme') ? (document.getElementById('wwa-rememberme').checked ? 'true' : 'false') : 'false')}`, (data, status) => {
+                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&clientid=${clientID}&user=${encodeURIComponent(wwa_username)}&remember=${wwa_php_vars.remember_me === 'false' ? 'false' : (document.getElementById('wwa-rememberme') ? (document.getElementById('wwa-rememberme').checked ? 'true' : 'false') : 'false')}`, (data, status) => {
                     if (status) {
                         if (data === 'true') {
                             wwa_enable_buttons();
@@ -355,6 +359,10 @@ function wwa_bind() {
                 })
             }
 
+            // Save client ID
+            const clientID = data.clientID;
+            delete data.clientID;
+
             // Create, a pop-up window should appear
             navigator.credentials.create({ 'publicKey': public_key }).then((newCredentialInfo) => {
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_32;
@@ -373,7 +381,7 @@ function wwa_bind() {
                 return publicKeyCredential;
             }).then(JSON.stringify).then((AuthenticatorAttestationResponse) => {
                 let response = wwa_ajax();
-                response.post(`${wwa_php_vars.ajax_url}?action=wwa_create_response`, `data=${encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))}&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}`, (rawData, status) => {
+                response.post(`${wwa_php_vars.ajax_url}?action=wwa_create_response`, `data=${encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))}&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}&clientid=${clientID}`, (rawData, status) => {
                     if (status) {
                         if (rawData === 'true') {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_29;
@@ -462,6 +470,10 @@ function wwa_verify() {
                 }
             }
 
+            // Save client ID
+            const clientID = data.clientID;
+            delete data.clientID;
+
             navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_13;
                 return credentialInfo;
@@ -481,7 +493,7 @@ function wwa_verify() {
                 return publicKeyCredential;
             }).then(JSON.stringify).then((AuthenticatorResponse) => {
                 let response = wwa_ajax();
-                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=test&remember=false`, (rawData, status) => {
+                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=test&remember=false&clientid=${clientID}`, (rawData, status) => {
                     if (status) {
                         if (rawData === 'true') {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_16;

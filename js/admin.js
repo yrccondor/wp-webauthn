@@ -218,6 +218,10 @@ jQuery('#bind').click(() => {
                 })
             }
 
+            // Save client ID
+            const clientID = data.clientID;
+            delete data.clientID;
+
             // Create, a pop-up window should appear
             navigator.credentials.create({ 'publicKey': public_key }).then((newCredentialInfo) => {
                 jQuery('#show-progress').html(php_vars.i18n_6);
@@ -243,7 +247,8 @@ jQuery('#bind').click(() => {
                         data: window.btoa(AuthenticatorAttestationResponse),
                         name: jQuery('#authenticator_name').val(),
                         type: jQuery('#authenticator_type').val(),
-                        usernameless: jQuery('.authenticator_usernameless:checked').val() ? jQuery('.authenticator_usernameless:checked').val() : 'false'
+                        usernameless: jQuery('.authenticator_usernameless:checked').val() ? jQuery('.authenticator_usernameless:checked').val() : 'false',
+                        clientid: clientID
                     },
                     success: function (data) {
                         if (data === 'true') {
@@ -347,6 +352,10 @@ jQuery('#test, #test_usernameless').click((e) => {
                 }
             }
 
+            // Save client ID
+            const clientID = data.clientID;
+            delete data.clientID;
+
             navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
                 jQuery(tip_id).html(php_vars.i18n_14);
                 return credentialInfo;
@@ -370,7 +379,8 @@ jQuery('#test, #test_usernameless').click((e) => {
                     data: {
                         data: window.btoa(AuthenticatorResponse),
                         type: 'test',
-                        remember: 'false'
+                        remember: 'false',
+                        clientid: clientID
                     },
                     success: function (data) {
                         if (data === 'true') {

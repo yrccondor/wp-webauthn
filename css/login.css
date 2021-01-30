@@ -35,6 +35,9 @@
     color: black;
     pointer-events: none;
 }
+#loginform.wwa-webauthn-only {
+    padding-bottom: 30px;
+}
 @media(max-width: 782px){
     #wp-webauthn span {
         line-height: 38px;

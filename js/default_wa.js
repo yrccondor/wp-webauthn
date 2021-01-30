@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelectorAll('#login > h1')[0].parentNode.insertBefore(dom, document.querySelectorAll('#login > h1')[0].nextElementSibling)
                 }
             }
+            wwa_dom('#loginform', (dom) => { dom.classList.add('wwa-webauthn-only') });
             if (document.getElementsByClassName('user-pass-wrap').length > 0) {
                 wwa_dom('.user-pass-wrap, #wp-submit', (dom) => { dom.parentNode.removeChild(dom) });
                 if (php_vars.remember_me === 'false' ) {

@@ -319,6 +319,10 @@ function check() {
                     }
                 }
 
+                // Save client ID
+                const clientID = data.clientID;
+                delete data.clientID;
+
                 navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
                     wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_5 }, 'class');
                     return credentialInfo;
@@ -337,7 +341,7 @@ function check() {
                     return publicKeyCredential;
                 }).then(JSON.stringify).then((AuthenticatorResponse) => {
                     let response = wwa_ajax();
-                    response.post(`${php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&user=${encodeURIComponent(document.getElementById('user_login').value)}&remember=${php_vars.remember_me === 'false' ? 'false' : (document.getElementById('rememberme') ? (document.getElementById('rememberme').checked ? 'true' : 'false') : 'false')}`, (data, status) => {
+                    response.post(`${php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&clientid=${clientID}&user=${encodeURIComponent(document.getElementById('user_login').value)}&remember=${php_vars.remember_me === 'false' ? 'false' : (document.getElementById('rememberme') ? (document.getElementById('rememberme').checked ? 'true' : 'false') : 'false')}`, (data, status) => {
                         if (status) {
                             if (data === 'true') {
                                 wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_6 }, 'class');
