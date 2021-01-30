@@ -80,13 +80,17 @@ document.addEventListener('DOMContentLoaded', () => {
     button_check.className = 'button button-large button-primary';
     button_check.innerHTML = php_vars.i18n_1;
     let button_toggle = document.createElement('button');
-    button_toggle.id = 'wp-webauthn';
-    button_toggle.type = 'button';
-    button_toggle.className = 'button button-large';
-    button_toggle.innerHTML = '<span class="dashicons dashicons-update-alt"></span>';
+    if (php_vars.webauthn_only !== 'true') {
+        button_toggle.id = 'wp-webauthn';
+        button_toggle.type = 'button';
+        button_toggle.className = 'button button-large';
+        button_toggle.innerHTML = '<span class="dashicons dashicons-update-alt"></span>';
+    }
     let submit = document.getElementById('wp-submit');
     if (submit) {
-        submit.parentNode.insertBefore(button_toggle, submit.nextElementSibling);
+        if (php_vars.webauthn_only !== 'true') {
+            submit.parentNode.insertBefore(button_toggle, submit.nextElementSibling);
+        }
         submit.parentNode.insertBefore(button_check, submit.nextElementSibling);
     }
     let notice = document.createElement('div');
@@ -238,7 +242,7 @@ function toggle() {
 
 // Shake the login form, code from WordPress
 function wwa_shake(id, a, d) {
-    c = a.shift();
+    const c = a.shift();
     document.getElementById(id).style.left = c + 'px';
     if (a.length > 0) {
         setTimeout(() => {

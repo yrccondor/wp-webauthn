@@ -5,20 +5,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     window.onload = () => {
-        if (!(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== 'function')) {
-            // If supported, toggle
+        if (php_vars.webauthn_only === 'true') {
+            if ((window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== 'function')) {
+                // Not support, show a message
+                if (document.querySelectorAll('#login > h1').length > 0) {
+                    let dom = document.createElement('p');
+                    dom.className = 'message';
+                    dom.innerHTML = php_vars.i18n_8;
+                    document.querySelectorAll('#login > h1')[0].parentNode.insertBefore(dom, document.querySelectorAll('#login > h1')[0].nextElementSibling)
+                }
+            }
             if (document.getElementsByClassName('user-pass-wrap').length > 0) {
-                wwa_dom('.user-pass-wrap, #wp-submit', (dom) => { dom.style.display = 'none' });
+                wwa_dom('.user-pass-wrap, #wp-submit', (dom) => { dom.parentNode.removeChild(dom) });
                 if (php_vars.remember_me === 'false' ) {
-                    wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                    wwa_dom('.forgetmenot', (dom) => { dom.parentNode.removeChild(dom) });
                 }
             } else {
                 // WordPress 5.2-
-                wwa_dom('#wp-submit', (dom) => { dom.style.display = 'none' });
+                wwa_dom('#wp-submit', (dom) => { dom.parentNode.removeChild(dom) });
                 if (php_vars.remember_me === 'false' ) {
-                    wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                    wwa_dom('.forgetmenot', (dom) => { dom.parentNode.removeChild(dom) });
                 }
-                document.getElementById('loginform').getElementsByTagName('p')[1].style.display = 'none';
+                const targetDOM = document.getElementById('loginform').getElementsByTagName('p')[1];
+                targetDOM.parentNode.removeChild(targetDOM);
+            }
+        }
+        if (!(window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== 'function') || php_vars.webauthn_only === 'true') {
+            // If supported, toggle
+            if (php_vars.webauthn_only !== 'true') {
+                if (document.getElementsByClassName('user-pass-wrap').length > 0) {
+                    wwa_dom('.user-pass-wrap, #wp-submit', (dom) => { dom.style.display = 'none' });
+                    if (php_vars.remember_me === 'false' ) {
+                        wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                    }
+                } else {
+                    // WordPress 5.2-
+                    wwa_dom('#wp-submit', (dom) => { dom.style.display = 'none' });
+                    if (php_vars.remember_me === 'false' ) {
+                        wwa_dom('.forgetmenot', (dom) => { dom.style.display = 'none' });
+                    }
+                    document.getElementById('loginform').getElementsByTagName('p')[1].style.display = 'none';
+                }
             }
             wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'block' }, 'class');
             wwa_dom('wp-webauthn-check', (dom) => { dom.style.cssText = `${dom.style.cssText}display: block !important` }, 'id');

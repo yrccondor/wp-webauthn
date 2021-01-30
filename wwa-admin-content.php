@@ -1,7 +1,40 @@
 <?php
 // Insert CSS and JS
 wp_enqueue_script('wwa_admin', plugins_url('js/admin.js',__FILE__));
-wp_localize_script('wwa_admin', 'php_vars', array('ajax_url' => admin_url('admin-ajax.php'),'i18n_1' => __('Initializing...','wwa'),'i18n_2' => __('Please follow instructions to finish registration...','wwa'),'i18n_3' => '<span class="success">'._x('Registered', 'action','wwa').'</span>','i18n_4' => '<span class="failed">'.__('Registration failed','wwa').'</span>','i18n_5' => __('Your browser does not support WebAuthn','wwa'),'i18n_6' => __('Registrating...','wwa'),'i18n_7' => __('Please enter the authenticator identifier','wwa'),'i18n_8' => __('Loading failed, maybe try refreshing?','wwa'),'i18n_9' => __('Any','wwa'),'i18n_10' => __('Platform authenticator','wwa'),'i18n_11' => __('Roaming authenticator','wwa'),'i18n_12' => __('Remove','wwa'),'i18n_13' => __('Please follow instructions to finish verification...','wwa'),'i18n_14' => __('Verifying...','wwa'),'i18n_15' => '<span class="failed">'.__('Verification failed','wwa').'</span>','i18n_16' => '<span class="success">'.__('Verification passed! You can now log in through WebAuthn','wwa').'</span>','i18n_17' => __('No registered authenticators','wwa'),'i18n_18' => __('Confirm removal of authenticator: ','wwa'),'i18n_19' => __('Removing...','wwa'),'i18n_20' => __('Rename','wwa'),'i18n_21' => __('Rename the authenticator','wwa'),'i18n_22' => __('Renaming...','wwa'),'i18n_23' => __('Log count: ','wwa'),'i18n_24' => __('Ready','wwa'),'i18n_25' => __('No','wwa'),'i18n_26' => __(' (Unavailable)','wwa'),'i18n_27' => __('The site administrator has disabled usernameless login feature.','wwa'),'i18n_28' => __('After removing this authenticator, you will not be able to login with WebAuthn','wwa'),'i18n_29' => __(' (Disabled)','wwa'),'i18n_30' => __('The site administrator only allow platform authenticators currently.','wwa'),'i18n_31' => __('The site administrator only allow roaming authenticators currently.','wwa')));
+wp_localize_script('wwa_admin', 'php_vars', array(
+    'ajax_url' => admin_url('admin-ajax.php'),
+    'i18n_1' => __('Initializing...', 'wwa'),
+    'i18n_2' => __('Please follow instructions to finish registration...', 'wwa'),
+    'i18n_3' => '<span class="success">'._x('Registered', 'action', 'wwa').'</span>',
+    'i18n_4' => '<span class="failed">'.__('Registration failed', 'wwa').'</span>',
+    'i18n_5' => __('Your browser does not support WebAuthn', 'wwa'),
+    'i18n_6' => __('Registrating...', 'wwa'),
+    'i18n_7' => __('Please enter the authenticator identifier', 'wwa'),
+    'i18n_8' => __('Loading failed, maybe try refreshing?', 'wwa'),
+    'i18n_9' => __('Any', 'wwa'),
+    'i18n_10' => __('Platform authenticator', 'wwa'),
+    'i18n_11' => __('Roaming authenticator', 'wwa'),
+    'i18n_12' => __('Remove', 'wwa'),
+    'i18n_13' => __('Please follow instructions to finish verification...', 'wwa'),
+    'i18n_14' => __('Verifying...', 'wwa'),
+    'i18n_15' => '<span class="failed">'.__('Verification failed', 'wwa').'</span>',
+    'i18n_16' => '<span class="success">'.__('Verification passed! You can now log in through WebAuthn', 'wwa').'</span>',
+    'i18n_17' => __('No registered authenticators', 'wwa'),
+    'i18n_18' => __('Confirm removal of authenticator: ', 'wwa'),
+    'i18n_19' => __('Removing...', 'wwa'),
+    'i18n_20' => __('Rename', 'wwa'),
+    'i18n_21' => __('Rename the authenticator', 'wwa'),
+    'i18n_22' => __('Renaming...', 'wwa'),
+    'i18n_23' => __('Log count: ', 'wwa'),
+    'i18n_24' => __('Ready', 'wwa'),
+    'i18n_25' => __('No', 'wwa'),
+    'i18n_26' => __(' (Unavailable)', 'wwa'),
+    'i18n_27' => __('The site administrator has disabled usernameless login feature.', 'wwa'),
+    'i18n_28' => __('After removing this authenticator, you will not be able to login with WebAuthn', 'wwa'),
+    'i18n_29' => __(' (Disabled)', 'wwa'),
+    'i18n_30' => __('The site administrator only allow platform authenticators currently.', 'wwa'),
+    'i18n_31' => __('The site administrator only allow roaming authenticators currently.', 'wwa')
+));
 wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
 ?>
 <div class="wrap"><h1>WP-WebAuthn</h1>
@@ -16,7 +49,7 @@ if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_
     add_settings_error("wwa_settings", "https_error", __("WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.", "wwa"));
 }
 // Only admin can change settings
-if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false") && ($_POST['remember_me'] === "true" || $_POST['remember_me'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['allow_authenticator_type'] === "none" || $_POST['allow_authenticator_type'] === "platform" || $_POST['allow_authenticator_type'] === "cross-platform") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
+if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false" || $_POST['first_choice'] === "webauthn") && ($_POST['remember_me'] === "true" || $_POST['remember_me'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['allow_authenticator_type'] === "none" || $_POST['allow_authenticator_type'] === "platform" || $_POST['allow_authenticator_type'] === "cross-platform") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
     $res_id = wwa_generate_random_string(5);
     if(sanitize_text_field($_POST['logging']) === 'true' && wwa_get_option('logging') === 'false'){
         // Initialize log
@@ -97,11 +130,12 @@ wp_nonce_field('wwa_options_update');
 <th scope="row"><label for="first_choice"><?php _e('Preferred login method', 'wwa');?></label></th>
 <td>
 <?php $wwa_v_first_choice=wwa_get_option('first_choice');?>
-    <fieldset>
-    <label><input type="radio" name="first_choice" value="true" <?php if($wwa_v_first_choice=='true'){?>checked="checked"<?php }?>> <?php _e('WebAuthn', 'wwa');?></label><br>
-    <label><input type="radio" name="first_choice" value="false" <?php if($wwa_v_first_choice=='false'){?>checked="checked"<?php }?>> <?php _e('Username + Password', 'wwa');?></label><br>
-    <p class="description"><?php _e('Since WebAuthn hasn\'t been fully supported by all browsers, you can only choose the preferred (default) login method and <strong>CANNOT completely disable the traditional Username+Password method</strong><br>Regardless of the preferred method, you will be able to switch to the other with a switch button at the login page. <br> When the browser does not support WebAuthn, the login method will default to Username+Password.', 'wwa');?></p>
-    </fieldset>
+<select name="first_choice" id="first_choice">
+    <option value="true"<?php if($wwa_v_first_choice === 'true'){?> selected<?php }?>><?php _e('Prefer WebAuthn', 'wwa');?></option>
+    <option value="false"<?php if($wwa_v_first_choice === 'false'){?> selected<?php }?>><?php _e('Prefer password', 'wwa');?></option>
+    <option value="webauthn"<?php if($wwa_v_first_choice === 'webauthn'){?> selected<?php }?>><?php _e('WebAuthn Only', 'wwa');?></option>
+</select>
+<p class="description"><?php _e('When using "WebAuthn Only", password login will be completely disabled.<br>When the browser does not support WebAuthn, the login method will default to password if password login is not disabled.', 'wwa');?></p>
 </td>
 </tr>
 <tr>
@@ -128,9 +162,9 @@ if($wwa_v_rm === false){
 }
 ?>
     <fieldset>
-    <label><input type="radio" name="remember_me" value="true" <?php if($wwa_v_rm=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
-    <label><input type="radio" name="remember_me" value="false" <?php if($wwa_v_rm=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
-    <p class="description"><?php _e('Show the \'Remember Me\' checkbox beside the login form when using WebAuthn.', 'wwa');?></p>
+        <label><input type="radio" name="remember_me" value="true" <?php if($wwa_v_rm === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
+        <label><input type="radio" name="remember_me" value="false" <?php if($wwa_v_rm === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
+        <p class="description"><?php _e('Show the \'Remember Me\' checkbox beside the login form when using WebAuthn.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -139,9 +173,9 @@ if($wwa_v_rm === false){
 <td>
 <?php $wwa_v_uv=wwa_get_option('user_verification');?>
     <fieldset>
-    <label><input type="radio" name="user_verification" value="true" <?php if($wwa_v_uv=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
-    <label><input type="radio" name="user_verification" value="false" <?php if($wwa_v_uv=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
-    <p class="description"><?php _e('User verification can improve security, but is not fully supported by mobile devices. <br> If you cannot register or verify your authenticators, please consider disabling user verification.', 'wwa');?></p>
+        <label><input type="radio" name="user_verification" value="true" <?php if($wwa_v_uv === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
+        <label><input type="radio" name="user_verification" value="false" <?php if($wwa_v_uv === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
+        <p class="description"><?php _e('User verification can improve security, but is not fully supported by mobile devices. <br> If you cannot register or verify your authenticators, please consider disabling user verification.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -155,9 +189,9 @@ if($wwa_v_at === false){
 }
 ?>
 <select name="allow_authenticator_type" id="allow_authenticator_type">
-    <option value="none"<?php if($wwa_v_at=='none'){?> selected<?php }?>><?php _e('Any', 'wwa');?></option>
-    <option value="platform"<?php if($wwa_v_at=='platform'){?> selected<?php }?>><?php _e('Platform (e.g. built-in fingerprint sensors)', 'wwa');?></option>
-    <option value="cross-platform"<?php if($wwa_v_at=='cross-platform'){?> selected<?php }?>><?php _e('Roaming (e.g. USB security keys)', 'wwa');?></option>
+    <option value="none"<?php if($wwa_v_at === 'none'){?> selected<?php }?>><?php _e('Any', 'wwa');?></option>
+    <option value="platform"<?php if($wwa_v_at === 'platform'){?> selected<?php }?>><?php _e('Platform (e.g. built-in fingerprint sensors)', 'wwa');?></option>
+    <option value="cross-platform"<?php if($wwa_v_at === 'cross-platform'){?> selected<?php }?>><?php _e('Roaming (e.g. USB security keys)', 'wwa');?></option>
 </select>
 <p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type when authenticating and user can only register authenticators of selected type.', 'wwa');?></p>
 </td>
@@ -172,9 +206,9 @@ if($wwa_v_ul === false){
 }
 ?>
     <fieldset>
-    <label><input type="radio" name="usernameless_login" value="true" <?php if($wwa_v_ul=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
-    <label><input type="radio" name="usernameless_login" value="false" <?php if($wwa_v_ul=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
-    <p class="description"><?php _e('Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when authenticating with usernameless authentication feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
+        <label><input type="radio" name="usernameless_login" value="true" <?php if($wwa_v_ul === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
+        <label><input type="radio" name="usernameless_login" value="false" <?php if($wwa_v_ul === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
+        <p class="description"><?php _e('Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when authenticating with usernameless authentication feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</strong> support this feature.', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>
@@ -188,12 +222,12 @@ if($wwa_v_log === false){
 }
 ?>
     <fieldset>
-    <label><input type="radio" name="logging" value="true" <?php if($wwa_v_log=='true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
-    <label><input type="radio" name="logging" value="false" <?php if($wwa_v_log=='false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
-    <p>
-        <button id="clear_log" class="button" <?php $log = get_option('wwa_log');if($log === false || ($log !== false && count($log) === 0)){?> disabled<?php }?>><?php _e('Clear log', 'wwa');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="log-count"><?php echo __("Log count: ", "wwa").($log === false ? "0" : strval(count($log)));?></span>
-    </p>
-    <p class="description"><?php _e('For debugging only. Enable only when needed.<br><strong>Note: Logs may contain sensitive information.</strong>', 'wwa');?></p>
+        <label><input type="radio" name="logging" value="true" <?php if($wwa_v_log === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wwa");?></label><br>
+        <label><input type="radio" name="logging" value="false" <?php if($wwa_v_log === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wwa");?></label><br>
+        <p>
+            <button id="clear_log" class="button" <?php $log = get_option('wwa_log');if($log === false || ($log !== false && count($log) === 0)){?> disabled<?php }?>><?php _e('Clear log', 'wwa');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="log-count"><?php echo __("Log count: ", "wwa").($log === false ? "0" : strval(count($log)));?></span>
+        </p>
+        <p class="description"><?php _e('For debugging only. Enable only when needed.<br><strong>Note: Logs may contain sensitive information.</strong>', 'wwa');?></p>
     </fieldset>
 </td>
 </tr>

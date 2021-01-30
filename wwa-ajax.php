@@ -849,7 +849,7 @@ function wwa_ajax_auth(){
 
         // Verify
         try {
-            $publicKeyCredentialSource = $server->loadAndCheckAssertionResponse(
+            $server->loadAndCheckAssertionResponse(
                 base64_decode($_POST["data"]),
                 unserialize(base64_decode($_SESSION['wwa_pkcco_auth'])),
                 $userEntity,
