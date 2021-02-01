@@ -141,7 +141,7 @@ function wwa_verify_button_shortcode($vals){
         wwa_localize_frontend();
     }
 
-    return '<p class="wwa-test"><button class="wwa-test-submit">'.__('Verify', 'wwa').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-test"></span>'.(wwa_get_option('usernameless_login') === "true" ? '<br><button class="wwa-test-usernameless-submit">'.__('Verify (usernameless)', 'wwa').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-test-usernameless"></span>' : '').'</p>';
+    return '<p class="wwa-test"><button class="wwa-test-submit">'.__('Test Login', 'wwa').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-test"></span>'.(wwa_get_option('usernameless_login') === "true" ? '<br><button class="wwa-test-usernameless-submit">'.__('Test Login (usernameless)', 'wwa').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-test-usernameless"></span>' : '').'</p>';
 }
 add_shortcode('wwa_verify_button', 'wwa_verify_button_shortcode');
 

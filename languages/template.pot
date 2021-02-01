@@ -189,7 +189,7 @@ msgid "Automatic update every 5 seconds."
 msgstr ""
 
 #: wwa-admin-content.php:215
-msgid "To register a new authenticator or edit your authenticators, please go to <a href=\""
+msgid "To register a new authenticator or edit your authenticators, please go to <a href=\"%s#wwa-webauthn-start\">your profile</a>."
 msgstr ""
 
 #: wwa-functions.php:144
@@ -256,11 +256,24 @@ msgid "Logging in with password has been disabled for this account."
 msgstr ""
 
 #: wwa-functions.php:213
-msgid "Logging in with password has been disabled for %s but you haven't register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href=\""
+msgid "Logging in with password has been disabled for %s but you haven't register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href=\"%s#wwa-webauthn-start\">Register</a>"
+msgstr ""
+
+#: wwa-functions.php:213
+#: wwa-functions.php:258
+msgid "the site"
+msgstr ""
+
+#: wwa-functions.php:213
+msgid "your account"
 msgstr ""
 
 #: wwa-functions.php:258
 msgid "Logging in with password has been disabled for %s but <strong>this account</strong> haven't register any WebAuthn authenticator yet. This user may unable to login."
+msgstr ""
+
+#: wwa-functions.php:258
+msgid "this account"
 msgstr ""
 
 #: wwa-functions.php:286
@@ -534,10 +547,12 @@ msgid "Click Test Login to verify that the registered authenticators are working
 msgstr ""
 
 #: wwa-profile-content.php:133
+#: wwa-shortcodes.php:144
 msgid "Test Login"
 msgstr ""
 
 #: wwa-profile-content.php:135
+#: wwa-shortcodes.php:144
 msgid "Test Login (usernameless)"
 msgstr ""
 
@@ -561,12 +576,4 @@ msgstr ""
 
 #: wwa-shortcodes.php:118
 msgid "Start registration"
-msgstr ""
-
-#: wwa-shortcodes.php:144
-msgid "Verify"
-msgstr ""
-
-#: wwa-shortcodes.php:144
-msgid "Verify (usernameless)"
 msgstr ""
