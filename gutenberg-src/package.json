@@ -8,11 +8,11 @@
     "eject": "cgb-scripts eject"
   },
   "dependencies": {
-    "@wordpress/a11y": "^2.5.0",
-    "@wordpress/blob": "^2.5.0",
+    "@wordpress/a11y": "^2.14.1",
+    "@wordpress/blob": "^2.12.1",
     "@wordpress/block-editor": "^3.0.0",
     "@wordpress/components": "^8.1.0",
-    "@wordpress/core-data": "^2.5.0",
+    "@wordpress/core-data": "^2.25.3",
     "cgb-scripts": "1.15.0",
     "emoji-js": "^3.4.1",
     "eslint-plugin-html": "^6.0.0",
