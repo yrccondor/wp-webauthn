@@ -226,6 +226,10 @@ function wwa_no_authenticator_warning(){
         }
         $user_info = get_user_by('id', $user_id_wp);
 
+        if($user_info === false){
+            return;
+        }
+
         if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID ) !== 'true'){
             return;
         }

@@ -386,7 +386,7 @@ function wwa_bind() {
                         if (rawData === 'true') {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_29;
                             wwa_enable_buttons();
-                            wwa_dom('wwa-authenticator-name', (dom) => { dom.readOnly = false }, 'class');
+                            wwa_dom('wwa-authenticator-name', (dom) => { dom.readOnly = false; dom.value = '' }, 'class');
                             wwa_dom('wwa-authenticator-type', (dom) => { dom.disabled = false }, 'class');
                             wwa_dom('wwa-authenticator-usernameless', (dom) => { dom.disabled = false }, 'class');
                             updateList();
