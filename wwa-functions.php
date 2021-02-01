@@ -210,7 +210,7 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){?>
             <div class="notice notice-warning">
-                <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="'.admin_url('profile.php').'#wwa-webauthn-start">Register</a>', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'mdx') : __('your account', 'mdx'));?></p>
+                <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="%s#wwa-webauthn-start">Register</a>', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'wwa') : __('your account', 'wwa'), admin_url('profile.php'));?></p>
             </div>
         <?php }
     }
@@ -255,7 +255,7 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){ ?>
             <div class="notice notice-warning">
-                <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'mdx') : __('this account', 'mdx'));?></p>
+                <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'wwa') : __('this account', 'wwa'));?></p>
             </div>
         <?php }
     }

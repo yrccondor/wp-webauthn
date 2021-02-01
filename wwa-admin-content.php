@@ -212,5 +212,5 @@ if($wwa_v_log === false){
 <br>
 </div>
 <?php }}?>
-<p class="description"><?php _e('To register a new authenticator or edit your authenticators, please go to <a href="'.admin_url('profile.php').'#wwa-webauthn-start">your profile</a>.', 'wwa');?></p>
+<p class="description"><?php printf(__('To register a new authenticator or edit your authenticators, please go to <a href="%s#wwa-webauthn-start">your profile</a>.', 'wwa'), admin_url('profile.php'));?></p>
 </div>
