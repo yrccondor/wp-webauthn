@@ -1,41 +1,11 @@
 <?php
 // Insert CSS and JS
-wp_enqueue_script('wwa_admin', plugins_url('js/admin.js',__FILE__));
+wp_enqueue_script('wwa_admin', plugins_url('js/admin.js', __FILE__));
 wp_localize_script('wwa_admin', 'php_vars', array(
     'ajax_url' => admin_url('admin-ajax.php'),
-    'i18n_1' => __('Initializing...', 'wwa'),
-    'i18n_2' => __('Please follow instructions to finish registration...', 'wwa'),
-    'i18n_3' => '<span class="success">'._x('Registered', 'action', 'wwa').'</span>',
-    'i18n_4' => '<span class="failed">'.__('Registration failed', 'wwa').'</span>',
-    'i18n_5' => __('Your browser does not support WebAuthn', 'wwa'),
-    'i18n_6' => __('Registrating...', 'wwa'),
-    'i18n_7' => __('Please enter the authenticator identifier', 'wwa'),
-    'i18n_8' => __('Loading failed, maybe try refreshing?', 'wwa'),
-    'i18n_9' => __('Any', 'wwa'),
-    'i18n_10' => __('Platform authenticator', 'wwa'),
-    'i18n_11' => __('Roaming authenticator', 'wwa'),
-    'i18n_12' => __('Remove', 'wwa'),
-    'i18n_13' => __('Please follow instructions to finish verification...', 'wwa'),
-    'i18n_14' => __('Verifying...', 'wwa'),
-    'i18n_15' => '<span class="failed">'.__('Verification failed', 'wwa').'</span>',
-    'i18n_16' => '<span class="success">'.__('Verification passed! You can now log in through WebAuthn', 'wwa').'</span>',
-    'i18n_17' => __('No registered authenticators', 'wwa'),
-    'i18n_18' => __('Confirm removal of authenticator: ', 'wwa'),
-    'i18n_19' => __('Removing...', 'wwa'),
-    'i18n_20' => __('Rename', 'wwa'),
-    'i18n_21' => __('Rename the authenticator', 'wwa'),
-    'i18n_22' => __('Renaming...', 'wwa'),
-    'i18n_23' => __('Log count: ', 'wwa'),
-    'i18n_24' => __('Ready', 'wwa'),
-    'i18n_25' => __('No', 'wwa'),
-    'i18n_26' => __(' (Unavailable)', 'wwa'),
-    'i18n_27' => __('The site administrator has disabled usernameless login feature.', 'wwa'),
-    'i18n_28' => __('After removing this authenticator, you will not be able to login with WebAuthn', 'wwa'),
-    'i18n_29' => __(' (Disabled)', 'wwa'),
-    'i18n_30' => __('The site administrator only allow platform authenticators currently.', 'wwa'),
-    'i18n_31' => __('The site administrator only allow roaming authenticators currently.', 'wwa')
+    'i18n_23' => __('Log count: ', 'wwa')
 ));
-wp_enqueue_style('wwa_admin', plugins_url('css/admin.css',__FILE__));
+wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 ?>
 <div class="wrap"><h1>WP-WebAuthn</h1>
 <?php
@@ -135,7 +105,7 @@ wp_nonce_field('wwa_options_update');
     <option value="false"<?php if($wwa_v_first_choice === 'false'){?> selected<?php }?>><?php _e('Prefer password', 'wwa');?></option>
     <option value="webauthn"<?php if($wwa_v_first_choice === 'webauthn'){?> selected<?php }?>><?php _e('WebAuthn Only', 'wwa');?></option>
 </select>
-<p class="description"><?php _e('When using "WebAuthn Only", password login will be completely disabled.<br>When the browser does not support WebAuthn, the login method will default to password if password login is not disabled.', 'wwa');?></p>
+<p class="description"><?php _e('When using "WebAuthn Only", password login will be completely disabled. Please make sure your browser supports WebAuthn, otherwise you may unable to login.<br>User that doesn\'t have any registered authenticator (e.g. new user) will unable to login when using "WebAuthn Only".<br>When the browser does not support WebAuthn, the login method will default to password if password login is not disabled.', 'wwa');?></p>
 </td>
 </tr>
 <tr>
@@ -237,87 +207,10 @@ if($wwa_v_log === false){
 ?>
 <div<?php if(wwa_get_option('logging') !== 'true'){?> id="wwa-remove-log"<?php }?>>
 <h2><?php _e('Log', 'wwa');?></h2>
-<textarea name="wwa_log" id="wwa_log" rows="15" cols="68" readonly><?php echo get_option("wwa_log") === false ? "" : implode("\n", get_option("wwa_log"));?></textarea>
+<textarea name="wwa_log" id="wwa_log" rows="20" cols="108" readonly><?php echo get_option("wwa_log") === false ? "" : implode("\n", get_option("wwa_log"));?></textarea>
 <p class="description"><?php _e('Automatic update every 5 seconds.', 'wwa');?></p>
 <br>
 </div>
 <?php }}?>
-<br>
-<h2><?php _e('Register Authenticator', 'wwa');?></h2>
-<p class="description"><?php _e('You are about to associate an authenticator with <strong>the current account</strong>. You can register multiple authenticators for an account. <br> If you want to register authenticators for other users, please log in using that account.', 'wwa');?></p>
-<table class="form-table">
-<tr>
-<th scope="row"><label for="authenticator_type"><?php _e('Type of authenticator', 'wwa');?></label></th>
-<td>
-<?php
-$allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : wwa_get_option('allow_authenticator_type');
-?>
-<select name="authenticator_type" id="authenticator_type">
-    <option value="none" id="type-none" class="sub-type"<?php if($allowed_type !== 'none'){echo ' disabled';}?>><?php _e('Any', 'wwa');?></option>
-    <option value="platform" id="type-platform" class="sub-type"<?php if($allowed_type === 'cross-platform'){echo ' disabled';}?>><?php _e('Platform (e.g. built-in fingerprint sensors)', 'wwa');?></option>
-    <option value="cross-platform" id="type-cross-platform" class="sub-type"<?php if($allowed_type === 'platform'){echo ' disabled';}?>><?php _e('Roaming (e.g. USB security keys)', 'wwa');?></option>
-</select>
-<p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wwa');?></p>
-</td>
-</tr>
-<tr>
-<th scope="row"><label for="authenticator_name"><?php _e('Authenticator identifier', 'wwa');?></label></th>
-<td>
-    <input required name="authenticator_name" type="text" id="authenticator_name" class="regular-text">
-    <p class="description"><?php _e('An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wwa');?></p>
-</td>
-</tr>
-<?php if(wwa_get_option('usernameless_login') === "true"){?>
-<tr>
-<th scope="row"><label for="authenticator_usernameless"><?php _e('Login without username', 'wwa');?></th>
-<td>
-    <fieldset>
-        <label><input type="radio" name="authenticator_usernameless" class="authenticator_usernameless" value="true"> <?php _e("Enable", "wwa");?></label><br>
-        <label><input type="radio" name="authenticator_usernameless" class="authenticator_usernameless" value="false" checked="checked"> <?php _e("Disable", "wwa");?></label><br>
-        <p class="description"><?php _e('If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it.', 'wwa');?></p>
-    </fieldset>
-</td>
-</tr>
-<?php }?>
-</table>
-<p class="submit"><button id="bind" class="button button-primary"><?php _e('Start registration', 'wwa');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="show-progress"></span></p>
-<h2><?php _e('Authenticators currently registered', 'wwa');?></h2>
-<div class="wwa-table">
-<table class="wp-list-table widefat fixed striped">
-    <thead>
-        <tr>
-            <th><?php _e('Identifier', 'wwa');?></th>
-            <th><?php _e('Type', 'wwa');?></th>
-            <th><?php _ex('Registered', 'time', 'wwa');?></th>
-            <th><?php _e('Last used', 'wwa');?></th>
-            <th class="usernameless-th"><?php _e('Usernameless', 'wwa');?></th>
-            <th><?php _e('Action', 'wwa');?></th>
-        </tr>
-    </thead>
-    <tbody id="authenticator-list">
-        <tr>
-            <td colspan="5"><?php _e('Loading...', 'wwa');?></td>
-        </tr>
-    </tbody>
-    <tfoot>
-        <tr>
-            <th><?php _e('Identifier', 'wwa');?></th>
-            <th><?php _e('Type', 'wwa');?></th>
-            <th><?php _ex('Registered', 'time', 'wwa');?></th>
-            <th><?php _e('Last used', 'wwa');?></th>
-            <th class="usernameless-th"><?php _e('Usernameless', 'wwa');?></th>
-            <th><?php _e('Action', 'wwa');?></th>
-      </tr>
-    </tfoot>
-</table>
-</div>
-<p id="usernameless_tip"></p>
-<p id="type_tip"></p>
-<br>
-<h2><?php _e('Verify registration', 'wwa');?></h2>
-<p class="description"><?php _e('Click verify to verify that the registered authenticators are working.', 'wwa');?></p>
-<p class="submit"><button id="test" class="button button-primary"><?php _e('Verify', 'wwa');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="show-test"></span>
-<?php if(wwa_get_option('usernameless_login') === "true"){?>
-<br><br><button id="test_usernameless" class="button button-primary"><?php _e('Verify (usernameless)', 'wwa');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="show-test-usernameless"></span>
-<?php }?></p>
+<p class="description"><?php _e('To register a new authenticator or edit your authenticators, please go to <a href="'.admin_url('profile.php').'#wwa-webauthn-start">your profile</a>.', 'wwa');?></p>
 </div>

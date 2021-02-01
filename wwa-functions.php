@@ -15,15 +15,13 @@ function wwa_delete_temp_val($name, $client_id){
 
 // Destroy all transients
 function wwa_destroy_temp_val($client_id){
-    wwa_delete_temp_val('wwa_user_name_auth', $client_id);
-    wwa_delete_temp_val('wwa_user_auth', $client_id);
-    wwa_delete_temp_val('wwa_server', $client_id);
-    wwa_delete_temp_val('wwa_pkcco', $client_id);
-    wwa_delete_temp_val('wwa_bind_config', $client_id);
-    wwa_delete_temp_val('wwa_server_auth', $client_id);
-    wwa_delete_temp_val('wwa_pkcco_auth', $client_id);
-    wwa_delete_temp_val('wwa_usernameless_auth', $client_id);
-    wwa_delete_temp_val('wwa_auth_type', $client_id);
+    wwa_delete_temp_val('user_name_auth', $client_id);
+    wwa_delete_temp_val('user_auth', $client_id);
+    wwa_delete_temp_val('pkcco', $client_id);
+    wwa_delete_temp_val('bind_config', $client_id);
+    wwa_delete_temp_val('pkcco_auth', $client_id);
+    wwa_delete_temp_val('usernameless_auth', $client_id);
+    wwa_delete_temp_val('auth_type', $client_id);
 }
 
 // Destroy all transients before wp_die
@@ -134,7 +132,7 @@ add_action('delete_user', 'wwa_delete_user');
 
 // Add CSS and JS in login page
 function wwa_login_js(){
-    wp_enqueue_script('wwa_login', plugins_url('js/login.js',__FILE__), array(), get_option('wwa_version')['version'], true);
+    wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
     $first_choice = wwa_get_option('first_choice');
     wp_localize_script('wwa_login', 'php_vars', array(
         'ajax_url' => admin_url('admin-ajax.php'),
@@ -157,20 +155,108 @@ function wwa_login_js(){
         'i18n_12' => '<br><span class="wwa-try-username">'.__('Try to enter the username', 'wwa').'</span>'
     ));
     if($first_choice === 'true' || $first_choice === 'webauthn'){
-        wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js',__FILE__), array(), get_option('wwa_version')['version'], true);
+        wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js', __FILE__), array(), get_option('wwa_version')['version'], true);
         wp_localize_script('wwa_default', 'php_vars_wa', array(
         ));
     }
-    wp_enqueue_style('wwa_login_css', plugins_url('css/login.css',__FILE__), array(), get_option('wwa_version')['version']);
+    wp_enqueue_style('wwa_login_css', plugins_url('css/login.css', __FILE__), array(), get_option('wwa_version')['version']);
 }
 add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
-function wwa_disable_password(){
-    return new WP_Error('wwa_password_disabled', __('Logging in with password has been disabled by the site manager.', 'wwa'));
+// Disable password login
+function wwa_disable_password($user){
+    if(wwa_get_option('first_choice') === 'webauthn'){
+        return new WP_Error('wwa_password_disabled', __('Logging in with password has been disabled by the site manager.', 'wwa'));
+    }
+    if(is_wp_error($user)){
+        return $user;
+    }
+    if(get_the_author_meta('webauthn_only', $user->ID) === 'true'){
+        return new WP_Error('wwa_password_disabled_for_account', __('Logging in with password has been disabled for this account.', 'wwa'));
+    }
+    return $user;
 }
-if(wwa_get_option('first_choice') === 'webauthn'){
-    add_filter('wp_authenticate_user', 'wwa_disable_password', 10, 0);
+add_filter('wp_authenticate_user', 'wwa_disable_password', 10, 1);
+
+// Show a notice in admin pages
+function wwa_no_authenticator_warning(){
+    $user_info = wp_get_current_user();
+    $first_choice = wwa_get_option('first_choice');
+    $check_self = true;
+    if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID ) !== 'true'){
+        $check_self = false;
+    }
+
+    if($check_self){
+        // Check current user
+        $user_id = '';
+        $show_notice_flag = false;
+        if(!isset(wwa_get_option('user_id')[$user_info->user_login])){
+            $show_notice_flag = true;
+        }else{
+            $user_id = wwa_get_option('user_id')[$user_info->user_login];
+        }
+
+        if(!$show_notice_flag){
+            $show_notice_flag = true;
+            $data = json_decode(wwa_get_option('user_credentials_meta'), true);
+            foreach($data as $value){
+                if($user_id === $value['user']){
+                    $show_notice_flag = false;
+                    break;
+                }
+            }
+        }
+
+        if($show_notice_flag){?>
+            <div class="notice notice-warning">
+                <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="'.admin_url('profile.php').'#wwa-webauthn-start">Register</a>', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'mdx') : __('your account', 'mdx'));?></p>
+            </div>
+        <?php }
+    }
+    // Check other user
+    global $pagenow;
+    if($pagenow == 'user-edit.php' && isset($_GET['user_id']) && intval($_GET['user_id']) !== $user_info->ID){
+        $user_id_wp = intval($_GET['user_id']);
+        if($user_id_wp <= 0){
+            return;
+        }
+        if(!current_user_can('edit_user', $user_id_wp)){
+            return;
+        }
+        $user_info = get_user_by('id', $user_id_wp);
+
+        if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID ) !== 'true'){
+            return;
+        }
+
+        $user_id = '';
+        $show_notice_flag = false;
+        if(!isset(wwa_get_option('user_id')[$user_info->user_login])){
+            $show_notice_flag = true;
+        }else{
+            $user_id = wwa_get_option('user_id')[$user_info->user_login];
+        }
+
+        if(!$show_notice_flag){
+            $show_notice_flag = true;
+            $data = json_decode(wwa_get_option('user_credentials_meta'), true);
+            foreach($data as $value){
+                if($user_id === $value['user']){
+                    $show_notice_flag = false;
+                    break;
+                }
+            }
+        }
+
+        if($show_notice_flag){ ?>
+            <div class="notice notice-warning">
+                <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'mdx') : __('this account', 'mdx'));?></p>
+            </div>
+        <?php }
+    }
 }
+add_action('admin_notices', 'wwa_no_authenticator_warning');
 
 // Multi-language support
 function wwa_load_textdomain(){

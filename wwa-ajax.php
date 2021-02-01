@@ -182,7 +182,7 @@ function wwa_ajax_create(){
         }
 
         // Check queries
-        if(!isset($_GET["name"]) || !isset($_GET["type"]) || !isset($_GET["usernameless"])){
+        if(!isset($_GET["name"]) || !isset($_GET["type"]) || !isset($_GET["usernameless"]) || !isset($_GET["user_id"])){
             wwa_add_log($res_id, "ajax_create: (ERROR)Missing parameters, exit");
             wwa_wp_die("Bad Request.", $client_id);
         }else{
@@ -191,7 +191,24 @@ function wwa_ajax_create(){
             $wwa_get["name"] = sanitize_text_field($_GET["name"]);
             $wwa_get["type"] = sanitize_text_field($_GET["type"]);
             $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
-            wwa_add_log($res_id, "ajax_create: name => \"".$wwa_get["name"]."\", type => \"".$wwa_get["type"]."\", usernameless => \"".$wwa_get["usernameless"]."\"");
+
+            $user_id = intval(sanitize_text_field($_GET["user_id"]));
+            if($user_id <= 0){
+                wwa_add_log($res_id, "ajax_create: (ERROR)Wrong parameters, exit");
+                wwa_wp_die("Bad Request.");
+            }
+
+            wwa_add_log($res_id, "ajax_create: name => \"".$wwa_get["name"]."\", type => \"".$wwa_get["type"]."\", usernameless => \"".$wwa_get["usernameless"]."\", user_id => ".strval($user_id));
+        }
+
+        $user_info = wp_get_current_user();
+
+        if($user_info->ID !== $user_id){
+            if(!current_user_can("edit_user", $user_id)){
+                wwa_add_log($res_id, "ajax_create: (ERROR)No permission, exit");
+                wwa_wp_die("Something went wrong.");
+            }
+            $user_info = get_user_by('id', $user_id);
         }
 
         // Empty authenticator name
@@ -226,8 +243,6 @@ function wwa_ajax_create(){
             $publicKeyCredentialSourceRepository,
             null
         );
-
-        $user_info = wp_get_current_user();
 
         wwa_add_log($res_id, "ajax_create: user => \"".$user_info->user_login."\"");
 
@@ -361,7 +376,7 @@ function wwa_ajax_create_response(){
         }
 
         // Check POST
-        if(!isset($_POST["data"]) || !isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["usernameless"])){
+        if(!isset($_POST["data"]) || !isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["usernameless"]) || !isset($_POST["user_id"])){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Missing parameters, exit");
             wwa_wp_die("Bad Request.", $client_id);
         }else{
@@ -370,8 +385,24 @@ function wwa_ajax_create_response(){
             $wwa_post["name"] = sanitize_text_field($_POST["name"]);
             $wwa_post["type"] = sanitize_text_field($_POST["type"]);
             $wwa_post["usernameless"] = sanitize_text_field($_POST["usernameless"]);
-            wwa_add_log($res_id, "ajax_create_response: name => \"".$wwa_post["name"]."\", type => \"".$wwa_post["type"]."\", usernameless => \"".$wwa_post["usernameless"]."\"");
+
+            $user_id = intval(sanitize_text_field($_POST["user_id"]));
+            if($user_id <= 0){
+                wwa_add_log($res_id, "ajax_create_response: (ERROR)Wrong parameters, exit");
+                wwa_wp_die("Bad Request.");
+            }
+
+            wwa_add_log($res_id, "ajax_create_response: name => \"".$wwa_post["name"]."\", type => \"".$wwa_post["type"]."\", usernameless => \"".$wwa_post["usernameless"]."\", user_id => ".strval($user_id));
             wwa_add_log($res_id, "ajax_create_response: data => ".base64_decode($_POST["data"]));
+        }
+
+        $user_info = wp_get_current_user();
+
+        if($user_info->ID !== $user_id){
+            if(!current_user_can("edit_user", $user_id)){
+                wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)No permission, exit");
+                wwa_wp_die("Something went wrong.");
+            }
         }
 
         $temp_val = array(
@@ -504,7 +535,7 @@ function wwa_ajax_auth_start(){
                 $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
                 // Usernameless authentication not allowed
                 if($wwa_get["usernameless"] === "true" && wwa_get_option("usernameless_login") !== "true"){
-                    wwa_add_log($res_id, "ajax_create: (ERROR)Usernameless authentication not allowed, exit");
+                    wwa_add_log($res_id, "ajax_auth: (ERROR)Usernameless authentication not allowed, exit");
                     wwa_wp_die("Bad Request.", $client_id);
                 }
             }
@@ -512,7 +543,7 @@ function wwa_ajax_auth_start(){
 
         if($wwa_get["type"] === "test" && !current_user_can('read')){
             // Test but not logged in
-            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Permission denied, exit");
+            wwa_add_log($res_id, "ajax_auth: (ERROR)Permission denied, exit");
             wwa_wp_die("Bad request.", $client_id);
         }
 
@@ -523,7 +554,26 @@ function wwa_ajax_auth_start(){
             if(isset($wwa_get["usernameless"])){
                 if($wwa_get["usernameless"] !== "true"){
                     // Logged in and testing, if the user haven't bound any authenticator yet, exit
+                    if(!isset($_GET["user_id"])){
+                        wwa_add_log($res_id, "ajax_auth: (ERROR)Missing parameters, exit");
+                        wwa_wp_die("Bad Request.");
+                    }
+
                     $user_info = wp_get_current_user();
+
+                    $user_id = intval(sanitize_text_field($_GET["user_id"]));
+                    if($user_id <= 0){
+                        wwa_add_log($res_id, "ajax_auth: (ERROR)Wrong parameters, exit");
+                        wwa_wp_die("Bad Request.");
+                    }
+
+                    if($user_info->ID !== $user_id){
+                        if(!current_user_can("edit_user", $user_id)){
+                            wwa_add_log($res_id, "ajax_auth: (ERROR)No permission, exit");
+                            wwa_wp_die("Something went wrong.");
+                        }
+                        $user_info = get_user_by('id', $user_id);
+                    }
 
                     wwa_add_log($res_id, "ajax_auth: type => \"test\", user => \"".$user_info->user_login."\", usernameless => \"false\"");
 
@@ -775,7 +825,26 @@ function wwa_ajax_auth(){
         // If user entity is not saved, read from WordPress
         $user_key = "";
         if($wwa_post["type"] === "test" && current_user_can('read') && !$usernameless_flag){
+            if(!isset($_POST["user_id"])){
+                wwa_add_log($res_id, "ajax_auth_response: (ERROR)Missing parameters, exit");
+                wwa_wp_die("Bad Request.");
+            }
+
             $user_info = wp_get_current_user();
+
+            $user_id = intval(sanitize_text_field($_POST["user_id"]));
+            if($user_id <= 0){
+                wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
+                wwa_wp_die("Bad Request.");
+            }
+
+            if($user_info->ID !== $user_id){
+                if(!current_user_can("edit_user", $user_id)){
+                    wwa_add_log($res_id, "ajax_auth_response: (ERROR)No permission, exit");
+                    wwa_wp_die("Something went wrong.");
+                }
+                $user_info = get_user_by('id', $user_id);
+            }
 
             if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
                 wwa_add_log($res_id, "ajax_auth_response: (ERROR)User not initialized, exit");
@@ -885,7 +954,7 @@ function wwa_ajax_auth(){
         );
 
         // Allow to bypass scheme verification when under localhost
-        $current_domain = wwa_get_option('website_domain');
+        $current_domain = wwa_get_option("website_domain");
         if($current_domain === "localhost" || $current_domain === "127.0.0.1"){
             $server->setSecuredRelyingPartyId([$current_domain]);
             wwa_add_log($res_id, "ajax_auth_response: Localhost, bypass HTTPS check");
@@ -904,10 +973,10 @@ function wwa_ajax_auth(){
 
             // Success
             $publicKeyCredentialSourceRepository->updateCredentialLastUsed(base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]));
-            if(!($wwa_post["type"] === "test" && current_user_can('read'))){
+            if(!($wwa_post["type"] === "test" && current_user_can("read"))){
                 // Log user in
                 if (!is_user_logged_in()) {
-                    include('wwa-compatibility.php');
+                    include("wwa-compatibility.php");
 
                     if(!$usernameless_flag){
                         $user_login = $temp_val["user_name_auth"];
@@ -915,25 +984,25 @@ function wwa_ajax_auth(){
                         $user_login = $user_login_name;
                     }
 
-                    $user =  get_user_by('login', $user_login);
+                    $user =  get_user_by("login", $user_login);
                     $user_id = $user->ID;
 
                     wwa_add_log($res_id, "ajax_auth_response: Log in user => \"".$user_login."\"");
 
                     $remember_flag = false;
 
-                    if ($wwa_post["remember"] === 'true' && (wwa_get_option('remember_me') === false ? "false" : wwa_get_option('remember_me')) !== 'false') {
+                    if ($wwa_post["remember"] === "true" && (wwa_get_option("remember_me") === false ? "false" : wwa_get_option("remember_me")) !== "false") {
                         $remember_flag = true;
                         wwa_add_log($res_id, "ajax_auth_response: Remember login for 14 days");
                     }
 
                     wp_set_current_user($user_id, $user_login);
-                    if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'){
+                    if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on"){
                         wp_set_auth_cookie($user_id, $remember_flag, true);
                     }else{
                         wp_set_auth_cookie($user_id, $remember_flag);
                     }
-                    do_action('wp_login', $user_login, $user);
+                    do_action("wp_login", $user_login, $user);
                 }
             }
             echo "true";
@@ -973,9 +1042,29 @@ function wwa_ajax_authenticator_list(){
         wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Missing parameters, exit");
         wwa_wp_die("Something went wrong.");
     }
-    header('Content-Type: application/json');
+
+    if(!isset($_GET["user_id"])){
+        wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Missing parameters, exit");
+        wwa_wp_die("Bad Request.");
+    }
 
     $user_info = wp_get_current_user();
+
+    $user_id = intval(sanitize_text_field($_GET["user_id"]));
+    if($user_id <= 0){
+        wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Wrong parameters, exit");
+        wwa_wp_die("Bad Request.");
+    }
+
+    if($user_info->ID !== $user_id){
+        if(!current_user_can("edit_user", $user_id)){
+            wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)No permission, exit");
+            wwa_wp_die("Something went wrong.");
+        }
+        $user_info = get_user_by('id', $user_id);
+    }
+
+    header('Content-Type: application/json');
 
     $user_key = "";
     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
@@ -1014,9 +1103,25 @@ function wwa_ajax_modify_authenticator(){
             wwa_wp_die("Bad Request.");
         }
 
-        if(!isset($_GET["id"]) || !isset($_GET["target"])){
+        if(!isset($_GET["id"]) || !isset($_GET["target"]) || !isset($_GET["user_id"])){
             wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Missing parameters, exit");
             wwa_wp_die("Bad Request.");
+        }
+
+        $user_info = wp_get_current_user();
+    
+        $user_id = intval(sanitize_text_field($_GET["user_id"]));
+        if($user_id <= 0){
+            wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Wrong parameters, exit");
+            wwa_wp_die("Bad Request.");
+        }
+    
+        if($user_info->ID !== $user_id){
+            if(!current_user_can("edit_user", $user_id)){
+                wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)No permission, exit");
+                wwa_wp_die("Something went wrong.");
+            }
+            $user_info = get_user_by('id', $user_id);
         }
 
         if($_GET["target"] !== "rename" && $_GET["target"] !== "remove"){
@@ -1028,8 +1133,6 @@ function wwa_ajax_modify_authenticator(){
             wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Missing parameters, exit");
             wwa_wp_die("Bad Request.");
         }
-
-        $user_info = wp_get_current_user();
 
         $user_key = "";
         if(!isset(wwa_get_option("user_id")[$user_info->user_login])){

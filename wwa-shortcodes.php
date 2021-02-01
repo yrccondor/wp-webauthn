@@ -1,6 +1,6 @@
 <?php
 function wwa_localize_frontend(){
-    wp_enqueue_script('wwa_frontend_js', plugins_url('js/frontend.js',__FILE__), array(), get_option('wwa_version')['version'], true);
+    wp_enqueue_script('wwa_frontend_js', plugins_url('js/frontend.js', __FILE__), array(), get_option('wwa_version')['version'], true);
     wp_localize_script('wwa_frontend_js', 'wwa_php_vars', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'admin_url' => admin_url(),
@@ -66,8 +66,7 @@ function wwa_login_form_shortcode($vals){
     if(!wp_script_is('wwa_frontend_js')){
         wwa_localize_frontend();
     }
-    // wp_enqueue_script('wwa_frontend_js');
-    wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css',__FILE__), array(), get_option('wwa_version')['version']);
+    wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css', __FILE__), array(), get_option('wwa_version')['version']);
 
     $html_form = '<div class="wwa-login-form">';
 
@@ -113,7 +112,7 @@ function wwa_register_form_shortcode($vals){
     if(!wp_script_is('wwa_frontend_js')){
         wwa_localize_frontend();
     }
-    wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css',__FILE__), array(), get_option('wwa_version')['version']);
+    wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css', __FILE__), array(), get_option('wwa_version')['version']);
 
     $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : wwa_get_option('allow_authenticator_type');
     return '<div class="wwa-register-form"><label for="wwa-authenticator-type">'.__('Type of authenticator', 'wwa').'</label><select name="wwa-authenticator-type" class="wwa-authenticator-type" id="wwa-authenticator-type"><option value="none" class="wwa-type-none"'.($allowed_type !== 'none' ? ' disabled' : '').'>'.__('Any', 'wwa').'</option><option value="platform" class="wwa-type-platform"'.($allowed_type === 'cross-platform' ? ' disabled' : '').'>'.__('Platform (e.g. built-in fingerprint sensors)', 'wwa').'</option><option value="cross-platform" class="wwa-type-cross-platform"'.($allowed_type === 'platform' ? ' disabled' : '').'>'.__('Roaming (e.g. USB security keys)', 'wwa').'</option></select><p class="wwa-bind-name-description">'.__('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wwa').'</p><label for="wwa-authenticator-name">'.__('Authenticator identifier', 'wwa').'</label><input required name="wwa-authenticator-name" type="text" class="wwa-authenticator-name" id="wwa-authenticator-name"><p class="wwa-bind-name-description">'.__('An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wwa').'</p>'.((wwa_get_option('usernameless_login') === "true") ? '<label for="wwa-authenticator-usernameless">'.__('Login without username', 'wwa').'<br><label><input type="radio" name="wwa-authenticator-usernameless" class="wwa-authenticator-usernameless" value="true"> '.__("Enable", "wwa").'</label><br><label><input type="radio" name="wwa-authenticator-usernameless" class="wwa-authenticator-usernameless" value="false" checked="checked"> '.__("Disable", "wwa").'</label></label><br><p class="wwa-bind-usernameless-description">'.__('If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it.', 'wwa').'</p>' : '').'<p class="wwa-bind"><button class="wwa-bind-submit">'.__('Start registration', 'wwa').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-progress"></span></p></div>';
@@ -162,7 +161,7 @@ function wwa_list_shortcode($vals){
     if(!current_user_can("read")){
         if($display === "true"){
             // Load CSS
-            wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css',__FILE__), array(), get_option('wwa_version')['version']);
+            wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css', __FILE__), array(), get_option('wwa_version')['version']);
 
             return $thead.'<tr><td colspan="5">'.__('You haven\'t logged in yet.', 'wwa').'</td></tr>'.$tfoot;
         }else{
