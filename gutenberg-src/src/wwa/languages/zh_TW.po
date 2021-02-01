@@ -1,0 +1,71 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-02-01T23:15:05+08:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: wwa\n"
+
+#: wwa.js:7
+#: wwa.js:43
+msgid "WebAuthn Login Form"
+msgstr "WebAuthn 登錄表單"
+
+#: wwa.js:10
+msgid "Login Form"
+msgstr "登錄表單"
+
+#: wwa.js:46
+msgid "Default username"
+msgstr "預設用戶名"
+
+#: wwa.js:53
+msgid "Redirect to"
+msgstr "重定向到"
+
+#: wwa.js:60
+msgid "Show password form as well"
+msgstr "包含密碼登錄表單"
+
+#: wwa.js:67
+msgid "Hide for logged-in users"
+msgstr "對已登錄使用者隱藏"
+
+#: wwa.js:82
+#: wwa.js:108
+msgid "WebAuthn Register Form"
+msgstr "WebAuthn 綁定表單"
+
+#: wwa.js:85
+msgid "Register Form"
+msgstr "綁定表單"
+
+#: wwa.js:120
+#: wwa.js:175
+#: wwa.js:229
+msgid "Show a message for users who doesn't loggeg-in"
+msgstr "向未登錄使用者顯示一條提示"
+
+#: wwa.js:137
+#: wwa.js:163
+msgid "WebAuthn Verify Buttons"
+msgstr "WebAuthn 測試按鈕"
+
+#: wwa.js:140
+msgid "Verify Buttons"
+msgstr "測試按鈕"
+
+#: wwa.js:191
+#: wwa.js:217
+msgid "WebAuthn Authenticator List"
+msgstr "WebAuthn 認證器列表"
+
+#: wwa.js:194
+msgid "Authenticator List"
+msgstr "認證器列表"

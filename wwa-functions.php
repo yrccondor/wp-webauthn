@@ -258,6 +258,18 @@ function wwa_no_authenticator_warning(){
 }
 add_action('admin_notices', 'wwa_no_authenticator_warning');
 
+// Load Gutenberg block assets
+function wwa_load_blocks(){
+  wp_enqueue_script(
+        'wwa_block_js',
+        plugins_url('blocks/blocks.build.js', __FILE__),
+        ['wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor'],
+        true
+  );
+  wp_set_script_translations('wwa_block_js', 'wwa', plugin_dir_path(__FILE__).'blocks/languages');
+}
+add_action('enqueue_block_editor_assets', 'wwa_load_blocks');
+
 // Multi-language support
 function wwa_load_textdomain(){
     load_plugin_textdomain('wwa', false, dirname(plugin_basename(__FILE__)).'/languages');

@@ -1,0 +1,71 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-02-01T23:15:05+08:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: wwa\n"
+
+#: wwa.js:7
+#: wwa.js:43
+msgid "WebAuthn Login Form"
+msgstr ""
+
+#: wwa.js:10
+msgid "Login Form"
+msgstr ""
+
+#: wwa.js:46
+msgid "Default username"
+msgstr ""
+
+#: wwa.js:53
+msgid "Redirect to"
+msgstr ""
+
+#: wwa.js:60
+msgid "Show password form as well"
+msgstr ""
+
+#: wwa.js:67
+msgid "Hide for logged-in users"
+msgstr ""
+
+#: wwa.js:82
+#: wwa.js:108
+msgid "WebAuthn Register Form"
+msgstr ""
+
+#: wwa.js:85
+msgid "Register Form"
+msgstr ""
+
+#: wwa.js:120
+#: wwa.js:175
+#: wwa.js:229
+msgid "Show a message for users who doesn't loggeg-in"
+msgstr ""
+
+#: wwa.js:137
+#: wwa.js:163
+msgid "WebAuthn Verify Buttons"
+msgstr ""
+
+#: wwa.js:140
+msgid "Verify Buttons"
+msgstr ""
+
+#: wwa.js:191
+#: wwa.js:217
+msgid "WebAuthn Authenticator List"
+msgstr ""
+
+#: wwa.js:194
+msgid "Authenticator List"
+msgstr ""

@@ -2,6 +2,7 @@
 /.wordpress-org export-ignore
 /.github export-ignore
 /README export-ignore
+/gutenberg-src export-ignore
 
 # Files
 /.gitattributes export-ignore
