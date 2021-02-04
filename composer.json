@@ -1,4 +1,11 @@
 {
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Axton Yao",
+            "homepage": "https://axton.cc"
+        }
+    ],
     "require": {
         "web-auth/webauthn-lib": "~3.2.12",
         "nyholm/psr7-server": "^0.4.1",
