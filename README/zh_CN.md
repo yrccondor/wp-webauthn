@@ -24,6 +24,8 @@ WebAuthn 是新一代网络认证技术，旨在通过 USB 认证器、指纹识
 <img src="https://acdn.flyhigher.top/gh-wwa-win-hello.png" alt="WP-WebAuthn">
 </p>
 
+WebAuthn 已在 2019 年 3 月成为W3C建议，它使 Web 应用程序能够创建和使用强大的、经过验证的、基于公钥的凭证，通过硬件认证器对用户进行安全的认证。WebAuthn 专注于安全和隐私，它提供了一种不需要传输任何隐私数据即可进行安全认证的可能性。WebAuthn 将是网络认证的未来。
+
 在使用 WebAuthn 时，你只需点击一次按钮并在认证器上执行简单的认证操作即可在数秒内登录。**完全不需要密码。**
 
 WP-WebAuthn 是一个可以在你的站点上启用 WebAuthn 的 WordPress 插件。只需安装 WP-WebAuthn，你就可以体验最新的网络验证技术了。

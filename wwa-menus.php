@@ -15,7 +15,7 @@ add_action('show_user_profile', 'wwa_user_profile_fields');
 
 // Save setting to profile page
 function wwa_save_user_profile_fields($user_id){
-    if(empty( $_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'update-user_'.$user_id)){
+    if(empty($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'update-user_'.$user_id)){
         return;
     }
 
