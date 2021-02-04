@@ -1,6 +1,6 @@
 {
     "require": {
-        "web-auth/webauthn-lib": "3.2.12",
+        "web-auth/webauthn-lib": "~3.2.12",
         "nyholm/psr7-server": "^0.4.1",
         "nyholm/psr7": "^1.2",
         "web-token/jwt-key-mgmt": "^2.1",
