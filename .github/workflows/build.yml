@@ -30,7 +30,16 @@ jobs:
 
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs && git config --global user.email "i@yrc.me" && git config --global user.name "yrccondor" && git add . && git commit -m "Add vendor"
+      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+
+    - name: Add vendor
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+      run: |
+        rm -rf .gitignore
+        git config --global user.email "i@yrc.me"
+        git config --global user.name "yrccondor"
+        git add .
+        git commit -m "Add vendor"
 
     - name: WordPress Plugin Deploy
       id: deploy
