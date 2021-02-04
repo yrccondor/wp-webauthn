@@ -30,7 +30,7 @@ jobs:
 
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs && git add . && git commit -m "Add vendor"
 
     - name: WordPress Plugin Deploy
       id: deploy
