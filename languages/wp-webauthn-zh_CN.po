@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the wwa package.
 msgid ""
 msgstr ""
-"Project-Id-Version: wwa\n"
+"Project-Id-Version: wp-webauthn\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"

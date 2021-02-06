@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the wwa package.
 msgid ""
 msgstr ""
-"Project-Id-Version: wwa\n"
+"Project-Id-Version: wp-webauthn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

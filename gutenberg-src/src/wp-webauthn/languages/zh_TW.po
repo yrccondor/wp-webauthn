@@ -10,62 +10,62 @@ msgstr ""
 "POT-Creation-Date: 2021-02-01T23:15:05+08:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
-"X-Domain: wwa\n"
+"X-Domain: wp-webauthn\n"
 
-#: wwa.js:7
-#: wwa.js:43
+#: wp-webauthn.js:7
+#: wp-webauthn.js:43
 msgid "WebAuthn Login Form"
-msgstr "WebAuthn 登錄表單"
+msgstr "WebAuthn 登入表單"
 
-#: wwa.js:10
+#: wp-webauthn.js:10
 msgid "Login Form"
-msgstr "登錄表單"
+msgstr "登入表單"
 
-#: wwa.js:46
+#: wp-webauthn.js:46
 msgid "Default username"
-msgstr "默認用戶名"
+msgstr "預設使用者名稱"
 
-#: wwa.js:53
+#: wp-webauthn.js:53
 msgid "Redirect to"
 msgstr "重定向到"
 
-#: wwa.js:60
+#: wp-webauthn.js:60
 msgid "Show password form as well"
 msgstr "包含密碼登錄表單"
 
-#: wwa.js:67
+#: wp-webauthn.js:67
 msgid "Hide for logged-in users"
-msgstr "對已登錄用戶隱藏"
+msgstr "對已登入的使用者隱藏"
 
-#: wwa.js:82
-#: wwa.js:108
+#: wp-webauthn.js:82
+#: wp-webauthn.js:108
 msgid "WebAuthn Register Form"
 msgstr "WebAuthn 綁定表單"
 
-#: wwa.js:85
+#: wp-webauthn.js:85
 msgid "Register Form"
 msgstr "綁定表單"
 
-#: wwa.js:120
-#: wwa.js:175
-#: wwa.js:229
-msgid "Show a message for users who doesn't loggeg-in"
-msgstr "向未登錄用戶顯示一條提示"
+#: wp-webauthn.js:120
+#: wp-webauthn.js:175
+#: wp-webauthn.js:229
+msgid "Show a message for users who doesn't logged-in"
+msgstr "向未登入的使用者顯示一條提示"
 
-#: wwa.js:137
-#: wwa.js:163
+#: wp-webauthn.js:137
+#: wp-webauthn.js:163
 msgid "WebAuthn Verify Buttons"
 msgstr "WebAuthn 測試按鈕"
 
-#: wwa.js:140
+#: wp-webauthn.js:140
 msgid "Verify Buttons"
 msgstr "測試按鈕"
 
-#: wwa.js:191
-#: wwa.js:217
+#: wp-webauthn.js:191
+#: wp-webauthn.js:217
 msgid "WebAuthn Authenticator List"
 msgstr "WebAuthn 認證器列表"
 
-#: wwa.js:194
+#: wp-webauthn.js:194
 msgid "Authenticator List"
 msgstr "認證器列表"

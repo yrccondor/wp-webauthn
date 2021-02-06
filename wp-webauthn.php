@@ -7,7 +7,7 @@ Version: 1.2.2
 Author: Axton
 Author URI: https://axton.cc
 License: GPLv3
-Text Domain: wwa
+Text Domain: wp-webauthn
 Domain Path: /languages
 */
 /* Copyright 2020 Axton

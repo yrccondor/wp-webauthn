@@ -141,18 +141,18 @@ function wwa_login_js(){
         'remember_me' => (wwa_get_option('remember_me') === false ? "false" : wwa_get_option('remember_me')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
         'webauthn_only' => $first_choice === 'webauthn' ? 'true' : 'false',
-        'i18n_1' => __('Auth', 'wwa'),
-        'i18n_2' => __('Authenticate with WebAuthn', 'wwa'),
-        'i18n_3' => __('Hold on...', 'wwa'),
-        'i18n_4' => __('Please proceed...', 'wwa'),
-        'i18n_5' => __('Authenticating...', 'wwa'),
-        'i18n_6' => '<span class="wwa-success"><span class="dashicons dashicons-yes"></span> '.__('Authenticated', 'wwa').'</span>',
-        'i18n_7' => '<span class="wwa-failed"><span class="dashicons dashicons-no-alt"></span> '.__('Auth failed', 'wwa').'</span>',
-        'i18n_8' => __('It looks like your browser doesn\'t support WebAuthn, which means you may unable to login.', 'wwa'),
-        'i18n_9' => __('Username', 'wwa'),
+        'i18n_1' => __('Auth', 'wp-webauthn'),
+        'i18n_2' => __('Authenticate with WebAuthn', 'wp-webauthn'),
+        'i18n_3' => __('Hold on...', 'wp-webauthn'),
+        'i18n_4' => __('Please proceed...', 'wp-webauthn'),
+        'i18n_5' => __('Authenticating...', 'wp-webauthn'),
+        'i18n_6' => '<span class="wwa-success"><span class="dashicons dashicons-yes"></span> '.__('Authenticated', 'wp-webauthn').'</span>',
+        'i18n_7' => '<span class="wwa-failed"><span class="dashicons dashicons-no-alt"></span> '.__('Auth failed', 'wp-webauthn').'</span>',
+        'i18n_8' => __('It looks like your browser doesn\'t support WebAuthn, which means you may unable to login.', 'wp-webauthn'),
+        'i18n_9' => __('Username', 'wp-webauthn'),
         'i18n_10' => __('Username or Email Address'),
-        'i18n_11' => __('<strong>Error</strong>: The username field is empty.', 'wwa'),
-        'i18n_12' => '<br><span class="wwa-try-username">'.__('Try to enter the username', 'wwa').'</span>'
+        'i18n_11' => __('<strong>Error</strong>: The username field is empty.', 'wp-webauthn'),
+        'i18n_12' => '<br><span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>'
     ));
     if($first_choice === 'true' || $first_choice === 'webauthn'){
         wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js', __FILE__), array(), get_option('wwa_version')['version'], true);
@@ -166,13 +166,13 @@ add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 // Disable password login
 function wwa_disable_password($user){
     if(wwa_get_option('first_choice') === 'webauthn'){
-        return new WP_Error('wwa_password_disabled', __('Logging in with password has been disabled by the site manager.', 'wwa'));
+        return new WP_Error('wwa_password_disabled', __('Logging in with password has been disabled by the site manager.', 'wp-webauthn'));
     }
     if(is_wp_error($user)){
         return $user;
     }
     if(get_the_author_meta('webauthn_only', $user->ID) === 'true'){
-        return new WP_Error('wwa_password_disabled_for_account', __('Logging in with password has been disabled for this account.', 'wwa'));
+        return new WP_Error('wwa_password_disabled_for_account', __('Logging in with password has been disabled for this account.', 'wp-webauthn'));
     }
     return $user;
 }
@@ -210,7 +210,7 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){?>
             <div class="notice notice-warning">
-                <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="%s#wwa-webauthn-start">Register</a>', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'wwa') : __('your account', 'wwa'), admin_url('profile.php'));?></p>
+                <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="%s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'), admin_url('profile.php'));?></p>
             </div>
         <?php }
     }
@@ -255,7 +255,7 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){ ?>
             <div class="notice notice-warning">
-                <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wwa'), $first_choice === 'webauthn' ? __('the site', 'wwa') : __('this account', 'wwa'));?></p>
+                <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'));?></p>
             </div>
         <?php }
     }
@@ -270,20 +270,20 @@ function wwa_load_blocks(){
         ['wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor'],
         true
   );
-  wp_set_script_translations('wwa_block_js', 'wwa', plugin_dir_path(__FILE__).'blocks/languages');
+  wp_set_script_translations('wwa_block_js', 'wp-webauthn', plugin_dir_path(__FILE__).'blocks/languages');
 }
 add_action('enqueue_block_editor_assets', 'wwa_load_blocks');
 
 // Multi-language support
 function wwa_load_textdomain(){
-    load_plugin_textdomain('wwa', false, dirname(plugin_basename(__FILE__)).'/languages');
+    load_plugin_textdomain('wp-webauthn', false, dirname(plugin_basename(__FILE__)).'/languages');
 }
 add_action('init', 'wwa_load_textdomain');
 
 // Add meta links in plugin list page
 function wwa_settings_link($links_array, $plugin_file_name){
     if($plugin_file_name === 'wp-webauthn/wp-webauthn.php'){
-        $links_array[] = '<a href="options-general.php?page=wwa_admin">'.__('Settings', 'wwa').'</a>';
+        $links_array[] = '<a href="options-general.php?page=wwa_admin">'.__('Settings', 'wp-webauthn').'</a>';
     }
     return $links_array;
 }
@@ -291,8 +291,8 @@ add_filter('plugin_action_links', 'wwa_settings_link', 10, 2);
 
 function wwa_meta_link($links_array, $plugin_file_name){
     if($plugin_file_name === 'wp-webauthn/wp-webauthn.php'){
-        $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__('GitHub', 'wwa').'</a>';
-        $links_array[] = '<a href="http://doc.flyhigher.top/wp-webauthn">'.__('Documentation', 'wwa').'</a>';
+        $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__('GitHub', 'wp-webauthn').'</a>';
+        $links_array[] = '<a href="http://doc.flyhigher.top/wp-webauthn">'.__('Documentation', 'wp-webauthn').'</a>';
     }
     return $links_array;
 }

@@ -10,4 +10,4 @@
  * Webpack is compiling as the input file.
  */
 
-import "./wwa/wwa";
+import "./wp-webauthn/wp-webauthn";

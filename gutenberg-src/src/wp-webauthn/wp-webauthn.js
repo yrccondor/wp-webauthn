@@ -3,11 +3,11 @@ import { TextControl, TextareaControl, CheckboxControl } from "@wordpress/compon
 const { __ } = wp.i18n;
 const { registerBlockType } = wp.blocks;
 
-registerBlockType("wwa/login", {
-    title: __("WebAuthn Login Form", "wwa"),
+registerBlockType("wp-webauthn/login", {
+    title: __("WebAuthn Login Form", "wp-webauthn"),
     icon: "admin-network",
     category: "widgets",
-    keywords: ["WebAuthn", __("Login Form", "wwa")],
+    keywords: ["WebAuthn", __("Login Form", "wp-webauthn")],
     attributes: {
         traditional: {
             type: "boolean",
@@ -40,31 +40,31 @@ registerBlockType("wwa/login", {
                     marginBottom: "20px",
                     opacity: ".5"
                 }}>
-                    {__("WebAuthn Login Form", "wwa")}
+                    {__("WebAuthn Login Form", "wp-webauthn")}
                 </span>
                 <TextControl
-                    label={__("Default username", "wwa")}
+                    label={__("Default username", "wp-webauthn")}
                     value={attributes.username}
                     onChange={val => {
                         setAttributes({ username: val });
                     }}
                 />
                 <TextControl
-                    label={__("Redirect to", "wwa")}
+                    label={__("Redirect to", "wp-webauthn")}
                     value={attributes.to}
                     onChange={val => {
                         setAttributes({ to: val });
                     }}
                 />
                 <CheckboxControl
-                    label={__("Show password form as well", "wwa")}
+                    label={__("Show password form as well", "wp-webauthn")}
                     checked={attributes.traditional}
                     onChange={val => {
                         setAttributes({ traditional: val });
                     }}
                 />
                 <CheckboxControl
-                    label={__("Hide for logged-in users", "wwa")}
+                    label={__("Hide for logged-in users", "wp-webauthn")}
                     checked={attributes.autoHide}
                     onChange={val => {
                         setAttributes({ autoHide: val });
@@ -78,11 +78,11 @@ registerBlockType("wwa/login", {
     }
 });
 
-registerBlockType("wwa/register", {
-    title: __("WebAuthn Register Form", "wwa"),
+registerBlockType("wp-webauthn/register", {
+    title: __("WebAuthn Register Form", "wp-webauthn"),
     icon: "plus-alt",
     category: "widgets",
-    keywords: ["WebAuthn", __("Register Form", "wwa")],
+    keywords: ["WebAuthn", __("Register Form", "wp-webauthn")],
     attributes: {
         display: {
             type: "boolean",
@@ -105,7 +105,7 @@ registerBlockType("wwa/register", {
                     marginBottom: "20px",
                     opacity: ".5"
                 }}>
-                    {__("WebAuthn Register Form", "wwa")}
+                    {__("WebAuthn Register Form", "wp-webauthn")}
                 </span>
                 <div
                     className={className}
@@ -117,7 +117,7 @@ registerBlockType("wwa/register", {
                     }}
                 >
                     <CheckboxControl
-                        label={__("Show a message for users who doesn't loggeg-in", "wwa")}
+                        label={__("Show a message for users who doesn't logged-in", "wp-webauthn")}
                         checked={attributes.display}
                         onChange={val => {
                             setAttributes({ display: val });
@@ -133,11 +133,11 @@ registerBlockType("wwa/register", {
 });
 
 
-registerBlockType("wwa/verify", {
-    title: __("WebAuthn Verify Buttons", "wwa"),
+registerBlockType("wp-webauthn/verify", {
+    title: __("WebAuthn Verify Buttons", "wp-webauthn"),
     icon: "sos",
     category: "widgets",
-    keywords: ["WebAuthn", __("Verify Buttons", "wwa")],
+    keywords: ["WebAuthn", __("Verify Buttons", "wp-webauthn")],
     attributes: {
         display: {
             type: "boolean",
@@ -160,7 +160,7 @@ registerBlockType("wwa/verify", {
                     marginBottom: "20px",
                     opacity: ".5"
                 }}>
-                    {__("WebAuthn Verify Buttons", "wwa")}
+                    {__("WebAuthn Verify Buttons", "wp-webauthn")}
                 </span>
                 <div
                     className={className}
@@ -172,7 +172,7 @@ registerBlockType("wwa/verify", {
                     }}
                 >
                     <CheckboxControl
-                        label={__("Show a message for users who doesn't loggeg-in", "wwa")}
+                        label={__("Show a message for users who doesn't logged-in", "wp-webauthn")}
                         checked={attributes.display}
                         onChange={val => {
                             setAttributes({ display: val });
@@ -187,11 +187,11 @@ registerBlockType("wwa/verify", {
     }
 });
 
-registerBlockType("wwa/list", {
-    title: __("WebAuthn Authenticator List", "wwa"),
+registerBlockType("wp-webauthn/list", {
+    title: __("WebAuthn Authenticator List", "wp-webauthn"),
     icon: "menu",
     category: "widgets",
-    keywords: ["WebAuthn", __("Authenticator List", "wwa")],
+    keywords: ["WebAuthn", __("Authenticator List", "wp-webauthn")],
     attributes: {
         display: {
             type: "boolean",
@@ -214,7 +214,7 @@ registerBlockType("wwa/list", {
                     marginBottom: "20px",
                     opacity: ".5"
                 }}>
-                    {__("WebAuthn Authenticator List", "wwa")}
+                    {__("WebAuthn Authenticator List", "wp-webauthn")}
                 </span>
                 <div
                     className={className}
@@ -226,7 +226,7 @@ registerBlockType("wwa/list", {
                     }}
                 >
                     <CheckboxControl
-                        label={__("Show a message for users who doesn't loggeg-in", "wwa")}
+                        label={__("Show a message for users who doesn't logged-in", "wp-webauthn")}
                         checked={attributes.display}
                         onChange={val => {
                             setAttributes({ display: val });

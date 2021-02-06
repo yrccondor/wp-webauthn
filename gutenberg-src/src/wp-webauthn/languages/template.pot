@@ -7,65 +7,65 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-02-01T23:15:05+08:00\n"
+"POT-Creation-Date: 2021-02-07T00:28:21+08:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
-"X-Domain: wwa\n"
+"X-Domain: wp-webauthn\n"
 
-#: wwa.js:7
-#: wwa.js:43
+#: wp-webauthn.js:7
+#: wp-webauthn.js:43
 msgid "WebAuthn Login Form"
 msgstr ""
 
-#: wwa.js:10
+#: wp-webauthn.js:10
 msgid "Login Form"
 msgstr ""
 
-#: wwa.js:46
+#: wp-webauthn.js:46
 msgid "Default username"
 msgstr ""
 
-#: wwa.js:53
+#: wp-webauthn.js:53
 msgid "Redirect to"
 msgstr ""
 
-#: wwa.js:60
+#: wp-webauthn.js:60
 msgid "Show password form as well"
 msgstr ""
 
-#: wwa.js:67
+#: wp-webauthn.js:67
 msgid "Hide for logged-in users"
 msgstr ""
 
-#: wwa.js:82
-#: wwa.js:108
+#: wp-webauthn.js:82
+#: wp-webauthn.js:108
 msgid "WebAuthn Register Form"
 msgstr ""
 
-#: wwa.js:85
+#: wp-webauthn.js:85
 msgid "Register Form"
 msgstr ""
 
-#: wwa.js:120
-#: wwa.js:175
-#: wwa.js:229
-msgid "Show a message for users who doesn't loggeg-in"
+#: wp-webauthn.js:120
+#: wp-webauthn.js:175
+#: wp-webauthn.js:229
+msgid "Show a message for users who doesn't logged-in"
 msgstr ""
 
-#: wwa.js:137
-#: wwa.js:163
+#: wp-webauthn.js:137
+#: wp-webauthn.js:163
 msgid "WebAuthn Verify Buttons"
 msgstr ""
 
-#: wwa.js:140
+#: wp-webauthn.js:140
 msgid "Verify Buttons"
 msgstr ""
 
-#: wwa.js:191
-#: wwa.js:217
+#: wp-webauthn.js:191
+#: wp-webauthn.js:217
 msgid "WebAuthn Authenticator List"
 msgstr ""
 
-#: wwa.js:194
+#: wp-webauthn.js:194
 msgid "Authenticator List"
 msgstr ""
