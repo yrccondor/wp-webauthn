@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, security, password, authentication
 Requires at least: 5.0
 Tested up to: 5.6
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -23,7 +23,7 @@ WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just dow
 
 WP-WebAuthn also supports usernameless authentication.
 
-This plugin has 4 built-in shortcodes, so you can add components like register form to frontend pages.
+This plugin has 4 built-in shortcodes and 4 built-in Gutenberg blocks,so you can add components like register form to frontend pages.
 
 Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
 
@@ -81,6 +81,9 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 5. Profile
 
 == Changelog ==
+
+= 1.2.2 =
+Fix: Cannot access to js files in apache 2.4+
 
 = 1.2.1 =
 Feat: Allow to disable password login completely
@@ -160,6 +163,9 @@ Fix: iOS users may be failed to register authenticators due to the user verifica
 Initial version
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+Fixed a problem that js files were broken in apache 2.4+
 
 = 1.2.1 =
 New features, bug fixing and new translations
