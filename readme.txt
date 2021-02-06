@@ -13,8 +13,6 @@ WP-WebAuthn enables passwordless login through FIDO2 and U2F devices like FaceID
 
 == Description ==
 
-**This plugin supports English(default language), Simplified Chinese, Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan) & German (not finished) currently.**
-
 WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras, FaceID/TouchID and more. Using WebAuthn, you can login to your a website with a glance or touch.
 
 When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
@@ -23,7 +21,7 @@ WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just dow
 
 WP-WebAuthn also supports usernameless authentication.
 
-This plugin has 4 built-in shortcodes and 4 built-in Gutenberg blocks,so you can add components like register form to frontend pages.
+This plugin has 4 built-in shortcodes and 4 built-in Gutenberg blocks, so you can add components like register form to frontend pages.
 
 Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
 
@@ -56,9 +54,9 @@ Notice: PHP extensions gmp and mbstring are required.
 
 = What languages does this plugin support? =
 
-This plugin supports English, Chinese(Simplified), Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan) & German (not finished) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
+This plugin supports English, Chinese (Simplified), Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan) & German (not finished) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
 
-All translation files are hosted on [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
+All translation files are hosted on [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/wp-webauthn/) and [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
 
 = What should I do if the plugin could not work? =
 
@@ -101,67 +99,6 @@ Fix: Toggle button may not working in login form
 Update: Chinese translation
 Update: Third-party libraries
 
-= 1.0.16 =
-Fix: Javascript error on login page in WordPress 5.2 & below
-Update: Third-party libraries
-
-= 1.0.15 =
-Fix: WordPress loopback & REST API issue
-Update: Third-party libraries
-
-= 1.0.12 =
-Improve: Compatibility with other plugins in login page
-Update: German translation
-Update: Chinese translation
-
-= 1.0.11 =
-Add: German translation
-
-= 1.0.10 =
-Fix: Failed to register authenticators when "Allow to login without username" is disabled
-
-= 1.0.9 =
-Add: Login without usernameless
-Add: Last used
-Update: Third-party libraries
-Improve: Delete authenticators when deleting user
-Improve: Destroy all sessions before wp_die() or at the end of authentications
-Improve: Log traceback
-Improve: i18n
-
-= 1.0.8 =
-Improve: Compatibility with Two Factor plugin
-
-= 1.0.7 =
-Fix: WebAuthn disabled by mistake on iOS devices
-Fix: Plug-in not initialized correctly when being actived
-Fix: Failed to register authenticators on Firefox and Microsoft Edge
-Fix: Wrong timezone when registering authenticator
-Add: Authenticator rename
-Add: 4 shortcodes
-Add: Log
-Update: Third-party libraries
-Improve: Allow bypass HTTPS check when under localhost
-Improve: Remove jQuery dependence on login page
-
-= 1.0.6 =
-Fix: Auth button displays in register form
-Improve: Set English as default language
-Improve: Compatibility in login page
-
-= 1.0.4 =
-Fix: Auth button displays in forget password form
-Fix: Test button disabled by fault
-Improve: Compatibility in login page
-
-= 1.0.3 =
-Fix: Login button disabled by fault when WebAuthn is not available
-Fix: The Auth button has zero width when the login page is modified
-Fix: iOS users may be failed to register authenticators due to the user verification policy
-
-= 1.0.2 =
-Initial version
-
 == Upgrade Notice ==
 
 = 1.2.2 =
@@ -172,39 +109,3 @@ New features, bug fixing and new translations
 
 = 1.1.0 =
 2 new features & bug fixing
-
-= 1.0.16 =
-Fix Javascript error on login page in WordPress 5.2 & below
-
-= 1.0.15 =
-Fix WordPress loopback & REST API issue
-
-= 1.0.12 =
-Improve compatibility & update translations
-
-= 1.0.11 =
-Update translation
-
-= 1.0.10 =
-Fixed an error in registration process
-
-= 1.0.9 =
-Improve security & add usernameless login and other features
-
-= 1.0.8 =
-Improve: Compatibility with Two Factor plugin
-
-= 1.0.7 =
-Bug fix, Improved compatibility & new features
-
-= 1.0.6 =
-Improved compatibility in login page & Bug fix
-
-= 1.0.4 =
-Improved compatibility in login page & Bug fix
-
-= 1.0.3 =
-Bug fix
-
-= 1.0.2 =
-Initial version

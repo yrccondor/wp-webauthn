@@ -32,7 +32,7 @@ WP-WebAuthn 是一个可以在你的站点上启用 WebAuthn 的 WordPress 插�
 
 WP-WebAuthn 也支持无用户名登录。
 
-这个插件包含 4 个短代码，你可以通过这些短代码在前端页面中插入认证器注册表单等组件。
+这个插件包含 4 个短代码和 4 个对应的 Gutenberg 区块，你可以通过这些短代码和区块在前端页面中插入认证器注册表单等组件。
 
 在使用插件前，请参阅[文档](http://doc.flyhigher.top/wp-webauthn)。
 

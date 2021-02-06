@@ -32,7 +32,7 @@ WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just dow
 
 WP-WebAuthn also supports usernameless authentication.
 
-This plugin has 4 built-in shortcodes, so you can add components like register form to frontend pages.
+This plugin has 4 built-in shortcodes and 4 built-in Gutenberg blocks, so you can add components like register form to frontend pages.
 
 Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
 
