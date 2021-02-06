@@ -1,9 +1,0 @@
-<Files composer.json>
-Order Allow,Deny
-Deny from all
-</Files>
-
-<Files composer.lock>
-Order Allow,Deny
-Deny from all
-</Files>
