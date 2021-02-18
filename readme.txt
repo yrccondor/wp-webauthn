@@ -45,7 +45,7 @@ When authenticating with WebAuthn, no private data will leave user's device and 
 
 Notice: PHP extensions gmp and mbstring are required.
 
-1. Upload the plugin files to the `/wp-content/plugins/wp-webauthn` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/wp-webauthn` directory, or install the plugin through the WordPress plugins screen directly
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Use the Settings->WP-WebAuthn screen to configure the plugin
 4. Make sure that all settings are set, and you can start to register authenticators in your profile page
@@ -60,7 +60,7 @@ All translation files are hosted on [translate.wordpress.org](https://translate.
 
 = What should I do if the plugin could not work? =
 
-Make sure your are using HTTPS or host your site in `localhost`. Then ckeck whether you have installed the gmp extension for PHP.
+Make sure your are using HTTPS or host your site in `localhost`. Then check whether you have installed the gmp extension for PHP.
 
 If you can't solve the problem, [open an issue](https://github.com/yrccondor/wp-webauthn/issues/new) on [GitHub](https://github.com/yrccondor/wp-webauthn) with plugin log.
 
