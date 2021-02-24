@@ -1,7 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.querySelectorAll('#lostpasswordform, #registerform').length > 0) {
+    if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form').length > 0) {
         return;
     }
     window.onload = () => {

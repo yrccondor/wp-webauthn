@@ -71,7 +71,7 @@ const wwa_dom = (selector, callback = () => { }, method = 'query') => {
 
 let wwaSupported = true;
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.querySelectorAll('#lostpasswordform, #registerform').length > 0) {
+    if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form').length > 0) {
         return;
     }
     let button_check = document.createElement('button');
