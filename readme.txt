@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, security, password, authentication
 Requires at least: 5.0
 Tested up to: 5.6
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -80,6 +80,11 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Changelog ==
 
+= 1.2.3 =
+Feat: Avoid locking users out if WebAuthn is not available
+Update: translations
+Update: Third party libraries
+
 = 1.2.2 =
 Fix: Cannot access to js files in apache 2.4+
 
@@ -100,6 +105,9 @@ Update: Chinese translation
 Update: Third-party libraries
 
 == Upgrade Notice ==
+
+= 1.2.3 =
+Avoid locking users out if WebAuthn is not available and update translations
 
 = 1.2.2 =
 Fixed a problem that js files were broken in apache 2.4+

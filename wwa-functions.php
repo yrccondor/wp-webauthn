@@ -141,8 +141,8 @@ function wwa_login_js(){
     wp_localize_script('wwa_login', 'php_vars', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'admin_url' => admin_url(),
-        'usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')),
-        'remember_me' => (wwa_get_option('remember_me') === false ? "false" : wwa_get_option('remember_me')),
+        'usernameless' => (wwa_get_option('usernameless_login') === false ? 'false' : wwa_get_option('usernameless_login')),
+        'remember_me' => (wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
         'webauthn_only' => ($first_choice === 'webauthn' && !$wwa_not_allowed) ? 'true' : 'false',
         'i18n_1' => __('Auth', 'wp-webauthn'),
