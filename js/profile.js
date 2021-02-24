@@ -8,6 +8,12 @@ jQuery(() => {
     updateList();
 })
 
+window.addEventListener('load', () => {
+    if (document.getElementById('wp-webauthn-error-container')) {
+        document.getElementById('wp-webauthn-error-container').insertBefore(document.getElementById('wp-webauthn-error'), null);
+    }
+})
+
 // Update authenticator list
 function updateList() {
     jQuery.ajax({

@@ -9,14 +9,18 @@ wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 ?>
 <div class="wrap"><h1>WP-WebAuthn</h1>
 <?php
+$wwa_not_allowed = false;
 if(!function_exists("gmp_intval")){
     add_settings_error("wwa_settings", "gmp_error", __("PHP extension gmp doesn't seem to exist, rendering WP-WebAuthn unable to function.", "wp-webauthn"));
+    $wwa_not_allowed = true;
 }
 if(!function_exists("mb_substr")){
     add_settings_error("wwa_settings", "mbstr_error", __("PHP extension mbstring doesn't seem to exist, rendering WP-WebAuthn unable to function.", "wp-webauthn"));
+    $wwa_not_allowed = true;
 }
 if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
     add_settings_error("wwa_settings", "https_error", __("WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.", "wp-webauthn"));
+    $wwa_not_allowed = true;
 }
 // Only admin can change settings
 if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === "true" || $_POST['first_choice'] === "false" || $_POST['first_choice'] === "webauthn") && ($_POST['remember_me'] === "true" || $_POST['remember_me'] === "false") && ($_POST['user_verification'] === "true" || $_POST['user_verification'] === "false") && ($_POST['usernameless_login'] === "true" || $_POST['usernameless_login'] === "false") && ($_POST['allow_authenticator_type'] === "none" || $_POST['allow_authenticator_type'] === "platform" || $_POST['allow_authenticator_type'] === "cross-platform") && ($_POST['logging'] === "true" || $_POST['logging'] === "false")){
@@ -101,9 +105,9 @@ wp_nonce_field('wwa_options_update');
 <td>
 <?php $wwa_v_first_choice=wwa_get_option('first_choice');?>
 <select name="first_choice" id="first_choice">
-    <option value="true"<?php if($wwa_v_first_choice === 'true'){?> selected<?php }?>><?php _e('Prefer WebAuthn', 'wp-webauthn');?></option>
+    <option value="true"<?php if($wwa_v_first_choice === 'true' || !$wwa_not_allowed){?> selected<?php }?>><?php _e('Prefer WebAuthn', 'wp-webauthn');?></option>
     <option value="false"<?php if($wwa_v_first_choice === 'false'){?> selected<?php }?>><?php _e('Prefer password', 'wp-webauthn');?></option>
-    <option value="webauthn"<?php if($wwa_v_first_choice === 'webauthn'){?> selected<?php }?>><?php _e('WebAuthn Only', 'wp-webauthn');?></option>
+    <option value="webauthn"<?php if($wwa_v_first_choice === 'webauthn' && !$wwa_not_allowed){?> selected<?php }if($wwa_not_allowed){?> disabled<?php }?>><?php _e('WebAuthn Only', 'wp-webauthn');?></option>
 </select>
 <p class="description"><?php _e('When using "WebAuthn Only", password login will be completely disabled. Please make sure your browser supports WebAuthn, otherwise you may unable to login.<br>User that doesn\'t have any registered authenticator (e.g. new user) will unable to login when using "WebAuthn Only".<br>When the browser does not support WebAuthn, the login method will default to password if password login is not disabled.', 'wp-webauthn');?></p>
 </td>

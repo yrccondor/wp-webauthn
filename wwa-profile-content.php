@@ -40,15 +40,26 @@ wp_localize_script('wwa_profile', 'configs', array('usernameless' => (wwa_get_op
 ?>
 <br>
 <h2 id="wwa-webauthn-start">WebAuthn</h2>
+<?php
+$wwa_not_allowed = false;
+if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    $wwa_not_allowed = true;
+?>
+<div id="wp-webauthn-error-container">
+    <div class="notice notice-error is-dismissible" role="alert" id="wp-webauthn-error">
+        <p><?php _e('This site is not correctly configured to use WebAuthn. Please contact the site administrator.', 'wp-webauthn')?></p>
+    </div>
+</div>
+<?php } ?>
 <table class="form-table">
 <tr class="user-rich-editing-wrap">
     <th scope="row"><?php _e('WebAuthn Only', 'wp-webauthn');?></th>
         <td>
             <label for="webauthn_only">
                 <?php $wwa_v_first_choice = wwa_get_option('first_choice');?>
-                <input name="webauthn_only" type="checkbox" id="webauthn_only" value="true"<?php if($wwa_v_first_choice === 'webauthn'){echo ' disabled checked';}else{if(get_the_author_meta('webauthn_only', $user->ID) === 'true'){echo ' checked';}} ?>> <?php _e('Disable password login for this account', 'wp-webauthn');?>
+                <input name="webauthn_only" type="checkbox" id="webauthn_only" value="true"<?php if(!$wwa_not_allowed){if($wwa_v_first_choice === 'webauthn'){echo ' disabled checked';}else{if(get_the_author_meta('webauthn_only', $user->ID) === 'true'){echo ' checked';}}}else{echo ' disabled';} ?>> <?php _e('Disable password login for this account', 'wp-webauthn');?>
             </label>
-            <p class="description"><?php _e('When checked, password login will be completely disabled. Please make sure your browser supports WebAuthn and you have a registered authenticator, otherwise you may unable to login.', 'wp-webauthn');if($wwa_v_first_choice === 'webauthn'){?><br><strong><?php _e('The site administrator has disabled password login for the whole site.', 'wp-webauthn');?></strong><?php }?></p>
+            <p class="description"><?php _e('When checked, password login will be completely disabled. Please make sure your browser supports WebAuthn and you have a registered authenticator, otherwise you may unable to login.', 'wp-webauthn');if($wwa_v_first_choice === 'webauthn' && !$wwa_not_allowed){?><br><strong><?php _e('The site administrator has disabled password login for the whole site.', 'wp-webauthn');?></strong><?php }?></p>
         </td>
     </tr>
 </table>
@@ -84,7 +95,7 @@ wp_localize_script('wwa_profile', 'configs', array('usernameless' => (wwa_get_op
 </div>
 <p id="wwa_usernameless_tip"></p>
 <p id="wwa_type_tip"></p>
-<button id="wwa-add-new-btn" class="button" title="<?php _e('Register New Authenticator', 'wp-webauthn');?>"><?php _e('Register New Authenticator', 'wp-webauthn');?></button>&nbsp;&nbsp;<button id="wwa-verify-btn" class="button" title="<?php _e('Verify Authenticator', 'wp-webauthn');?>"><?php _e('Verify Authenticator', 'wp-webauthn');?></button>
+<button id="wwa-add-new-btn" class="button" title="<?php _e('Register New Authenticator', 'wp-webauthn');?>"<?php if($wwa_not_allowed){echo ' disabled';}?>><?php _e('Register New Authenticator', 'wp-webauthn');?></button>&nbsp;&nbsp;<button id="wwa-verify-btn" class="button" title="<?php _e('Verify Authenticator', 'wp-webauthn');?>"><?php _e('Verify Authenticator', 'wp-webauthn');?></button>
 <div id="wwa-new-block">
 <button class="button button-small wwa-cancel"><?php _e('Close');?></button>
 <h2><?php _e('Register New Authenticator', 'wp-webauthn');?></h2>

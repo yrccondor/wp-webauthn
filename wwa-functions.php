@@ -132,6 +132,10 @@ add_action('delete_user', 'wwa_delete_user');
 
 // Add CSS and JS in login page
 function wwa_login_js(){
+    $wwa_not_allowed = false;
+    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+        $wwa_not_allowed = true;
+    }
     wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
     $first_choice = wwa_get_option('first_choice');
     wp_localize_script('wwa_login', 'php_vars', array(
@@ -140,7 +144,7 @@ function wwa_login_js(){
         'usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')),
         'remember_me' => (wwa_get_option('remember_me') === false ? "false" : wwa_get_option('remember_me')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
-        'webauthn_only' => $first_choice === 'webauthn' ? 'true' : 'false',
+        'webauthn_only' => ($first_choice === 'webauthn' && !$wwa_not_allowed) ? 'true' : 'false',
         'i18n_1' => __('Auth', 'wp-webauthn'),
         'i18n_2' => __('Authenticate with WebAuthn', 'wp-webauthn'),
         'i18n_3' => __('Hold on...', 'wp-webauthn'),
@@ -165,6 +169,9 @@ add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
 // Disable password login
 function wwa_disable_password($user){
+    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+        return $user;
+    }
     if(wwa_get_option('first_choice') === 'webauthn'){
         return new WP_Error('wwa_password_disabled', __('Logging in with password has been disabled by the site manager.', 'wp-webauthn'));
     }
