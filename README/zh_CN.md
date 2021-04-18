@@ -61,4 +61,6 @@ WP-WebAuthn 也支持无用户名登录。
 
 [lukasj98](https://github.com/lukasj98) (德语翻译)
 
+[Hasan Can](https://github.com/sn0bzy) (土耳其语翻译)
+
 [milkice](https://github.com/milkice233)
