@@ -61,6 +61,8 @@ GPL 3.0 altında açık kaynak olarak lisanslanmıştır.
 
 [lukasj98](https://github.com/lukasj98) (Almanca Çevirmeni)
 
+[Hasan Can](https://github.com/sn0bzy) (Türkçe Çevirmeni)
+
 [milkice](https://github.com/milkice233)
 
-[Hasan Can](https://github.com/sn0bzy) (Türkçe Çevirmeni)
+
