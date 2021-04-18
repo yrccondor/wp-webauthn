@@ -61,4 +61,6 @@ Open sourced under GPL v3.0 license.
 
 [lukasj98](https://github.com/lukasj98) (German Translator)
 
+[Hasan Can](https://github.com/sn0bzy) (Turkish Translator)
+
 [milkice](https://github.com/milkice233)
