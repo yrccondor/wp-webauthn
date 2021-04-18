@@ -1,4 +1,4 @@
-<div align="right"><a title="English" href="https://github.com/yrccondor/wp-webauthn/blob/master/README.md">English</a> | 简体中文 | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a></div>
+<div align="right"><a title="English" href="https://github.com/yrccondor/wp-webauthn/blob/master/README.md">English</a> | 简体中文 | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a> | <a title="Turkish" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/tr_TR.md">Turkish</a></div>
 
 <br>
 
