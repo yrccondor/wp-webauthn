@@ -42,7 +42,7 @@ wp_localize_script('wwa_profile', 'configs', array('usernameless' => (wwa_get_op
 <h2 id="wwa-webauthn-start">WebAuthn</h2>
 <?php
 $wwa_not_allowed = false;
-if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
     $wwa_not_allowed = true;
 ?>
 <div id="wp-webauthn-error-container">

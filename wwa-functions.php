@@ -133,7 +133,7 @@ add_action('delete_user', 'wwa_delete_user');
 // Add CSS and JS in login page
 function wwa_login_js(){
     $wwa_not_allowed = false;
-    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
     wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
@@ -169,7 +169,7 @@ add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
 // Disable password login
 function wwa_disable_password($user){
-    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         return $user;
     }
     if(wwa_get_option('first_choice') === 'webauthn'){
@@ -304,4 +304,15 @@ function wwa_meta_link($links_array, $plugin_file_name){
     return $links_array;
 }
 add_filter('plugin_row_meta', 'wwa_meta_link', 10, 2);
+
+// Check if we are under HTTPS
+function wwa_check_ssl() {
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        return true;
+    }
+    if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') {
+        return true;
+    }
+    return false;
+}
 ?>

@@ -30,7 +30,7 @@ jobs:
 
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs --no-dev --optimize-autoloader
 
     - name: Add vendor
       if: steps.composer-cache.outputs.cache-hit != 'true'

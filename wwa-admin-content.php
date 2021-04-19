@@ -18,7 +18,7 @@ if(!function_exists("mb_substr")){
     add_settings_error("wwa_settings", "mbstr_error", __("PHP extension mbstring doesn't seem to exist, rendering WP-WebAuthn unable to function.", "wp-webauthn"));
     $wwa_not_allowed = true;
 }
-if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
+if(!wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
     add_settings_error("wwa_settings", "https_error", __("WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.", "wp-webauthn"));
     $wwa_not_allowed = true;
 }
@@ -33,7 +33,7 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
         if(!function_exists("mb_substr")){
             wwa_add_log($res_id, "Warning: PHP extension mbstring not found", true);
         }
-        if(!(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
+        if(!wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== "localhost" && parse_url(site_url(), PHP_URL_HOST) !== "127.0.0.1")){
             wwa_add_log($res_id, "Warning: Not in security context", true);
         }
         wwa_add_log($res_id, "PHP Version => ".phpversion().", WordPress Version => ".get_bloginfo('version').", WP-WebAuthn Version => ".get_option('wwa_version')['version'], true);
