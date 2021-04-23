@@ -1,4 +1,4 @@
-<div align="right">English | <a title="Simplified Chinese" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/zh_CN.md">简体中文</a> | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a></div>
+<div align="right">English | <a title="Simplified Chinese" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/zh_CN.md">简体中文</a> | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a> | <a title="Turkish" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/tr_TR.md">Turkish</a></div>
 
 <br>
 
@@ -60,5 +60,7 @@ Open sourced under GPL v3.0 license.
 [Ye Shu](https://github.com/yechs) (English Translator)
 
 [lukasj98](https://github.com/lukasj98) (German Translator)
+
+[Hasan Can](https://github.com/sn0bzy) (Turkish Translator)
 
 [milkice](https://github.com/milkice233)

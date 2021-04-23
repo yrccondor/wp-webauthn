@@ -1,4 +1,4 @@
-<div align="right"><a title="English" href="https://github.com/yrccondor/wp-webauthn/blob/master/README.md">English</a> | 简体中文 | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a></div>
+<div align="right"><a title="English" href="https://github.com/yrccondor/wp-webauthn/blob/master/README.md">English</a> | 简体中文 | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a> | <a title="Turkish" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/tr_TR.md">Turkish</a></div>
 
 <br>
 
@@ -60,5 +60,7 @@ WP-WebAuthn 也支持无用户名登录。
 [Ye Shu](https://github.com/yechs) (英语翻译)
 
 [lukasj98](https://github.com/lukasj98) (德语翻译)
+
+[Hasan Can](https://github.com/sn0bzy) (土耳其语翻译)
 
 [milkice](https://github.com/milkice233)
