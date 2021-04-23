@@ -1,0 +1,67 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-02-07T00:28:21+08:00\n"
+"PO-Revision-Date: 2021-04-23 19:43+0300\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Domain: wp-webauthn\n"
+"Last-Translator: Hasan Can <hasan@can.biz.tr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: tr_TR\n"
+
+#: wp-webauthn.js:7 wp-webauthn.js:43
+msgid "WebAuthn Login Form"
+msgstr "WebAuthn Giriş Formu"
+
+#: wp-webauthn.js:10
+msgid "Login Form"
+msgstr "Giriş Formu"
+
+#: wp-webauthn.js:46
+msgid "Default username"
+msgstr "Varsayılan kullanıcı adı"
+
+#: wp-webauthn.js:53
+msgid "Redirect to"
+msgstr "Şuraya yönlendir"
+
+#: wp-webauthn.js:60
+msgid "Show password form as well"
+msgstr "Şifre formunu da göster"
+
+#: wp-webauthn.js:67
+msgid "Hide for logged-in users"
+msgstr "Giriş yapmış kullanıcılar için gizle"
+
+#: wp-webauthn.js:82 wp-webauthn.js:108
+msgid "WebAuthn Register Form"
+msgstr "WebAuthn Kayıt Formu"
+
+#: wp-webauthn.js:85
+msgid "Register Form"
+msgstr "Kayıt Formu"
+
+#: wp-webauthn.js:120 wp-webauthn.js:175 wp-webauthn.js:229
+msgid "Show a message for users who doesn't logged-in"
+msgstr "Giriş yapmayan kullanıcılar için bir mesaj göster"
+
+#: wp-webauthn.js:137 wp-webauthn.js:163
+msgid "WebAuthn Verify Buttons"
+msgstr "WebAuthn Butonları Doğrula"
+
+#: wp-webauthn.js:140
+msgid "Verify Buttons"
+msgstr "Butonları Doğrula"
+
+#: wp-webauthn.js:191 wp-webauthn.js:217
+msgid "WebAuthn Authenticator List"
+msgstr "WebAuthn Kimlik Doğrulayıcı Listesi"
+
+#: wp-webauthn.js:194
+msgid "Authenticator List"
+msgstr "Kimlik Doğrulayıcı Listesi"
