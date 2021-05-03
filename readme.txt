@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, security, password, authentication
 Requires at least: 5.0
 Tested up to: 5.7
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -54,7 +54,7 @@ Notice: PHP extensions gmp and mbstring are required.
 
 = What languages does this plugin support? =
 
-This plugin supports English, Chinese (Simplified), Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan) & German (not finished) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
+This plugin supports English, Chinese (Simplified), Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan), Turkish, French & German (not finished) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
 
 All translation files are hosted on [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/wp-webauthn/) and [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
 
@@ -79,6 +79,12 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 5. Profile
 
 == Changelog ==
+
+= 1.2.4 =
+Add: French translation (thanks to Spomky) and Turkish translate (thanks to Sn0bzy)
+Fix: HTTPS check
+Update: Existing translations
+Update: Third party libraries
 
 = 1.2.3 =
 Feat: Avoid locking users out if WebAuthn is not available
@@ -105,6 +111,9 @@ Update: Chinese translation
 Update: Third-party libraries
 
 == Upgrade Notice ==
+
+= 1.2.4 =
+Improvred HTTPS checking and added new translations
 
 = 1.2.3 =
 Avoid locking users out if WebAuthn is not available and update translations
