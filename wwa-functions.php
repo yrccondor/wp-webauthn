@@ -307,13 +307,16 @@ add_filter('plugin_row_meta', 'wwa_meta_link', 10, 2);
 
 // Check if we are under HTTPS
 function wwa_check_ssl() {
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' && $_SERVER['HTTPS'] !== '') {
         return true;
     }
     if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') {
         return true;
     }
-    if (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'quic') {
+    if (isset($_SERVER['SERVER_PROTOCOL']) && $_SERVER['SERVER_PROTOCOL'] === 'HTTP/3.0') {
+        return true;
+    }
+    if (isset($_SERVER['REQUEST_SCHEME']) && ($_SERVER['REQUEST_SCHEME'] === 'quic' || $_SERVER['REQUEST_SCHEME'] === 'https')) {
         return true;
     }
     return false;
