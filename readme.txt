@@ -54,7 +54,7 @@ Notice: PHP extensions gmp and mbstring are required.
 
 = What languages does this plugin support? =
 
-This plugin supports English, Chinese (Simplified), Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan), Turkish, French & German (not finished) currently. If you are using WordPress in none of those languages, English will be displayed as default language.
+This plugin supports English, Chinese (Simplified), Traditional Chinese (Hong Kong), Traditional Chinese (Taiwan), Turkish, French & German currently. If you are using WordPress in none of those languages, English will be displayed as default language.
 
 All translation files are hosted on [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/wp-webauthn/) and [GitHub](https://github.com/yrccondor/wp-webauthn/tree/master/languages). You can help us to translate WP-WebAuthn into other languages!
 

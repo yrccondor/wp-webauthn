@@ -8,6 +8,7 @@
     "eject": "cgb-scripts eject"
   },
   "dependencies": {
+    "@emotion/core": "^10.1.1",
     "@wordpress/a11y": "^2.14.1",
     "@wordpress/blob": "^2.12.1",
     "@wordpress/block-editor": "^3.0.0",

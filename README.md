@@ -50,7 +50,6 @@ You can also install [WP-WebAuthn](https://wordpress.org/plugins/wp-webauthn/) f
 
 Open sourced under GPL v3.0 license.
 
-
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_large)
 
 ## Thanks to
