@@ -308,16 +308,16 @@
         },
         {
             "name": "league/uri-interfaces",
-            "version": "2.2.0",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-interfaces.git",
-                "reference": "667f150e589d65d79c89ffe662e426704f84224f"
+                "reference": "00e7e2943f76d8cb50c7dfdc2f6dee356e15e383"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/667f150e589d65d79c89ffe662e426704f84224f",
-                "reference": "667f150e589d65d79c89ffe662e426704f84224f",
+                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/00e7e2943f76d8cb50c7dfdc2f6dee356e15e383",
+                "reference": "00e7e2943f76d8cb50c7dfdc2f6dee356e15e383",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -328,13 +328,18 @@
             },
             "require": {
                 "ext-json": "*",
-                "php": "^7.1 || ^8.0"
+                "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.0",
-                "phpstan/phpstan": "^0.12",
-                "phpstan/phpstan-phpunit": "^0.12",
-                "phpstan/phpstan-strict-rules": "^0.12"
+                "friendsofphp/php-cs-fixer": "^2.19",
+                "phpstan/phpstan": "^0.12.90",
+                "phpstan/phpstan-phpunit": "^0.12.19",
+                "phpstan/phpstan-strict-rules": "^0.12.9",
+                "phpunit/phpunit": "^8.5.15 || ^9.5"
+            },
+            "suggest": {
+                "ext-intl": "to use the IDNA feature",
+                "symfony/intl": "to use the IDNA feature via Symfony Polyfill"
             },
             "type": "library",
             "extra": {
@@ -372,20 +377,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-31T13:45:51+00:00"
+            "time": "2021-06-28T04:27:21+00:00"
         },
         {
             "name": "nyholm/psr7",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nyholm/psr7.git",
-                "reference": "23ae1f00fbc6a886cbe3062ca682391b9cc7c37b"
+                "reference": "2212385b47153ea71b1c1b1374f8cb5e4f7892ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/23ae1f00fbc6a886cbe3062ca682391b9cc7c37b",
-                "reference": "23ae1f00fbc6a886cbe3062ca682391b9cc7c37b",
+                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/2212385b47153ea71b1c1b1374f8cb5e4f7892ec",
+                "reference": "2212385b47153ea71b1c1b1374f8cb5e4f7892ec",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -405,7 +410,7 @@
                 "psr/http-message-implementation": "1.0"
             },
             "require-dev": {
-                "http-interop/http-factory-tests": "^0.8",
+                "http-interop/http-factory-tests": "^0.9",
                 "php-http/psr7-integration-tests": "^1.0",
                 "phpunit/phpunit": "^7.5 || 8.5 || 9.4",
                 "symfony/error-handler": "^4.4"
@@ -451,7 +456,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-02-18T15:41:32+00:00"
+            "time": "2021-07-02T08:32:20+00:00"
         },
         {
             "name": "nyholm/psr7-server",
@@ -1277,16 +1282,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v5.3.0",
+            "version": "v5.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "53e36cb1c160505cdaf1ef201501669c4c317191"
+                "reference": "714b47f9196de61a196d86c4bad5f09201b307df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/53e36cb1c160505cdaf1ef201501669c4c317191",
-                "reference": "53e36cb1c160505cdaf1ef201501669c4c317191",
+                "url": "https://api.github.com/repos/symfony/process/zipball/714b47f9196de61a196d86c4bad5f09201b307df",
+                "reference": "714b47f9196de61a196d86c4bad5f09201b307df",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1338,7 +1343,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T12:52:38+00:00"
+            "time": "2021-06-12T10:15:01+00:00"
         },
         {
             "name": "thecodingmachine/safe",
