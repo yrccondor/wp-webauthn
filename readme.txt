@@ -3,8 +3,8 @@ Contributors: axton
 Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, login, security, password, authentication
 Requires at least: 5.0
-Tested up to: 5.7
-Stable tag: 1.2.5
+Tested up to: 5.8
+Stable tag: 1.2.6
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -79,6 +79,9 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 5. Profile
 
 == Changelog ==
+
+= 1.2.6 =
+Update: Third party libraries
 
 = 1.2.5 =
 Update: German translation (thanks to niiconn)
