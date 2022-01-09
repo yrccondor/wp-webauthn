@@ -96,7 +96,7 @@ if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check
 <p id="wwa_usernameless_tip"></p>
 <p id="wwa_type_tip"></p>
 <button id="wwa-add-new-btn" class="button" title="<?php _e('Register New Authenticator', 'wp-webauthn');?>"<?php if($wwa_not_allowed){echo ' disabled';}?>><?php _e('Register New Authenticator', 'wp-webauthn');?></button>&nbsp;&nbsp;<button id="wwa-verify-btn" class="button" title="<?php _e('Verify Authenticator', 'wp-webauthn');?>"><?php _e('Verify Authenticator', 'wp-webauthn');?></button>
-<div id="wwa-new-block">
+<div id="wwa-new-block" tabindex="-1">
 <button class="button button-small wwa-cancel"><?php _e('Close');?></button>
 <h2><?php _e('Register New Authenticator', 'wp-webauthn');?></h2>
 <p class="description"><?php printf(__('You are about to associate an authenticator with the current account <strong>%s</strong>.<br>You can register multiple authenticators for an account.', 'wp-webauthn'), $user->user_login);?></p>
@@ -137,7 +137,7 @@ $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : 
 </table>
 <button id="wwa-bind" class="button"><?php _e('Start Registration', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="wwa-show-progress"></span>
 </div>
-<div id="wwa-verify-block">
+<div id="wwa-verify-block" tabindex="-1">
 <button class="button button-small wwa-cancel"><?php _e('Close');?></button>
 <h2><?php _e('Verify Authenticator', 'wp-webauthn');?></h2>
 <p class="description"><?php _e('Click Test Login to verify that the registered authenticators are working.', 'wp-webauthn');?></p>

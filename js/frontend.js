@@ -43,7 +43,7 @@ const wwa_ajax = function () {
 };
 
 /** Operate selected DOMs
- * 
+ *
  * @param {string} selector DOM selector
  * @param {object} callback Callbck function
  * @param {string} method Selecte method
@@ -70,7 +70,7 @@ const wwa_dom = (selector, callback = () => { }, method = 'query') => {
 }
 
 /** Code Base64URL into Base64
- * 
+ *
  * @param {string} input Base64URL coded string
  */
 function base64url2base64(input) {
@@ -86,7 +86,7 @@ function base64url2base64(input) {
 }
 
 /** Code Uint8Array into Base64 string
- * 
+ *
  * @param {Uint8Array} a The Uint8Array needed to be coded into Base64 string
  */
 function arrayToBase64String(a) {
@@ -151,15 +151,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Toggle form
-function wwa_toggle() {
+function wwa_toggle(e) {
+    e.preventDefault();
     if (document.getElementsByClassName('wwa-login-form-traditional').length > 0) {
         // Disable buttons if it is not shown
         if (document.getElementsByClassName('wwa-login-form-traditional')[0].className.indexOf('wwa-hide-form') !== -1) {
             wwa_dom('wp-submit', (dom) => { dom.disabled = false }, 'id');
             wwa_dom('wwa-login-submit', (dom) => { dom.disabled = true }, 'class');
+            setTimeout(() => {
+                wwa_dom('user_login', (dom) => { dom.focus() }, 'id');
+            }, 0);
         } else {
             wwa_dom('wp-submit', (dom) => { dom.disabled = true }, 'id');
             wwa_dom('wwa-login-submit', (dom) => { dom.disabled = false }, 'class');
+            setTimeout(() => {
+                wwa_dom('wwa-user-name', (dom) => { dom.focus() }, 'id');
+            }, 0);
         }
         document.getElementsByClassName('wwa-login-form-traditional')[0].classList.toggle('wwa-hide-form');
         document.getElementsByClassName('wwa-login-form-webauthn')[0].classList.toggle('wwa-hide-form');
@@ -592,7 +599,7 @@ function updateList() {
 }
 
 /** Rename an authenticator
- * 
+ *
  * @param {string} id Authenticator ID
  * @param {string} name Current authenticator name
  */
@@ -615,7 +622,7 @@ function renameAuthenticator(id, name) {
 }
 
 /** Remove an authenticator
- * 
+ *
  * @param {string} id Authenticator ID
  * @param {string} name Authenticator name
  */

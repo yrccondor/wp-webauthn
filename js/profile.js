@@ -90,7 +90,7 @@ function updateList() {
 }
 
 /** Code Base64URL into Base64
- * 
+ *
  * @param {string} input Base64URL coded string
  */
 function base64url2base64(input) {
@@ -106,7 +106,7 @@ function base64url2base64(input) {
 }
 
 /** Code Uint8Array into Base64 string
- * 
+ *
  * @param {Uint8Array} a The Uint8Array needed to be coded into Base64 string
  */
 function arrayToBase64String(a) {
@@ -117,12 +117,18 @@ jQuery('#wwa-add-new-btn').click((e) => {
     e.preventDefault();
     jQuery('#wwa-new-block').show();
     jQuery('#wwa-verify-block').hide();
+    setTimeout(() => {
+        jQuery('#wwa-new-block').focus();
+    }, 0);
 })
 
 jQuery('#wwa-verify-btn').click((e) => {
     e.preventDefault();
     jQuery('#wwa-new-block').hide();
     jQuery('#wwa-verify-block').show();
+    setTimeout(() => {
+        jQuery('#wwa-verify-block').focus();
+    }, 0);
 })
 
 jQuery('.wwa-cancel').click((e) => {

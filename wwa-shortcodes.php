@@ -82,10 +82,10 @@ function wwa_login_form_shortcode($vals){
     }
 
     if($traditional === 'true' && wwa_get_option('first_choice') !== 'webauthn'){
-        $html_form .= '<div class="wwa-login-form-traditional">'.wp_login_form($args).'<br><p class="wwa-t2w"><span>'.__('Authenticate with WebAuthn', 'wp-webauthn').'</span></p></div>';
+        $html_form .= '<div class="wwa-login-form-traditional">'.wp_login_form($args).'<br><a class="wwa-t2w" href="#"><span>'.__('Authenticate with WebAuthn', 'wp-webauthn').'</span></a></div>';
     }
 
-    $html_form .= '<div class="wwa-login-form-webauthn"><p class="wwa-login-username"><label for="wwa-user-name">'.__('Username', 'wp-webauthn').'</label><input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.$username.'" size="20"></p><div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn', 'wp-webauthn').'</div><p class="wwa-login-submit-p"><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'">'.$to_wwa.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label><br>' : '').'<span class="wwa-w2t">'.__('Authenticate with password', 'wp-webauthn').'</span></p></div></div>';
+    $html_form .= '<div class="wwa-login-form-webauthn"><p class="wwa-login-username"><label for="wwa-user-name">'.__('Username', 'wp-webauthn').'</label><input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.$username.'" size="20"></p><div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn', 'wp-webauthn').'</div><p class="wwa-login-submit-p"><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'">'.$to_wwa.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label><br>' : '').'<a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></p></div></div>';
 
     return $html_form;
 }
