@@ -119,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let height = dom.clientHeight;
             wwa_dom('.wwa-login-form-webauthn .wp-webauthn-notice', (ele) => {
                 ele.style.height = height - 40.4 + 'px';
-                ele.style.lineHeight = height - 40.4 + 'px';
             });
         });
         wwa_dom('wwa-w2t', (dom) => { dom.addEventListener('click', wwa_toggle, false) }, 'class');
@@ -127,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         wwa_dom('.wwa-login-form-webauthn .wp-webauthn-notice', (ele) => {
             ele.style.height = '40.6px';
-            ele.style.lineHeight = '40.6px';
         });
         wwa_dom('wwa-w2t', (dom) => { dom.parentNode.removeChild(document.getElementsByClassName('wwa-w2t')[0]) }, 'class');
     }
@@ -200,7 +198,6 @@ function wwa_auth() {
                 wwa_enable_buttons();
                 if (wwa_php_vars.usernameless === 'true' && wwa_username === '') {
                     button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7 + wwa_php_vars.i18n_33;
-                    wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20}x)` }, 'class');
                 } else {
                     button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
                 }
@@ -263,7 +260,6 @@ function wwa_auth() {
                             wwa_enable_buttons();
                             if (wwa_php_vars.usernameless === 'true' && wwa_username === '') {
                                 button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7 + wwa_php_vars.i18n_33;
-                                wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20}px)` }, 'class');
                             } else {
                                 button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
                             }
@@ -273,7 +269,6 @@ function wwa_auth() {
                         wwa_enable_buttons();
                         if (wwa_php_vars.usernameless === 'true' && wwa_username === '') {
                             button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7 + wwa_php_vars.i18n_33;
-                            wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20}px)` }, 'class');
                         } else {
                             button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
                         }
@@ -285,7 +280,6 @@ function wwa_auth() {
                 wwa_enable_buttons();
                 if (wwa_php_vars.usernameless === 'true' && wwa_username === '') {
                     button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7 + wwa_php_vars.i18n_33;
-                    wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20}px)` }, 'class');
                 } else {
                     button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
                 }
@@ -295,7 +289,6 @@ function wwa_auth() {
             wwa_enable_buttons();
             if (wwa_php_vars.usernameless === 'true' && wwa_username === '') {
                 button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7 + wwa_php_vars.i18n_33;
-                wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(button_dom.parentNode.previousElementSibling.style.lineHeight) - 20}px)` }, 'class');
             } else {
                 button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_7;
             }

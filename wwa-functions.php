@@ -156,12 +156,10 @@ function wwa_login_js(){
         'i18n_9' => __('Username', 'wp-webauthn'),
         'i18n_10' => __('Username or Email Address'),
         'i18n_11' => __('<strong>Error</strong>: The username field is empty.', 'wp-webauthn'),
-        'i18n_12' => '<br><span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>'
+        'i18n_12' => '<span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>'
     ));
     if($first_choice === 'true' || $first_choice === 'webauthn'){
         wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js', __FILE__), array(), get_option('wwa_version')['version'], true);
-        wp_localize_script('wwa_default', 'php_vars_wa', array(
-        ));
     }
     wp_enqueue_style('wwa_login_css', plugins_url('css/login.css', __FILE__), array(), get_option('wwa_version')['version']);
 }

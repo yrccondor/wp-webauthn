@@ -39,7 +39,7 @@ function wwa_localize_frontend(){
         'i18n_30' => '<span class="failed">'.__('Registration failed', 'wp-webauthn').'</span>',
         'i18n_31' => __('Your browser does not support WebAuthn', 'wp-webauthn'),
         'i18n_32' => __('Registrating...', 'wp-webauthn'),
-        'i18n_33' => '<br><span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>',
+        'i18n_33' => '<span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>',
         'i18n_34' => __('After removing this authenticator, you will not be able to login with WebAuthn', 'wp-webauthn'),
         'i18n_35' => __(' (Disabled)', 'wp-webauthn'),
         'i18n_36' => __('The site administrator only allow platform authenticators currently.', 'wp-webauthn'),
@@ -85,7 +85,7 @@ function wwa_login_form_shortcode($vals){
         $html_form .= '<div class="wwa-login-form-traditional">'.wp_login_form($args).'<br><a class="wwa-t2w" href="#"><span>'.__('Authenticate with WebAuthn', 'wp-webauthn').'</span></a></div>';
     }
 
-    $html_form .= '<div class="wwa-login-form-webauthn"><p class="wwa-login-username"><label for="wwa-user-name">'.__('Username', 'wp-webauthn').'</label><input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.$username.'" size="20"></p><div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn', 'wp-webauthn').'</div><p class="wwa-login-submit-p"><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'">'.$to_wwa.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label><br>' : '').'<a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></p></div></div>';
+    $html_form .= '<div class="wwa-login-form-webauthn"><p class="wwa-login-username"><label for="wwa-user-name">'.__('Username', 'wp-webauthn').'</label><input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.$username.'" size="20"></p><div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn', 'wp-webauthn').'</div><p class="wwa-login-submit-p">'.$to_wwa.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label>' : '').'<input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'"><a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></p></div></div>';
 
     return $html_form;
 }

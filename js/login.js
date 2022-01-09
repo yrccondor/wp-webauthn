@@ -5,7 +5,7 @@ const wwa_ajax = function () {
     let xmlHttpReq = new XMLHttpRequest();
     return {
         /** Send an AJAX GET request and get the response
-         * 
+         *
          * @param {string} url URL
          * @param {string} data Attached data
          * @param {object} callback Callback function
@@ -22,7 +22,7 @@ const wwa_ajax = function () {
             }
         },
         /** Send an AJAX POST request and get the response
-         * 
+         *
          * @param {string} url URL
          * @param {string} data Attached data
          * @param {object} callback Callback function
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     let notice = document.createElement('div');
     notice.className = 'wp-webauthn-notice';
-    notice.innerHTML = `<span class="dashicons dashicons-shield-alt"></span> ${php_vars.i18n_2}`;
+    notice.innerHTML = `<span><span class="dashicons dashicons-shield-alt"></span> ${php_vars.i18n_2}<span>`;
     let forgetmenot = document.getElementsByClassName('forgetmenot');
     if (forgetmenot.length > 0) {
         forgetmenot[0].parentNode.insertBefore(notice, forgetmenot[0]);
@@ -104,12 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const passwordInput = document.getElementsByClassName('user-pass-wrap');
         if (passwordInput.length > 0) {
             dom.style.height = (passwordInput[0].offsetHeight - 10) + 'px';
-            dom.style.lineHeight = (passwordInput[0].offsetHeight - 10) + 'px';
         } else {
             // WordPress 5.2-
             const legacyPasswordInput = document.getElementById('loginform').getElementsByTagName('p')[1];
             dom.style.height = (legacyPasswordInput.offsetHeight - 10) + 'px';
-            dom.style.lineHeight = (legacyPasswordInput.offsetHeight - 10) + 'px';
         }
     }, 'class');
     let btnWidth = document.getElementById('wp-submit') ? document.getElementById('wp-submit').clientWidth : 0;
@@ -185,7 +183,7 @@ function toggle() {
         return;
     }
     if (wwaSupported) {
-        if (document.getElementsByClassName('wp-webauthn-notice')[0].style.display === 'block') {
+        if (document.getElementsByClassName('wp-webauthn-notice')[0].style.display === 'flex') {
             if (document.getElementsByClassName('user-pass-wrap').length > 0) {
                 wwa_dom('.user-pass-wrap, .forgetmenot, #wp-submit', (dom) => { dom.style.display = 'block' });
             } else {
@@ -197,7 +195,7 @@ function toggle() {
             wwa_dom('wp-webauthn-check', (dom) => { dom.style.cssText = `${dom.style.cssText.split('display: block !important')[0]}display: none !important` }, 'id');
             wwa_dom('user_pass', (dom) => { dom.disabled = false }, 'id');
             wwa_dom('user_login', (dom) => { dom.focus() }, 'id');
-            wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = `<span class="dashicons dashicons-shield-alt"></span> ${php_vars.i18n_2}` }, 'class');
+            wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = `<span><span class="dashicons dashicons-shield-alt"></span> ${php_vars.i18n_2}</span>` }, 'class');
             wwa_dom('wp-submit', (dom) => { dom.disabled = false }, 'id');
             let inputDom = document.querySelectorAll('#loginform label')
             if (inputDom.length > 0) {
@@ -222,10 +220,10 @@ function toggle() {
                 }
                 document.getElementById('loginform').getElementsByTagName('p')[1].style.display = 'none';
             }
-            wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'block' }, 'class');
+            wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'flex' }, 'class');
             wwa_dom('wp-webauthn-check', (dom) => { dom.style.cssText = `${dom.style.cssText.split('display: none !important')[0]}display: block !important` }, 'id');
             wwa_dom('user_login', (dom) => { dom.focus() }, 'id');
-            wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = `<span class="dashicons dashicons-shield-alt"></span> ${php_vars.i18n_2}` }, 'class');
+            wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = `<span><span class="dashicons dashicons-shield-alt"></span> ${php_vars.i18n_2}</span>` }, 'class');
             wwa_dom('wp-submit', (dom) => { dom.disabled = true }, 'id');
             let inputDom = document.querySelectorAll('#loginform label')
             if (inputDom.length > 0) {
@@ -292,7 +290,6 @@ function check() {
                     console.warn(rawData);
                     if (php_vars.usernameless === 'true' && document.getElementById('user_login').value === '') {
                         wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 + php_vars.i18n_12 }, 'class');
-                        wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(document.getElementsByClassName('wp-webauthn-notice')[0].style.lineHeight) - 24}px)` }, 'class');
                     } else {
                         wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 }, 'class');
                     }
@@ -363,7 +360,6 @@ function check() {
                             } else {
                                 if (php_vars.usernameless === 'true' && document.getElementById('user_login').value === '') {
                                     wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 + php_vars.i18n_12 }, 'class');
-                                    wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(document.getElementsByClassName('wp-webauthn-notice')[0].style.lineHeight) - 24}px)` }, 'class');
                                 } else {
                                     wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 }, 'class');
                                 }
@@ -373,7 +369,6 @@ function check() {
                         } else {
                             if (php_vars.usernameless === 'true' && document.getElementById('user_login').value === '') {
                                 wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 + php_vars.i18n_12 }, 'class');
-                                wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(document.getElementsByClassName('wp-webauthn-notice')[0].style.lineHeight) - 24}px)` }, 'class');
                             } else {
                                 wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 }, 'class');
                             }
@@ -385,7 +380,6 @@ function check() {
                     console.warn(error);
                     if (php_vars.usernameless === 'true' && document.getElementById('user_login').value === '') {
                         wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 + php_vars.i18n_12 }, 'class');
-                        wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(document.getElementsByClassName('wp-webauthn-notice')[0].style.lineHeight) - 24}px)` }, 'class');
                     } else {
                         wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 }, 'class');
                     }
@@ -395,7 +389,6 @@ function check() {
             } else {
                 if (php_vars.usernameless === 'true' && document.getElementById('user_login').value === '') {
                     wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 + php_vars.i18n_12 }, 'class');
-                    wwa_dom('wwa-try-username', (dom) => { dom.style.transform = `translateY(-${parseInt(document.getElementsByClassName('wp-webauthn-notice')[0].style.lineHeight) - 24}px)` }, 'class');
                 } else {
                     wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = php_vars.i18n_7 }, 'class');
                 }

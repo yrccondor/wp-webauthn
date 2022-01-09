@@ -1,5 +1,4 @@
 #wp-webauthn {
-    float: right;
     margin-right: 5px;
 }
 #wp-webauthn span {
@@ -12,14 +11,13 @@
     font-size: 18px;
     text-align: center;
     height: 74.25px;
-    line-height: 74.25px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     margin-bottom: 10px;
     opacity: .8;
     display: none;
     pointer-events: none;
-}
-.wp-webauthn-notice span {
-    line-height: unset;
 }
 .wp-webauthn-notice .wwa-success {
     color: #2C8D46;
@@ -28,12 +26,23 @@
     color: #CA4A1F;
 }
 .wwa-try-username {
-    transform: translateY(-60px);
-    display: inline-block;
+    margin-top: 3px;
     font-size: 12px;
     opacity: .7;
     color: black;
     pointer-events: none;
+}
+#loginform p.submit {
+    display: flex;
+    flex-direction: row-reverse;
+    width: max-content;
+    float: right;
+}
+#loginform .login .button-primary {
+    float: none;
+}
+#loginform .forgetmenot {
+    margin-bottom: 8px;
 }
 #loginform.wwa-webauthn-only {
     padding-bottom: 30px;

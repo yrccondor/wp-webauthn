@@ -157,6 +157,7 @@
     border-radius: 3px;
     white-space: nowrap;
     box-sizing: border-box;
+    margin-left: 5px;
 }
 .wwa-login-form .button-primary:focus, .wwa-login-form .button-primary:hover {
     background: #0071a1;
@@ -196,6 +197,14 @@
     color: #72777c;
     font-size: 18px;
     padding-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+    line-height: 1;
+}
+.wp-webauthn-notice span {
+    line-height: 1;
 }
 .wp-webauthn-notice {
     pointer-events: none;
@@ -205,7 +214,6 @@
 }
 .wwa-t2w {
     font-size: 14px;
-    transform: translateY(-7px);
     color: #00719F;
     text-decoration: underline;
 }
@@ -220,8 +228,7 @@
     cursor: pointer;
 }
 .wwa-try-username {
-    transform: translateY(-20px);
-    display: inline-block;
+    margin-top: 3px;
     font-size: 14px;
     opacity: .7;
     color: black;
@@ -238,7 +245,7 @@
     vertical-align: text-bottom;
 }
 .wwa-remember-label {
-    margin-bottom: 17px!important;
+    margin-bottom: 10px!important;
     margin-top: 2px!important;
 }
 @media(max-width: 720px){

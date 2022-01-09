@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('loginform').getElementsByTagName('p')[1].style.display = 'none';
                 }
             }
-            wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'block' }, 'class');
+            wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'flex' }, 'class');
             wwa_dom('wp-webauthn-check', (dom) => { dom.style.cssText = `${dom.style.cssText}display: block !important` }, 'id');
             wwa_dom('user_login', (dom) => { dom.focus() }, 'id');
             wwa_dom('wp-submit', (dom) => { dom.disabled = true }, 'id');
