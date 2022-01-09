@@ -49,3 +49,6 @@
     margin-top: 20px!important;
     float: right;
 }
+#wp-webauthn-uv-warning {
+    margin: 15px 0 0;
+}
