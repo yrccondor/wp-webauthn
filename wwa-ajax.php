@@ -1139,7 +1139,7 @@ function wwa_ajax_modify_authenticator(){
                 wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Wrong parameters, exit");
                 wwa_wp_die("Bad Request.");
             }
-        
+
             if($user_info->ID !== $user_id){
                 if(!current_user_can("edit_user", $user_id)){
                     wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)No permission, exit");
@@ -1179,7 +1179,7 @@ function wwa_ajax_modify_authenticator(){
             $user_info->display_name,
             get_avatar_url($user_info->user_email, array("scheme" => "https"))
         );
-        
+
         wwa_add_log($res_id, "ajax_modify_authenticator: user => \"".$user_info->user_login."\"");
 
         $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
@@ -1206,7 +1206,7 @@ add_action("wp_ajax_wwa_modify_authenticator" , "wwa_ajax_modify_authenticator")
 
 // Print log
 function wwa_ajax_get_log(){
-    if(!current_user_can("edit_plugins")){
+    if(!wwa_validate_privileges()){
         wwa_wp_die("Bad Request.");
     }
 
@@ -1219,14 +1219,14 @@ function wwa_ajax_get_log(){
     }else{
         echo json_encode($log);
     }
-    
+
     exit;
 }
 add_action("wp_ajax_wwa_get_log" , "wwa_ajax_get_log");
 
 // Clear log
 function wwa_ajax_clear_log(){
-    if(!current_user_can("edit_plugins")){
+    if(!wwa_validate_privileges()){
         wwa_wp_die("Bad Request.");
     }
 
@@ -1235,7 +1235,7 @@ function wwa_ajax_clear_log(){
     if($log !== false){
         update_option("wwa_log", array());
     }
-    
+
     echo "true";
     exit;
 }

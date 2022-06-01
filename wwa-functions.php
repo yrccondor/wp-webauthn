@@ -319,4 +319,14 @@ function wwa_check_ssl() {
     }
     return false;
 }
+
+// Check user privileges
+function wwa_validate_privileges() {
+    $user = wp_get_current_user();
+    $allowed_roles = array( 'administrator' );
+    if(array_intersect($allowed_roles, $user->roles)){
+        return true;
+    }
+    return false;
+}
 ?>
