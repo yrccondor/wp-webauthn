@@ -37,15 +37,23 @@ function wwa_save_user_profile_fields($user_id){
 }
 add_action('personal_options_update', 'wwa_save_user_profile_fields');
 
+function wwa_validate_privileges() {
+    $user = wp_get_current_user();
+    $allowed_roles = array( 'administrator' );
+    if ( array_intersect( $allowed_roles, $user->roles ) ) {
+    return true;
+    }
+    return false;
+}
+
 // Check user can
 function wwa_user_profile_fields_check(){
     if(current_user_can('edit_users')){
         add_action('edit_user_profile', 'wwa_user_profile_fields');
         add_action('edit_user_profile_update', 'wwa_save_user_profile_fields');
     }
-    if(current_user_can('edit_plugins')){
+    if(true === wwa_validate_privileges()){
         add_action('admin_menu', 'wwa_admin_menu');
     }
 }
 add_action('plugins_loaded', 'wwa_user_profile_fields_check');
-?>
