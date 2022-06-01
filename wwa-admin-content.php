@@ -29,7 +29,8 @@ if(!wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && p
     $wwa_not_allowed = true;
 }
 // Only admin can change settings
-if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === 'true' || $_POST['first_choice'] === 'false' || $_POST['first_choice'] === 'webauthn') && ($_POST['remember_me'] === 'true' || $_POST['remember_me'] === 'false') && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false') && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false') && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform') && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login' || $_POST['after_user_registration'] === 'guide') && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false')){
+// if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === 'true' || $_POST['first_choice'] === 'false' || $_POST['first_choice'] === 'webauthn') && ($_POST['remember_me'] === 'true' || $_POST['remember_me'] === 'false') && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false') && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false') && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform') && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login' || $_POST['after_user_registration'] === 'guide') && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false')){
+if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_referer('wwa_options_update') && current_user_can('edit_plugins') && ($_POST['first_choice'] === 'true' || $_POST['first_choice'] === 'false' || $_POST['first_choice'] === 'webauthn') && ($_POST['remember_me'] === 'true' || $_POST['remember_me'] === 'false') && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false') && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false') && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform') && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false')){
     $res_id = wwa_generate_random_string(5);
     if(sanitize_text_field($_POST['logging']) === 'true' && wwa_get_option('logging') === 'false'){
         // Initialize log
@@ -46,7 +47,8 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
             wwa_add_log($res_id, 'Warning: Not in security context', true);
         }
         wwa_add_log($res_id, 'PHP Version => '.phpversion().', WordPress Version => '.get_bloginfo('version').', WP-WebAuthn Version => '.get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", after_user_registration => "'.wwa_get_option('after_user_registration').'"', true);
+        // wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", after_user_registration => "'.wwa_get_option('after_user_registration').'"', true);
+        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'"', true);
         wwa_add_log($res_id, 'Logger initialized', true);
     }
     wwa_update_option('logging', sanitize_text_field($_POST['logging']));
@@ -93,11 +95,11 @@ if((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true') && check_admin_ref
     }
     wwa_update_option('usernameless_login', $post_usernameless_login);
 
-    $post_after_user_registration = sanitize_text_field($_POST['after_user_registration']);
-    if($post_after_user_registration !== wwa_get_option('after_user_registration')){
-        wwa_add_log($res_id, 'after_user_registration: "'.wwa_get_option('after_user_registration').'"->"'.$post_after_user_registration.'"');
-    }
-    wwa_update_option('after_user_registration', $post_after_user_registration);
+    // $post_after_user_registration = sanitize_text_field($_POST['after_user_registration']);
+    // if($post_after_user_registration !== wwa_get_option('after_user_registration')){
+    //     wwa_add_log($res_id, 'after_user_registration: "'.wwa_get_option('after_user_registration').'"->"'.$post_after_user_registration.'"');
+    // }
+    // wwa_update_option('after_user_registration', $post_after_user_registration);
 
     add_settings_error('wwa_settings', 'save_success', __('Settings saved.', 'wp-webauthn'), 'success');
 }elseif((isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true')){
@@ -204,19 +206,19 @@ if($wwa_v_at === false){
 <p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type when authenticating and user can only register authenticators of selected type.', 'wp-webauthn');?></p>
 </td>
 </tr>
-<tr>
+<!-- <tr>
 <th scope="row"></th>
 </tr>
 <tr>
 <th scope="row"><label for="after_user_registration"><?php _e('After User Registration', 'wp-webauthn');?></label></th>
-<td>
+<td> -->
 <?php $wwa_v_aur=wwa_get_option('after_user_registration');
 if($wwa_v_aur === false){
     wwa_update_option('after_user_registration', 'none');
     $wwa_v_aur = 'none';
 }
 ?>
-<select name="after_user_registration" id="after_user_registration">
+<!-- <select name="after_user_registration" id="after_user_registration">
     <option value="none"<?php if($wwa_v_aur === 'none'){?> selected<?php }?>><?php _e('No action', 'wp-webauthn');?></option>
     <option value="login"<?php if($wwa_v_aur === 'login'){?> selected<?php }?>><?php _e('Log user in immediately', 'wp-webauthn');?></option>
     <option value="guide"<?php if($wwa_v_aur === 'guide'){?> selected<?php }?>><?php _e('Redirect to WP-WebAuthn guide page', 'wp-webauthn');?></option>
@@ -226,7 +228,7 @@ if($wwa_v_aur === false){
 </tr>
 <tr>
 <th scope="row"></th>
-</tr>
+</tr> -->
 <tr>
 <th scope="row"><label for="logging"><?php _e('Logging', 'wp-webauthn');?></label></th>
 <td>

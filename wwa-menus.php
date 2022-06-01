@@ -40,8 +40,8 @@ add_action('personal_options_update', 'wwa_save_user_profile_fields');
 function wwa_validate_privileges() {
     $user = wp_get_current_user();
     $allowed_roles = array( 'administrator' );
-    if ( array_intersect( $allowed_roles, $user->roles ) ) {
-    return true;
+    if(array_intersect($allowed_roles, $user->roles)){
+        return true;
     }
     return false;
 }
@@ -52,7 +52,7 @@ function wwa_user_profile_fields_check(){
         add_action('edit_user_profile', 'wwa_user_profile_fields');
         add_action('edit_user_profile_update', 'wwa_save_user_profile_fields');
     }
-    if(true === wwa_validate_privileges()){
+    if(wwa_validate_privileges()){
         add_action('admin_menu', 'wwa_admin_menu');
     }
 }
