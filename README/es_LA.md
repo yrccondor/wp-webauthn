@@ -1,4 +1,10 @@
-<div align="right">English | <a title="Simplified Chinese" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/zh_CN.md">简体中文</a> | <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a> | <a title="Turkish" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/tr_TR.md">Turkish</a>| <a title="Espanol" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/tr_ES.md">Espanol</a></div>
+<div align="right">
+  <a title="English" href="https://github.com/yrccondor/wp-webauthn/blob/master/README.md">English</a> | 
+  <a title="Simplified Chinese" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/zh_CN.md">简体中文</a> | 
+  <a title="German" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/de_DE.md">Deutsch</a> |
+  <a title="Turkish" href="https://github.com/yrccondor/wp-webauthn/blob/master/README/tr_TR.md">Turkish</a>  |
+  Español Latam
+</div>
 
 <br>
 
@@ -49,7 +55,7 @@ También puede instalar [WP-WebAuthn](https://wordpress.org/plugins/wp-webauthn/
 
 Código abierto bajo licencia GPL v3.0.
 
-[![Estado FOSSA](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=large)](https://app.fossa.io /proyectos/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_large)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyrccondor%2Fwp-webauthn?ref=badge_large)
 
 ## Gracias a
 
@@ -63,4 +69,4 @@ Código abierto bajo licencia GPL v3.0.
 
 [milkice](https://github.com/milkice233)
 
-[Ye Shu](https://github.com/chongkan) (Spanish Translator)
+[Chongkan](https://github.com/chongkan) (Spanish Latam Translator)
