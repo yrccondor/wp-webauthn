@@ -1,0 +1,697 @@
+# Copyright (C) 2022 Axton
+# This file is distributed under the same license as the WP-WebAuthn plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP-WebAuthn 1.2.8\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;"
+"_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;"
+"esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Domain: wp-webauthn\n"
+"X-Generator: Poedit 3.0.1\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#. Plugin Name of the plugin
+msgid "WP-WebAuthn"
+msgstr "WP-WebAuthn"
+
+#. Plugin URI of the plugin
+msgid "https://flyhigher.top"
+msgstr "https://flyhigher.top"
+
+#. Description of the plugin
+msgid ""
+"WP-WebAuthn allows you to safely login to your WordPress site without "
+"password."
+msgstr ""
+"WP-WebAuthn le permite iniciar sesión de forma segura en su sitio de "
+"WordPress sin contraseña."
+
+#. Author of the plugin
+msgid "Axton"
+msgstr "Axton"
+
+#. Author URI of the plugin
+msgid "https://axton.cc"
+msgstr "https://axton.cc"
+
+#: wwa-admin-content.php:6
+msgid ""
+"User verification is disabled by default because some mobile devices do not "
+"support it (especially on Android devices). But we <strong>recommend you to "
+"enable it</strong> if possible to further secure your login."
+msgstr ""
+"La verificación del usuario está desactivada por defecto porque algunos "
+"dispositivos móviles no la admiten (especialmente en los dispositivos "
+"Android). Pero le <strong>recomendamos que lo habilite</strong> si es "
+"posible para asegurar aún más su inicio de sesión."
+
+#: wwa-admin-content.php:7 wwa-admin-content.php:245
+msgid "Log count: "
+msgstr "Cuenta de registro: "
+
+#: wwa-admin-content.php:8 wwa-profile-content.php:14 wwa-shortcodes.php:26
+msgid "Loading failed, maybe try refreshing?"
+msgstr "La carga ha fallado, ¿intenta refrescar la pestaña?"
+
+#: wwa-admin-content.php:16
+msgid ""
+"PHP extension gmp doesn't seem to exist, rendering WP-WebAuthn unable to "
+"function."
+msgstr ""
+"La extensión PHP gmp no parece existir, haciendo que WP-WebAuthn no pueda "
+"funcionar."
+
+#: wwa-admin-content.php:20
+msgid ""
+"PHP extension mbstring doesn't seem to exist, rendering WP-WebAuthn unable "
+"to function."
+msgstr ""
+"La extensión PHP mbstring no parece existir, haciendo que WP-WebAuthn no "
+"pueda funcionar."
+
+#: wwa-admin-content.php:24
+msgid ""
+"PHP extension sodium doesn't seem to exist, rendering WP-WebAuthn unable to "
+"function."
+msgstr ""
+"La extensión PHP sodium no parece existir, haciendo que WP-WebAuthn no pueda "
+"funcionar."
+
+#: wwa-admin-content.php:28
+msgid ""
+"WebAuthn features are restricted to websites in secure contexts. Please make "
+"sure your website is served over HTTPS or locally with <code>localhost</"
+"code>."
+msgstr ""
+"Las funciones de WebAuthn están restringidas a los sitios web en contextos "
+"seguros. Asegúrese de que su sitio web se sirve a través de HTTPS o "
+"localmente con <code>localhost</code>."
+
+#: wwa-admin-content.php:104
+msgid "Settings saved."
+msgstr "Ajustes guardados."
+
+#: wwa-admin-content.php:106
+msgid "Settings NOT saved."
+msgstr "Ajustes NO guardados."
+
+#: wwa-admin-content.php:121
+msgid "Preferred login method"
+msgstr "Método de inicio de sesión preferido"
+
+#: wwa-admin-content.php:125
+msgid "Prefer WebAuthn"
+msgstr "Preferir WebAuthn"
+
+#: wwa-admin-content.php:126
+msgid "Prefer password"
+msgstr "Preferir contraseña"
+
+#: wwa-admin-content.php:127 wwa-profile-content.php:56
+msgid "WebAuthn Only"
+msgstr "Sólo WebAuthn"
+
+#: wwa-admin-content.php:129
+msgid ""
+"When using \"WebAuthn Only\", password login will be completely disabled. "
+"Please make sure your browser supports WebAuthn, otherwise you may unable to "
+"login.<br>User that doesn't have any registered authenticator (e.g. new "
+"user) will unable to login when using \"WebAuthn Only\".<br>When the browser "
+"does not support WebAuthn, the login method will default to password if "
+"password login is not disabled."
+msgstr ""
+"Cuando se utiliza “Sólo WebAuthn”, el inicio de sesión con contraseña estará "
+"completamente deshabilitado. Por favor, asegúrese de que su navegador es "
+"compatible con WebAuthn, de lo contrario no podrá iniciar la sesión.<br>El "
+"usuario que no tenga ningún autentificador registrado (por ejemplo, un nuevo "
+"usuario) no podrá iniciar sesión cuando utilice “Sólo WebAuthn”.<br>Cuando "
+"el navegador no admite WebAuthn, el método de inicio de sesión será por "
+"defecto la contraseña si el inicio de sesión con contraseña no está "
+"desactivado."
+
+#: wwa-admin-content.php:133
+msgid "Website identifier"
+msgstr "Identificador del sitio web"
+
+#: wwa-admin-content.php:136
+msgid ""
+"This identifier is for identification purpose only and <strong>DOES NOT</"
+"strong> affect the authentication process in anyway."
+msgstr ""
+"Este identificador es sólo para fines de identificación y <strong>NO</"
+"strong> afecta al proceso de autenticación de ninguna manera."
+
+#: wwa-admin-content.php:140
+msgid "Website domain"
+msgstr "Dominio del sitio web"
+
+#: wwa-admin-content.php:143
+msgid ""
+"This field <strong>MUST</strong> be exactly the same with the current domain "
+"or parent domain."
+msgstr ""
+"Este campo <strong>DEBE</strong> ser exactamente el mismo con el dominio "
+"actual o el dominio principal."
+
+#: wwa-admin-content.php:150
+msgid "Allow to remember login"
+msgstr "Permitir recordar el inicio de sesión"
+
+#: wwa-admin-content.php:159 wwa-admin-content.php:170
+#: wwa-admin-content.php:186 wwa-admin-content.php:242
+#: wwa-profile-content.php:130 wwa-shortcodes.php:118
+msgid "Enable"
+msgstr "Activar"
+
+#: wwa-admin-content.php:160 wwa-admin-content.php:171
+#: wwa-admin-content.php:187 wwa-admin-content.php:243
+#: wwa-profile-content.php:131 wwa-shortcodes.php:118
+msgid "Disable"
+msgstr "Desactivar"
+
+#: wwa-admin-content.php:161
+msgid ""
+"Show the 'Remember Me' checkbox beside the login form when using WebAuthn."
+msgstr ""
+"Mostrar la casilla “Recuérdame” al lado del formulario de acceso cuando se "
+"utiliza WebAuthn."
+
+#: wwa-admin-content.php:166
+msgid "Require user verification"
+msgstr "Requerir la verificación del usuario"
+
+#: wwa-admin-content.php:172
+msgid ""
+"User verification can improve security, but is not fully supported by mobile "
+"devices. <br> If you cannot register or verify your authenticators, please "
+"consider disabling user verification."
+msgstr ""
+"La verificación de usuario puede mejorar la seguridad, pero no es totalmente "
+"compatible con los dispositivos móviles. <br> Si no puedes registrar o "
+"verificar tus autenticadores, considera desactivar la verificación de "
+"usuario."
+
+#: wwa-admin-content.php:177
+msgid "Allow to login without username"
+msgstr "Permitir el acceso sin nombre de usuario"
+
+#: wwa-admin-content.php:188
+msgid ""
+"Allow users to register authenticator with usernameless authentication "
+"feature and login without username.<br><strong>User verification will be "
+"enabled automatically when authenticating with usernameless authentication "
+"feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</"
+"strong> support this feature."
+msgstr ""
+"Permitir a los usuarios registrar el autentificador con la función de "
+"autentificación sin nombre de usuario y conectarse sin nombre de usuario."
+"<br><strong>La verificación del usuario se activará automáticamente cuando "
+"se autentique con la función de autenticación sin nombre.</"
+"strong><br>Algunos autenticadores y algunos navegadores <strong>NO</strong> "
+"soportan esta función."
+
+#: wwa-admin-content.php:193
+msgid "Allow a specific type of authenticator"
+msgstr "Permitir un tipo específico de autentificador"
+
+#: wwa-admin-content.php:202 wwa-profile-content.php:15
+#: wwa-profile-content.php:111 wwa-shortcodes.php:33 wwa-shortcodes.php:118
+msgid "Any"
+msgstr "Cualquier"
+
+#: wwa-admin-content.php:203 wwa-profile-content.php:112 wwa-shortcodes.php:118
+msgid "Platform (e.g. built-in fingerprint sensors)"
+msgstr "Plataforma (por ejemplo, sensores de huellas dactilares integrados)"
+
+#: wwa-admin-content.php:204 wwa-profile-content.php:113 wwa-shortcodes.php:118
+msgid "Roaming (e.g. USB security keys)"
+msgstr "Roaming (por ejemplo, llaves de seguridad USB)"
+
+#: wwa-admin-content.php:206
+msgid ""
+"If a type is selected, the browser will only prompt for authenticators of "
+"selected type when authenticating and user can only register authenticators "
+"of selected type."
+msgstr ""
+"Si se selecciona un tipo, el navegador sólo pedirá autenticadores del tipo "
+"seleccionado cuando se autentique y el usuario sólo podrá registrar "
+"autenticadores del tipo seleccionado."
+
+#: wwa-admin-content.php:213
+msgid "After User Registration"
+msgstr "Tras el registro del usuario"
+
+#: wwa-admin-content.php:222
+msgid "No action"
+msgstr "Ninguna acción"
+
+#: wwa-admin-content.php:223
+msgid "Log user in immediately"
+msgstr "Iniciar la sesión del usuario inmediatamente"
+
+#: wwa-admin-content.php:224
+msgid "Redirect to WP-WebAuthn guide page"
+msgstr "Redirigir a la página de la guía de WP-WebAuthn"
+
+#: wwa-admin-content.php:226
+msgid ""
+"What to do when a new user registered. Useful when \"WebAuthn Only\" is "
+"enabled."
+msgstr ""
+"Qué hacer cuando se registra un nuevo usuario. Útil cuando se habilita “Sólo "
+"WebAuthn”."
+
+#: wwa-admin-content.php:233
+msgid "Logging"
+msgstr "Registrando"
+
+#: wwa-admin-content.php:245
+msgid "Clear log"
+msgstr "Borrar registro"
+
+#: wwa-admin-content.php:247
+msgid ""
+"For debugging only. Enable only when needed.<br><strong>Note: Logs may "
+"contain sensitive information.</strong>"
+msgstr ""
+"Sólo para depuración. Habilitar sólo cuando sea necesario.<br><strong>Nota: "
+"Los registros pueden contener información sensible.</strong>"
+
+#: wwa-admin-content.php:256
+msgid "Log"
+msgstr "Registro"
+
+#: wwa-admin-content.php:258
+msgid "Automatic update every 5 seconds."
+msgstr "Actualización automática cada 5 segundos."
+
+#: wwa-admin-content.php:262
+msgid ""
+"To register a new authenticator or edit your authenticators, please go to <a "
+"href=\"%s#wwa-webauthn-start\">your profile</a>."
+msgstr ""
+"Para registrar un nuevo autentificador o editar sus autentificadores, vaya a "
+"<a href=\"%s#wwa-webauthn-start\">su perfil</a>."
+
+#: wwa-functions.php:148 wwa-shortcodes.php:88
+msgid "Auth"
+msgstr "Auténtico"
+
+#: wwa-functions.php:149 wwa-shortcodes.php:11 wwa-shortcodes.php:85
+#: wwa-shortcodes.php:88
+msgid "Authenticate with WebAuthn"
+msgstr "Autenticación con WebAuthn"
+
+#: wwa-functions.php:150 wwa-shortcodes.php:12
+msgid "Hold on..."
+msgstr "Espere…"
+
+#: wwa-functions.php:151 wwa-shortcodes.php:13
+msgid "Please proceed..."
+msgstr "Por favor, proceda…"
+
+#: wwa-functions.php:152 wwa-shortcodes.php:14
+msgid "Authenticating..."
+msgstr "Autenticación…"
+
+#: wwa-functions.php:153 wwa-shortcodes.php:15
+msgid "Authenticated"
+msgstr "Autenticado"
+
+#: wwa-functions.php:154 wwa-shortcodes.php:16
+msgid "Auth failed"
+msgstr "Autorización fallida"
+
+#: wwa-functions.php:155
+msgid ""
+"It looks like your browser doesn't support WebAuthn, which means you may "
+"unable to login."
+msgstr ""
+"Parece que tu navegador no es compatible con WebAuthn, lo que significa que "
+"no puedes iniciar sesión."
+
+#: wwa-functions.php:156 wwa-shortcodes.php:88
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#: wwa-functions.php:158
+msgid "<strong>Error</strong>: The username field is empty."
+msgstr "<strong>Error</strong>: El campo del nombre de usuario está vacío."
+
+#: wwa-functions.php:159 wwa-shortcodes.php:42
+msgid "Try to enter the username"
+msgstr "Intenta introducir el nombre de usuario"
+
+#: wwa-functions.php:174
+msgid "Logging in with password has been disabled by the site manager."
+msgstr ""
+"El administrador del sitio ha desactivado el inicio de sesión con contraseña."
+
+#: wwa-functions.php:180
+msgid "Logging in with password has been disabled for this account."
+msgstr "Se ha desactivado el inicio de sesión con contraseña para esta cuenta."
+
+#: wwa-functions.php:218
+msgid ""
+"Logging in with password has been disabled for %s but you haven't register "
+"any WebAuthn authenticator yet. You may unable to login again once you log "
+"out. <a href=\"%s#wwa-webauthn-start\">Register</a>"
+msgstr ""
+"El inicio de sesión con contraseña se ha desactivado para %s pero aún no ha "
+"registrado ningún autentificador WebAuthn. Es posible que no pueda volver a "
+"conectarse una vez que haya cerrado la sesión. <a href=\"%s#wwa-webauthn-"
+"start\">Registrar</a>"
+
+#: wwa-functions.php:218 wwa-functions.php:263
+msgid "the site"
+msgstr "el sitio"
+
+#: wwa-functions.php:218
+msgid "your account"
+msgstr "su cuenta"
+
+#: wwa-functions.php:263
+msgid ""
+"Logging in with password has been disabled for %s but <strong>this account</"
+"strong> haven't register any WebAuthn authenticator yet. This user may "
+"unable to login."
+msgstr ""
+"El inicio de sesión con contraseña se ha desactivado para %s pero "
+"<strong>esta cuenta</strong> aún no ha registrado ningún autentificador "
+"WebAuthn. Es posible que este usuario no pueda iniciar sesión."
+
+#: wwa-functions.php:263
+msgid "this account"
+msgstr "esta cuenta"
+
+#: wwa-functions.php:291
+msgid "Settings"
+msgstr "Ajustes"
+
+#: wwa-functions.php:299
+msgid "GitHub"
+msgstr "GitHub"
+
+#: wwa-functions.php:300
+msgid "Documentation"
+msgstr "Documentación"
+
+#: wwa-profile-content.php:7
+msgid "Initializing..."
+msgstr "Iniciando…"
+
+#: wwa-profile-content.php:8 wwa-shortcodes.php:37
+msgid "Please follow instructions to finish registration..."
+msgstr "Por favor, siga las instrucciones para finalizar el registro…"
+
+#: wwa-profile-content.php:9 wwa-shortcodes.php:38
+msgctxt "action"
+msgid "Registered"
+msgstr "Registrado"
+
+#: wwa-profile-content.php:10 wwa-shortcodes.php:39
+msgid "Registration failed"
+msgstr "Registro fallido"
+
+#: wwa-profile-content.php:11 wwa-shortcodes.php:40
+msgid "Your browser does not support WebAuthn"
+msgstr "Su navegador no soporta WebAuthn"
+
+#: wwa-profile-content.php:12 wwa-shortcodes.php:41
+msgid "Registrating..."
+msgstr "Registrándose…"
+
+#: wwa-profile-content.php:13 wwa-shortcodes.php:21
+msgid "Please enter the authenticator identifier"
+msgstr "Por favor, introduzca el identificador del autentificador"
+
+#: wwa-profile-content.php:16 wwa-shortcodes.php:34
+msgid "Platform authenticator"
+msgstr "Autentificador de plataforma"
+
+#: wwa-profile-content.php:17 wwa-shortcodes.php:35
+msgid "Roaming authenticator"
+msgstr "Autentificador itinerante"
+
+#: wwa-profile-content.php:18 wwa-shortcodes.php:36
+msgid "Remove"
+msgstr "Eliminar"
+
+#: wwa-profile-content.php:19 wwa-shortcodes.php:22
+msgid "Please follow instructions to finish verification..."
+msgstr "Por favor, siga las instrucciones para terminar la verificación…"
+
+#: wwa-profile-content.php:20 wwa-shortcodes.php:23
+msgid "Verifying..."
+msgstr "Verificando…"
+
+#: wwa-profile-content.php:21 wwa-shortcodes.php:24
+msgid "Verification failed"
+msgstr "Verificación fallida"
+
+#: wwa-profile-content.php:22 wwa-shortcodes.php:25
+msgid "Verification passed! You can now log in through WebAuthn"
+msgstr "¡Verificación superada! Ahora puede conectarse a través de WebAuthn"
+
+#: wwa-profile-content.php:23 wwa-shortcodes.php:32
+msgid "No registered authenticators"
+msgstr "No hay autentificadores registrados"
+
+#: wwa-profile-content.php:24 wwa-shortcodes.php:27
+msgid "Confirm removal of authenticator: "
+msgstr "Confirme la retirada del autentificador: "
+
+#: wwa-profile-content.php:25 wwa-shortcodes.php:28
+msgid "Removing..."
+msgstr "Quitando…"
+
+#: wwa-profile-content.php:26 wwa-shortcodes.php:29
+msgid "Rename"
+msgstr "Renombrar"
+
+#: wwa-profile-content.php:27 wwa-shortcodes.php:30
+msgid "Rename the authenticator"
+msgstr "Cambiar el nombre del autentificador"
+
+#: wwa-profile-content.php:28 wwa-shortcodes.php:31
+msgid "Renaming..."
+msgstr "Renombrar…"
+
+#: wwa-profile-content.php:29 wwa-shortcodes.php:10
+msgid "Ready"
+msgstr "Listo"
+
+#: wwa-profile-content.php:30 wwa-shortcodes.php:17
+msgid "No"
+msgstr "No"
+
+#: wwa-profile-content.php:31 wwa-shortcodes.php:18
+msgid " (Unavailable)"
+msgstr " (No disponible)"
+
+#: wwa-profile-content.php:32 wwa-shortcodes.php:19
+msgid "The site administrator has disabled usernameless login feature."
+msgstr ""
+"El administrador del sitio ha desactivado la función de inicio de sesión sin "
+"nombre."
+
+#: wwa-profile-content.php:33 wwa-shortcodes.php:43
+msgid ""
+"After removing this authenticator, you will not be able to login with "
+"WebAuthn"
+msgstr ""
+"Después de eliminar este autentificador, no podrá iniciar sesión con WebAuthn"
+
+#: wwa-profile-content.php:34 wwa-shortcodes.php:44
+msgid " (Disabled)"
+msgstr " (Desactivado)"
+
+#: wwa-profile-content.php:35 wwa-shortcodes.php:45
+msgid "The site administrator only allow platform authenticators currently."
+msgstr ""
+"El administrador del sitio sólo permite actualmente autenticadores de "
+"plataforma."
+
+#: wwa-profile-content.php:36 wwa-shortcodes.php:46
+msgid "The site administrator only allow roaming authenticators currently."
+msgstr ""
+"El administrador del sitio sólo permite actualmente autenticadores "
+"itinerantes."
+
+#: wwa-profile-content.php:50
+msgid ""
+"This site is not correctly configured to use WebAuthn. Please contact the "
+"site administrator."
+msgstr ""
+"Este sitio no está correctamente configurado para utilizar WebAuthn. Por "
+"favor, póngase en contacto con el administrador del sitio."
+
+#: wwa-profile-content.php:60
+msgid "Disable password login for this account"
+msgstr "Desactivar el inicio de sesión con contraseña para esta cuenta"
+
+#: wwa-profile-content.php:62
+msgid ""
+"When checked, password login will be completely disabled. Please make sure "
+"your browser supports WebAuthn and you have a registered authenticator, "
+"otherwise you may unable to login."
+msgstr ""
+"Cuando se marca, el inicio de sesión con contraseña estará completamente "
+"deshabilitado. Asegúrese de que su navegador es compatible con WebAuthn y de "
+"que tiene un autentificador registrado; de lo contrario, es posible que no "
+"pueda iniciar sesión."
+
+#: wwa-profile-content.php:62
+msgid "The site administrator has disabled password login for the whole site."
+msgstr ""
+"El administrador del sitio ha desactivado el inicio de sesión con contraseña "
+"para todo el sitio."
+
+#: wwa-profile-content.php:66
+msgid "Registered WebAuthn Authenticators"
+msgstr "Autenticadores WebAuthn registrados"
+
+#: wwa-profile-content.php:71 wwa-profile-content.php:86 wwa-shortcodes.php:156
+#: wwa-shortcodes.php:158
+msgid "Identifier"
+msgstr "Identificador"
+
+#: wwa-profile-content.php:72 wwa-profile-content.php:87 wwa-shortcodes.php:156
+#: wwa-shortcodes.php:158
+msgid "Type"
+msgstr "Tipo"
+
+#: wwa-profile-content.php:73 wwa-profile-content.php:88 wwa-shortcodes.php:156
+#: wwa-shortcodes.php:158
+msgctxt "time"
+msgid "Registered"
+msgstr "Registrado"
+
+#: wwa-profile-content.php:74 wwa-profile-content.php:89
+msgid "Last used"
+msgstr "Última vez que se utilizó"
+
+#: wwa-profile-content.php:75 wwa-profile-content.php:90 wwa-shortcodes.php:156
+#: wwa-shortcodes.php:158
+msgid "Usernameless"
+msgstr "Sin nombre de usuario"
+
+#: wwa-profile-content.php:76 wwa-profile-content.php:91 wwa-shortcodes.php:156
+#: wwa-shortcodes.php:158
+msgid "Action"
+msgstr "Ación"
+
+#: wwa-profile-content.php:81 wwa-shortcodes.php:157
+msgid "Loading..."
+msgstr "Cargando…"
+
+#: wwa-profile-content.php:98 wwa-profile-content.php:101
+msgid "Register New Authenticator"
+msgstr "Registrar un nuevo autentificador"
+
+#: wwa-profile-content.php:98 wwa-profile-content.php:142
+msgid "Verify Authenticator"
+msgstr "Verificar Authenticator"
+
+#: wwa-profile-content.php:102
+msgid ""
+"You are about to associate an authenticator with the current account <strong>"
+"%s</strong>.<br>You can register multiple authenticators for an account."
+msgstr ""
+"Va a asociar un autentificador a la cuenta actual <strong>%s</strong>."
+"<br>Puede registrar varios autentificadores para una cuenta."
+
+#: wwa-profile-content.php:105 wwa-shortcodes.php:118
+msgid "Type of authenticator"
+msgstr "Tipo de autentificador"
+
+#: wwa-profile-content.php:115 wwa-shortcodes.php:118
+msgid ""
+"If a type is selected, the browser will only prompt for authenticators of "
+"selected type. <br> Regardless of the type, you can only log in with the "
+"very same authenticators you've registered."
+msgstr ""
+"Si se selecciona un tipo, el navegador sólo pedirá autentificadores del tipo "
+"seleccionado. <br> Independientemente del tipo, sólo puedes iniciar sesión "
+"con los mismos autentificadores que hayas registrado."
+
+#: wwa-profile-content.php:119
+msgid "Authenticator Identifier"
+msgstr "Identificador del autentificador"
+
+#: wwa-profile-content.php:122 wwa-shortcodes.php:118
+msgid ""
+"An easily identifiable name for the authenticator. <strong>DOES NOT</strong> "
+"affect the authentication process in anyway."
+msgstr ""
+"Un nombre fácilmente identificable para el autentificador. <strong>NO</"
+"strong> afecta al proceso de autenticación de ninguna manera."
+
+#: wwa-profile-content.php:127 wwa-shortcodes.php:118
+msgid "Login without username"
+msgstr "Iniciar sesión sin nombre de usuario"
+
+#: wwa-profile-content.php:132 wwa-shortcodes.php:118
+msgid ""
+"If registered authenticator with this feature, you can login without enter "
+"your username.<br>Some authenticators like U2F-only authenticators and some "
+"browsers <strong>DO NOT</strong> support this feature.<br>A record will be "
+"stored in the authenticator permanently untill you reset it."
+msgstr ""
+"Si se registra el autentificador con esta función, puede iniciar la sesión "
+"sin introducir su nombre de usuario.<br>Algunos autenticadores, como los "
+"autenticadores sólo U2F, y algunos navegadores <strong>NO</strong> admiten "
+"esta función.<br>El registro se almacenará en el autentificador de forma "
+"permanente hasta que lo restablezca."
+
+#: wwa-profile-content.php:138
+msgid "Start Registration"
+msgstr "Iniciar el registro"
+
+#: wwa-profile-content.php:143
+msgid ""
+"Click Test Login to verify that the registered authenticators are working."
+msgstr ""
+"Haga clic en Probar inicio de sesión para verificar que los autenticadores "
+"registrados funcionan."
+
+#: wwa-profile-content.php:144 wwa-shortcodes.php:144
+msgid "Test Login"
+msgstr "Prueba de inicio de sesión"
+
+#: wwa-profile-content.php:146 wwa-shortcodes.php:144
+msgid "Test Login (usernameless)"
+msgstr "Prueba de inicio de sesión (sin nombre de usuario)"
+
+#: wwa-shortcodes.php:20
+msgid "Error: The username field is empty."
+msgstr "Error: El campo del nombre de usuario está vacío."
+
+#: wwa-shortcodes.php:88
+msgid "Authenticate with password"
+msgstr "Autenticación con contraseña"
+
+#: wwa-shortcodes.php:105 wwa-shortcodes.php:133 wwa-shortcodes.php:166
+msgid "You haven't logged in yet."
+msgstr "Todavía no te has conectado."
+
+#: wwa-shortcodes.php:118
+msgid "Authenticator identifier"
+msgstr "Identificador del autentificador"
+
+#: wwa-shortcodes.php:118
+msgid "Start registration"
+msgstr "Iniciar la registración"
