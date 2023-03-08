@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form').length > 0) {
         return;
     }
+    if (document.getElementById('loginform').getAttribute('name') !== 'loginform') {
+        return;
+    }
     let button_check = document.createElement('button');
     button_check.id = 'wp-webauthn-check';
     button_check.type = 'button';
@@ -179,7 +182,10 @@ function getQueryString(name) {
 }
 
 function toggle() {
-    if (document.querySelectorAll('#lostpasswordform, #registerform').length > 0) {
+    if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form').length > 0) {
+        return;
+    }
+    if (document.getElementById('loginform').getAttribute('name') !== 'loginform') {
         return;
     }
     if (wwaSupported) {

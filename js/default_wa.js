@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form').length > 0) {
         return;
     }
+    if (document.getElementById('loginform').getAttribute('name') !== 'loginform') {
+        return;
+    }
     window.onload = () => {
         if (php_vars.webauthn_only === 'true') {
             if ((window.PublicKeyCredential === undefined || navigator.credentials.create === undefined || typeof navigator.credentials.create !== 'function')) {
