@@ -248,6 +248,10 @@
     margin-bottom: 10px!important;
     margin-top: 2px!important;
 }
+.wwa-form-left {
+    display: inline-flex;
+    flex-direction: column;
+}
 @media(max-width: 720px){
     .wwa-login-form .button-primary, .wwa-login-form .button-secondary {
         padding: 0 14px;
