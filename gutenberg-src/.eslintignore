@@ -1,9 +1,9 @@
 **/*.min.js
 **/*.build.js
 **/node_modules/**
-**/vendor/**
+**/wp-webauthn-vendor/**
 build
 coverage
 cypress
 node_modules
-vendor
+wp-webauthn-vendor

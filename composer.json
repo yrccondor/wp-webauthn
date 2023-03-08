@@ -6,6 +6,9 @@
             "homepage": "https://axton.cc"
         }
     ],
+    "config": {
+        "vendor-dir": "wp-webauthn-vendor"
+    },
     "require": {
         "web-auth/webauthn-lib": "^3.3.8",
         "nyholm/psr7-server": "^0.4.1",

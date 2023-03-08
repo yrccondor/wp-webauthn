@@ -1,5 +1,5 @@
 <?php
-require_once('vendor/autoload.php');
+require_once('wp-webauthn-vendor/autoload.php');
 use Webauthn\Server;
 use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialUserEntity;
