@@ -176,7 +176,7 @@ function wwa_ajax_create(){
             wwa_wp_die("Something went wrong.", $client_id);
         }
 
-        if(wwa_get_option('website_name') === "" || wwa_get_option('website_domain') ===""){
+        if(wwa_get_option("website_name") === "" || wwa_get_option('website_domain') ===""){
             wwa_add_log($res_id, "ajax_create: (ERROR)Plugin not configured, exit");
             wwa_wp_die("Not configured.", $client_id);
         }

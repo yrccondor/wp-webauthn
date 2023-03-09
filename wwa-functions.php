@@ -34,6 +34,7 @@ function wwa_wp_die($message = '', $client_id = false){
 
 // Init data for new options
 function wwa_init_new_options(){
+    require_once('wwa_default_mail_template.php');
     if(wwa_get_option('allow_authenticator_type') === false){
         wwa_update_option('allow_authenticator_type', 'none');
     }
@@ -42,6 +43,18 @@ function wwa_init_new_options(){
     }
     if(wwa_get_option('usernameless_login') === false){
         wwa_update_option('usernameless_login', 'false');
+    }
+    if(wwa_get_option('after_user_registration') === false){
+        wwa_update_option('after_user_registration', 'none');
+    }
+    if(wwa_get_option('magic_link') === false){
+        wwa_update_option('magic_link', 'false');
+    }
+    if(wwa_get_option('magic_link_expire') === false){
+        wwa_update_option('magic_link_expire', '3');
+    }
+    if(wwa_get_option('mail_template') === false){
+        wwa_update_option('mail_template', $wwa_default_mail_template);
     }
 }
 

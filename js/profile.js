@@ -296,6 +296,7 @@ jQuery('#wwa-bind').click((e) => {
 
 // Test WebAuthn
 jQuery('#wwa-test, #wwa-test_usernameless').click((e) => {
+    e.preventDefault();
     jQuery('#wwa-test, #wwa-test_usernameless').attr('disabled', 'disabled');
     let button_id = e.target.id;
     let usernameless = 'false';

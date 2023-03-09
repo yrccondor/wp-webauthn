@@ -83,3 +83,17 @@ jQuery('#clear_log').click((e) => {
         }
     })
 })
+
+// Toggle mail template editor
+jQuery('.wwa-open-editor').click((e) => {
+    e.preventDefault();
+    jQuery('.wwa-open-editor').hide();
+    jQuery('.wwa-close-editor').show();
+    jQuery('#wwa-mail-template-editor').attr('style', '');
+})
+jQuery('.wwa-close-editor').click((e) => {
+    e.preventDefault();
+    jQuery('.wwa-close-editor').hide();
+    jQuery('.wwa-open-editor').show();
+    jQuery('#wwa-mail-template-editor').attr('style', 'height:0');
+})
