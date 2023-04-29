@@ -34,7 +34,7 @@ function wwa_wp_die($message = '', $client_id = false){
 
 // Init data for new options
 function wwa_init_new_options(){
-    require_once('wwa_default_mail_template.php');
+    include('wwa_default_mail_template.php');
     if(wwa_get_option('allow_authenticator_type') === false){
         wwa_update_option('allow_authenticator_type', 'none');
     }
@@ -43,6 +43,9 @@ function wwa_init_new_options(){
     }
     if(wwa_get_option('usernameless_login') === false){
         wwa_update_option('usernameless_login', 'false');
+    }
+    if(wwa_get_option('password_reset') === false){
+        wwa_update_option('password_reset', 'off');
     }
     if(wwa_get_option('after_user_registration') === false){
         wwa_update_option('after_user_registration', 'none');
@@ -180,7 +183,7 @@ add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
 // Disable password login
 function wwa_disable_password($user){
-    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         return $user;
     }
     if(wwa_get_option('first_choice') === 'webauthn'){
@@ -195,6 +198,94 @@ function wwa_disable_password($user){
     return $user;
 }
 add_filter('wp_authenticate_user', 'wwa_disable_password', 10, 1);
+
+function wwa_base64_encode_url($string) {
+    return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($string));
+}
+
+function wwa_base64_decode_url($string) {
+    return base64_decode(str_replace(['-', '_'], ['+', '/'], $string));
+}
+
+// Create one-time login URL
+function wwa_create_onetime_login_url($source, $user){
+    $key = wwa_base64_encode_url(wp_generate_password(72, true, true));
+    return add_query_arg(array(
+        'action' => 'wwa_opl_login',
+        'wwa_token' => urlencode($key),
+        'wwa_user' => urlencode($user),
+    ), admin_url('admin-ajax.php'));
+}
+
+function wwa_handle_user_register($user_id){
+    if(wwa_get_option('after_user_registration') === 'login'){
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id);
+        wp_redirect(admin_url('profile.php?wwa_registered=true#wwa-webauthn-start'));
+        exit();
+    }
+}
+if(wwa_get_option('after_user_registration') === 'login'){
+    add_action('user_register', 'wwa_handle_user_register');
+}
+
+// Send magic link after user registration
+function wwa_new_user_notification_email($wp_new_user_notification_email, $user, $blogname) {
+    if(wwa_get_option('after_user_registration') === 'mail'){
+        $user_login = stripslashes($user->user_login);
+        $user_email = stripslashes($user->user_email);
+
+        $mail_content = htmlspecialchars_decode(wwa_get_option('mail_template'));
+        $mail_content = str_replace('{%useremail%}', $user_email, $mail_content);
+        $mail_content = str_replace('{%homeurl%}', home_url(), $mail_content);
+        $mail_content = str_replace('{%expiretime%}', wwa_get_option('magic_link_expire'), $mail_content);
+        $mail_content = str_replace('{%sitename%}', get_bloginfo('name'), $mail_content);
+        $mail_content = str_replace('{%username%}', $user_login, $mail_content);
+
+        $mail_content = str_replace('{%loginurl%}', wwa_create_onetime_login_url('register', $user_login), $mail_content);
+
+        $wp_new_user_notification_email['subject'] = sprintf(__('[%s] Please login following the one time link', 'wp-webauthn'), $blogname);
+        $wp_new_user_notification_email['headers'] = array('Content-Type: text/html; charset=UTF-8');
+        $wp_new_user_notification_email['message'] = $mail_content;
+    }
+
+    return $wp_new_user_notification_email;
+}
+if(wwa_get_option('after_user_registration') === 'mail'){
+    add_filter('wp_new_user_notification_email', 'wwa_new_user_notification_email', 10, 3);
+}
+
+// Disable Password Reset URL & Redirect
+function wwa_disable_lost_password(){
+    if((wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all') && isset( $_GET['action'] )){
+        if(in_array($_GET['action'], array('lostpassword', 'retrievepassword', 'resetpass', 'rp'))){
+            wp_redirect(wp_login_url(), 302);
+            exit();
+        }
+    }
+}
+function wwa_handle_lost_password_html_link($link){
+    if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all'){
+        return '<span id="wwa-lost-password-link-placeholder"></span>';
+    }
+    return $link;
+}
+function wwa_handle_password(){
+    if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all'){
+        if(wwa_get_option('password_reset') === 'admin'){
+            if(current_user_can('edit_users')){
+                return true;
+            }
+        }
+        return false;
+    }
+    return true;
+}
+if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all'){
+    add_action('login_init', 'wwa_disable_lost_password');
+    add_filter('lost_password_html_link', 'wwa_handle_lost_password_html_link');
+    add_filter('show_password_fields', 'wwa_handle_password');
+}
 
 // Show a notice in admin pages
 function wwa_no_authenticator_warning(){
@@ -248,7 +339,7 @@ function wwa_no_authenticator_warning(){
             return;
         }
 
-        if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID ) !== 'true'){
+        if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID) !== 'true'){
             return;
         }
 

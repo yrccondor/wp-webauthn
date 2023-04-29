@@ -31,6 +31,7 @@ wwa_init_data();
 
 function wwa_init_data(){
     if(!get_option('wwa_init')){
+        include('wwa_default_mail_template.php');
         // Init
         $site_domain = parse_url(site_url(), PHP_URL_HOST);
         $wwa_init_options = array(
@@ -44,6 +45,11 @@ function wwa_init_data(){
             'user_verification' => 'false',
             'usernameless_login' => 'false',
             'allow_authenticator_type' => 'none',
+            'password_reset' => 'off',
+            'after_user_registration' => 'none',
+            'magic_link' => 'false',
+            'magic_link_expire' => '3',
+            'mail_template' => $wwa_default_mail_template,
             'logging' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
@@ -61,7 +67,7 @@ function wwa_init_data(){
 
 // Wrap WP-WebAuthn settings
 function wwa_get_option($option_name){
-    $val = get_option("wwa_options");
+    $val = get_option('wwa_options');
     if(isset($val[$option_name])){
         return $val[$option_name];
     }else{
@@ -70,7 +76,7 @@ function wwa_get_option($option_name){
 }
 
 function wwa_update_option($option_name, $option_value){
-    $options = get_option("wwa_options");
+    $options = get_option('wwa_options');
     $options[$option_name] = $option_value;
     update_option('wwa_options',$options);
     return true;

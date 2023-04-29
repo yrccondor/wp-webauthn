@@ -38,6 +38,7 @@ if(
     && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false')
     && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false')
     && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform')
+    && ($_POST['password_reset'] === 'off' || $_POST['password_reset'] === 'admin' || $_POST['password_reset'] === 'all')
     && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login' || $_POST['after_user_registration'] === 'mail')
     && ($_POST['magic_link'] === 'true' || $_POST['magic_link'] === 'false')
     && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false')
@@ -58,7 +59,7 @@ if(
             wwa_add_log($res_id, 'Warning: Not in security context', true);
         }
         wwa_add_log($res_id, 'PHP Version => '.phpversion().', WordPress Version => '.get_bloginfo('version').', WP-WebAuthn Version => '.get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", after_user_registration => "'.wwa_get_option('after_user_registration').'"', true);
+        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", magic_link => "'.wwa_get_option('magic_link').'", magic_link_expire => "'.wwa_get_option('magic_link_expire').'"', true);
         wwa_add_log($res_id, 'Logger initialized', true);
     }
     wwa_update_option('logging', sanitize_text_field($_POST['logging']));
@@ -104,6 +105,12 @@ if(
         wwa_add_log($res_id, 'usernameless_login: "'.wwa_get_option('usernameless_login').'"->"'.$post_usernameless_login.'"');
     }
     wwa_update_option('usernameless_login', $post_usernameless_login);
+
+    $post_password_reset = sanitize_text_field($_POST['password_reset']);
+    if($post_password_reset !== wwa_get_option('password_reset')){
+        wwa_add_log($res_id, 'password_reset: "'.wwa_get_option('password_reset').'"->"'.$post_password_reset.'"');
+    }
+    wwa_update_option('password_reset', $post_password_reset);
 
     $post_after_user_registration = sanitize_text_field($_POST['after_user_registration']);
     if($post_after_user_registration !== wwa_get_option('after_user_registration')){
@@ -245,6 +252,26 @@ if($wwa_v_at === false){
 <th scope="row"></th>
 </tr>
 <tr>
+<th scope="row"><label for="password_reset"><?php _e('Disable password reset for', 'wp-webauthn');?></label></th>
+<td>
+<?php $wwa_v_pr=wwa_get_option('password_reset');
+if($wwa_v_pr === false){
+    wwa_update_option('password_reset', 'off');
+    $wwa_v_pr = 'off';
+}
+?>
+<select name="password_reset" id="password_reset">
+    <option value="off"<?php if($wwa_v_pr === 'off'){?> selected<?php }?>><?php _e('Off', 'wp-webauthn');?></option>
+    <option value="admin"<?php if($wwa_v_pr === 'admin'){?> selected<?php }?>><?php _e('Everyone except administrators', 'wp-webauthn');?></option>
+    <option value="all"<?php if($wwa_v_pr === 'all'){?> selected<?php }?>><?php _e('Everyone', 'wp-webauthn');?></option>
+</select>
+<p class="description"><?php _e('Disable the "Set new password" and "Forgot password" features, and remove the "Forgot password" link on the login page. This may be useful when enabling "WebAuthn Only".<br>If "Everyone except administrators" is selected, any user without the "Edit user" permission will be unable to modify their own password, but administrators with the "Edit user" permission will be able to edit the passwords of all users.', 'wp-webauthn');?></p>
+</td>
+</tr>
+<tr>
+<th scope="row"></th>
+</tr>
+<tr>
 <th scope="row"><label for="magic_link"><?php _e('Allow user login by login link via email', 'wp-webauthn');?></label></th>
 <td>
 <?php $wwa_v_ml=wwa_get_option('magic_link');
@@ -277,7 +304,7 @@ if($wwa_v_mle === false){
 <td>
 <?php $wwa_v_mt=wwa_get_option('mail_template');
 if($wwa_v_mt === false){
-    require_once('wwa_default_mail_template.php');
+    include('wwa_default_mail_template.php');
     wwa_update_option('mail_template', $wwa_default_mail_template);
     $wwa_v_mt = $wwa_default_mail_template;
 }?>
@@ -303,7 +330,7 @@ wp_editor(htmlspecialchars_decode($wwa_v_mt), 'wwa-mail-template', array(
 ));
 ?>
 </div>
-<p class="description"><?php _e('Email template used when sending one-time login links. Placeholders can be used to represent dynamic field.', 'wp-webauthn');?></p><details><summary class="wwa-summary"><?php _e('Placeholder list', 'wp-webauthn');?></summary><ul class="wwa-detailes"><?php _e('<li><code>{%username%}</code> will be replaced by the user\'s name</li><li><code>{%loginurl%}</code> will be replaced by the one-time login link URL</li><li><code>{%expiretime%}</code> will be replaced by the duration of validity of one-time login links (in minute)</li><li><code>{%sitename%}</code> will be replaced by the site\'s name</li><li><code>{%homeurl%}</code> will be replaced by the site\'s home URL</li>', 'wp-webauthn');?></ul></details>
+<p class="description"><?php _e('Email template used when sending one-time login links. Placeholders can be used to represent dynamic field.', 'wp-webauthn');?></p><details><summary class="wwa-summary"><?php _e('Placeholder list', 'wp-webauthn');?></summary><ul class="wwa-detailes"><?php _e('<li><code>{%username%}</code> will be replaced by the user\'s name</li><li><code>{%useremail%}</code> will be replaced by the user\'s email address</li><li><code>{%loginurl%}</code> will be replaced by the one-time login link URL</li><li><code>{%expiretime%}</code> will be replaced by the duration of validity of one-time login links (in minute)</li><li><code>{%sitename%}</code> will be replaced by the site\'s name</li><li><code>{%homeurl%}</code> will be replaced by the site\'s home URL</li>', 'wp-webauthn');?></ul></details>
 </td>
 </tr>
 <tr>
@@ -323,7 +350,7 @@ if($wwa_v_aur === false){
     <option value="login"<?php if($wwa_v_aur === 'login'){?> selected<?php }?>><?php _e('Log user in and redirect to user\'s profile', 'wp-webauthn');?></option>
     <option value="mail"<?php if($wwa_v_aur === 'mail'){?> selected<?php }?>><?php _e('Send user an one-time login link via email', 'wp-webauthn');?></option>
 </select>
-<p class="description"><?php _e('What to do when a new user registered.<br>By default, new users have to login manually after registration. If "WebAuthn Only" is enabled, they will not be able to login.<br>When using "Log user in", new users will be logged in automatically and redirected to their profile settings so that they can set up WebAuthn authenticators.<br>When using "Send login link", an one-time login link will be automatically sent to the user\'s emaill adress. The user can login using the link for one time.<br><strong>"Send login link" will work even if "Allow user login by login link via email" is disabled.</strong>', 'wp-webauthn');?></p>
+<p class="description"><?php _e('What to do when a new user registered.<br>By default, new users have to login manually after registration. If "WebAuthn Only" is enabled, they will not be able to login.<br>When using "Log user in", new users will be logged in automatically and redirected to their profile settings so that they can set up WebAuthn authenticators.<br>When using "Send login link", an one-time login link will be automatically sent to the user\'s emaill adress. The user can login using the link for one time. This will replace the default email to be sent by WordPress.<br><strong>"Send login link" will work even if "Allow user login by login link via email" is disabled.</strong>', 'wp-webauthn');?></p>
 </td>
 </tr>
 <tr>
