@@ -35,6 +35,7 @@ if(
     && wwa_validate_privileges()
     && ($_POST['first_choice'] === 'true' || $_POST['first_choice'] === 'false' || $_POST['first_choice'] === 'webauthn')
     && ($_POST['remember_me'] === 'true' || $_POST['remember_me'] === 'false')
+    && ($_POST['email_login'] === 'true' || $_POST['email_login'] === 'false')
     && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false')
     && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false')
     && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform')
@@ -59,7 +60,7 @@ if(
             wwa_add_log($res_id, 'Warning: Not in security context', true);
         }
         wwa_add_log($res_id, 'PHP Version => '.phpversion().', WordPress Version => '.get_bloginfo('version').', WP-WebAuthn Version => '.get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", magic_link => "'.wwa_get_option('magic_link').'", magic_link_expire => "'.wwa_get_option('magic_link_expire').'"', true);
+        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", email_login => "'.wwa_get_option('email_login').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", magic_link => "'.wwa_get_option('magic_link').'", magic_link_expire => "'.wwa_get_option('magic_link_expire').'"', true);
         wwa_add_log($res_id, 'Logger initialized', true);
     }
     wwa_update_option('logging', sanitize_text_field($_POST['logging']));
@@ -87,6 +88,12 @@ if(
         wwa_add_log($res_id, 'remember_me: "'.wwa_get_option('remember_me').'"->"'.$post_remember_me.'"');
     }
     wwa_update_option('remember_me', $post_remember_me);
+
+    $post_email_login = sanitize_text_field($_POST['email_login']);
+    if($post_email_login !== wwa_get_option('email_login')){
+        wwa_add_log($res_id, 'email_login: "'.wwa_get_option('email_login').'"->"'.$post_email_login.'"');
+    }
+    wwa_update_option('email_login', $post_email_login);
 
     $post_user_verification = sanitize_text_field($_POST['user_verification']);
     if($post_user_verification !== wwa_get_option('user_verification')){
@@ -201,6 +208,22 @@ if($wwa_v_rm === false){
         <label><input type="radio" name="remember_me" value="true" <?php if($wwa_v_rm === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wp-webauthn");?></label><br>
         <label><input type="radio" name="remember_me" value="false" <?php if($wwa_v_rm === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wp-webauthn");?></label><br>
         <p class="description"><?php _e('Show the \'Remember Me\' checkbox beside the login form when using WebAuthn.', 'wp-webauthn');?></p>
+    </fieldset>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="email_login"><?php _e('Allow to find users via email addresses', 'wp-webauthn');?></label></th>
+<td>
+<?php $wwa_v_el=wwa_get_option('email_login');
+if($wwa_v_el === false){
+    wwa_update_option('email_login', 'false');
+    $wwa_v_el = 'false';
+}
+?>
+    <fieldset>
+        <label><input type="radio" name="email_login" value="true" <?php if($wwa_v_el === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wp-webauthn");?></label><br>
+        <label><input type="radio" name="email_login" value="false" <?php if($wwa_v_el === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wp-webauthn");?></label><br>
+        <p class="description"><?php _e('Allows logging in with an email address. <strong>Note that if enabled attackers may be able to brute force the correspondence between the email address and the user.</strong>');?></p>
     </fieldset>
 </td>
 </tr>

@@ -607,8 +607,9 @@ function wwa_ajax_auth_start(){
         }else{
             // Not testing, create a fake user ID if the user does not exist or haven't bound any authenticator yet
             if(isset($wwa_get["user"]) && $wwa_get["user"] !== ""){
-                if(get_user_by('login', $wwa_get["user"])){
-                    $user_info = get_user_by('login', $wwa_get["user"]);
+                $wp_user = wwa_get_user($wwa_get["user"]);
+                if($wp_user !== false){
+                    $user_info = $wp_user;
                     $user_icon = get_avatar_url($user_info->user_email, array("scheme" => "https"));
                     wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$user_info->user_login."\"");
                     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
@@ -919,7 +920,7 @@ function wwa_ajax_auth(){
                                         wwa_wp_die("Bad request.", $client_id);
                                     }
                                 }
-    
+
                                 $user_info = get_user_by('login', $user_login_name);
 
                                 if($user_info === false){

@@ -41,6 +41,9 @@ function wwa_init_new_options(){
     if(wwa_get_option('remember_me') === false){
         wwa_update_option('remember_me', 'false');
     }
+    if(wwa_get_option('email_login') === false){
+        wwa_update_option('email_login', 'false');
+    }
     if(wwa_get_option('usernameless_login') === false){
         wwa_update_option('usernameless_login', 'false');
     }
@@ -210,14 +213,15 @@ function wwa_base64_decode_url($string) {
 // Create one-time login URL
 function wwa_create_onetime_login_url($source, $user){
     $key = wwa_base64_encode_url(wp_generate_password(72, true, true));
-    return add_query_arg(array(
+    $url = add_query_arg(array(
         'action' => 'wwa_opl_login',
         'wwa_token' => urlencode($key),
         'wwa_user' => urlencode($user),
     ), admin_url('admin-ajax.php'));
+    return $url;
 }
 
-function wwa_handle_user_register($user_id){
+function wwa_handle_user_register_auto_login($user_id){
     if(wwa_get_option('after_user_registration') === 'login'){
         wp_set_current_user($user_id);
         wp_set_auth_cookie($user_id);
@@ -226,7 +230,7 @@ function wwa_handle_user_register($user_id){
     }
 }
 if(wwa_get_option('after_user_registration') === 'login'){
-    add_action('user_register', 'wwa_handle_user_register');
+    add_action('user_register', 'wwa_handle_user_register_auto_login');
 }
 
 // Send magic link after user registration
@@ -432,5 +436,17 @@ function wwa_validate_privileges() {
         return true;
     }
     return false;
+}
+
+// Get user by username or email
+function wwa_get_user($username) {
+    if(wwa_get_option('email_login') !== 'true'){
+        return get_user_by('login', $username);
+    }else{
+        if(is_email($username)){
+            return get_user_by('email', $username);
+        }
+        return get_user_by('login', $username);
+    }
 }
 ?>
