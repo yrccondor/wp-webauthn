@@ -235,9 +235,9 @@ function toggle() {
             if (inputDom.length > 0) {
                 if (document.getElementById('wwa-username-label')) {
                     // WordPress 5.2-
-                    document.getElementById('wwa-username-label').innerText = php_vars.i18n_9;
+                    document.getElementById('wwa-username-label').innerText = php_vars.email_login === 'true' ? php_vars.i18n_10 : php_vars.i18n_9;
                 } else {
-                    inputDom[0].innerText = php_vars.i18n_9;
+                    inputDom[0].innerText = php_vars.email_login === 'true' ? php_vars.i18n_10 : php_vars.i18n_9;
                 }
             }
         }

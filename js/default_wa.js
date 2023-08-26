@@ -64,9 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dom.length > 0) {
             if (dom[0].getElementsByTagName('input').length > 0) {
                 // WordPress 5.2-
-                dom[0].innerHTML = `<span id="wwa-username-label">${php_vars.i18n_9}</span>${dom[0].innerHTML.split('<br>')[1]}`;
+                dom[0].innerHTML = `<span id="wwa-username-label">${php_vars.email_login === 'true' ? php_vars.i18n_10 : php_vars.i18n_9}</span>${dom[0].innerHTML.split('<br>')[1]}`;
             } else {
-                dom[0].innerText = php_vars.i18n_9;
+                dom[0].innerText = php_vars.email_login === 'true' ? php_vars.i18n_10 : php_vars.i18n_9;
             }
         }
     }

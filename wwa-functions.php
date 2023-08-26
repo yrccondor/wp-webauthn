@@ -32,6 +32,57 @@ function wwa_wp_die($message = '', $client_id = false){
     wp_die($message);
 }
 
+// Add a timed key-val by name
+function wwa_add_timed_key_vals($name, $val, $expire){
+    $data = get_option('wwa_timed_key_vals');
+    if(!$data){
+        $current = array();
+    }else{
+        $current = $data;
+    }
+    $current[$name] = array(
+        'val' => serialize($val),
+        'expir' => time() + $expire
+    );
+    update_option('wwa_timed_key_vals', $current);
+}
+
+// Get a timed key-val by name
+function wwa_get_timed_key_vals($name){
+    $data = get_option('wwa_timed_key_vals');
+    if(!$data){
+        return false;
+    }else{
+        $current = $data;
+    }
+    $ret = false;
+    var_dump($name);
+    foreach($current as $key => $value){
+        if($key === $name){
+            var_dump($value['val']);
+            if($value['expir'] >= time()){
+                $ret = $value['val'];
+            }else{
+                wwa_del_timed_key_vals($key);
+                continue;
+            }
+        }
+        if($value['expir'] < time()){
+            wwa_del_timed_key_vals($key);
+        }
+    }
+    return unserialize($ret);
+}
+
+// Remove a timed key-val by name
+function wwa_del_timed_key_vals($name){
+    $data = get_option('wwa_timed_key_vals');
+    if($data && isset($data[$name])){
+        unset($data[$name]);
+        update_option('wwa_timed_key_vals', $data);
+    }
+}
+
 // Init data for new options
 function wwa_init_new_options(){
     include('wwa_default_mail_template.php');
@@ -90,7 +141,7 @@ function wwa_add_log($id, $content = '', $init = false){
     if($log === false){
         $log = array();
     }
-    $log[] = '['.date('Y-m-d H:i:s', current_time('timestamp')).']['.$id.'] '.$content;
+    $log[] = '['.current_time('mysql').']['.$id.'] '.$content;
     update_option('wwa_log', $log);
 }
 
@@ -119,9 +170,8 @@ function wwa_delete_user($user_id){
     $res_id = wwa_generate_random_string(5);
 
     $user_data = get_userdata($user_id);
-    $all_user_meta = wwa_get_option("user_id");
-    $user_key = "";
-    wwa_add_log($res_id, "Delete user => \"".$user_data->user_login."\"");
+    $all_user_meta = wwa_get_option('user_id');
+    $user_key = '';
 
     // Delete user meta
     foreach($all_user_meta as $user => $id){
@@ -133,26 +183,26 @@ function wwa_delete_user($user_id){
     }
 
     // Delete credentials
-    $all_credentials_meta = json_decode(wwa_get_option("user_credentials_meta"), true);
-    $all_credentials = json_decode(wwa_get_option("user_credentials"), true);
+    $all_credentials_meta = json_decode(wwa_get_option('user_credentials_meta'), true);
+    $all_credentials = json_decode(wwa_get_option('user_credentials'), true);
     foreach($all_credentials_meta as $credential => $meta){
-        if($user_key === $meta["user"]){
+        if($user_key === $meta['user']){
             wwa_add_log($res_id, "Delete credential => \"".$credential."\"");
             unset($all_credentials_meta[$credential]);
             unset($all_credentials[$credential]);
         }
     }
-    wwa_update_option("user_id", $all_user_meta);
-    wwa_update_option("user_credentials_meta", json_encode($all_credentials_meta));
-    wwa_update_option("user_credentials", json_encode($all_credentials));
-    wwa_add_log($res_id, "Done");
+    wwa_update_option('user_id', $all_user_meta);
+    wwa_update_option('user_credentials_meta', json_encode($all_credentials_meta));
+    wwa_update_option('user_credentials', json_encode($all_credentials));
+    wwa_add_log($res_id, "Deleted user => \"".$user_data->user_login."\"");
 }
 add_action('delete_user', 'wwa_delete_user');
 
 // Add CSS and JS in login page
 function wwa_login_js(){
     $wwa_not_allowed = false;
-    if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
     wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
@@ -162,6 +212,7 @@ function wwa_login_js(){
         'admin_url' => admin_url(),
         'usernameless' => (wwa_get_option('usernameless_login') === false ? 'false' : wwa_get_option('usernameless_login')),
         'remember_me' => (wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me')),
+        'email_login' => (wwa_get_option('email_login') === false ? 'false' : wwa_get_option('email_login')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
         'webauthn_only' => ($first_choice === 'webauthn' && !$wwa_not_allowed) ? 'true' : 'false',
         'i18n_1' => __('Auth', 'wp-webauthn'),
@@ -218,6 +269,9 @@ function wwa_create_onetime_login_url($source, $user){
         'wwa_token' => urlencode($key),
         'wwa_user' => urlencode($user),
     ), admin_url('admin-ajax.php'));
+    $expire = intval(wwa_get_option('magic_link_expire')) * 60;
+    wwa_add_timed_key_vals('otlu_'.$user, $key, $expire);
+    wwa_add_log(wwa_generate_random_string(5), 'one_time_link: One-time login URL "'.$url.'" created for user "'.$user.'", usage => "'.$source.'", expire => "'.date('Y-m-d H:i:s', current_time('timestamp') + $expire).'"');
     return $url;
 }
 
@@ -245,6 +299,8 @@ function wwa_new_user_notification_email($wp_new_user_notification_email, $user,
         $mail_content = str_replace('{%expiretime%}', wwa_get_option('magic_link_expire'), $mail_content);
         $mail_content = str_replace('{%sitename%}', get_bloginfo('name'), $mail_content);
         $mail_content = str_replace('{%username%}', $user_login, $mail_content);
+        $mail_content = str_replace('{%generatedtime%}', current_time('mysql'), $mail_content);
+        $mail_content = str_replace('{%generatedby%}', __('registration'), $mail_content);
 
         $mail_content = str_replace('{%loginurl%}', wwa_create_onetime_login_url('register', $user_login), $mail_content);
 
@@ -289,6 +345,7 @@ if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_rese
     add_action('login_init', 'wwa_disable_lost_password');
     add_filter('lost_password_html_link', 'wwa_handle_lost_password_html_link');
     add_filter('show_password_fields', 'wwa_handle_password');
+    add_filter('allow_password_reset', 'wwa_handle_password');
 }
 
 // Show a notice in admin pages
@@ -431,7 +488,7 @@ function wwa_check_ssl() {
 // Check user privileges
 function wwa_validate_privileges() {
     $user = wp_get_current_user();
-    $allowed_roles = array( 'administrator' );
+    $allowed_roles = array('administrator');
     if(array_intersect($allowed_roles, $user->roles)){
         return true;
     }

@@ -35,8 +35,8 @@ function wwa_init_data(){
         // Init
         $site_domain = parse_url(site_url(), PHP_URL_HOST);
         $wwa_init_options = array(
-            'user_credentials' => "{}",
-            'user_credentials_meta' => "{}",
+            'user_credentials' => '{}',
+            'user_credentials_meta' => '{}',
             'user_id' => array(),
             'first_choice' => 'true',
             'website_name' => get_bloginfo('name'),

@@ -223,7 +223,7 @@ if($wwa_v_el === false){
     <fieldset>
         <label><input type="radio" name="email_login" value="true" <?php if($wwa_v_el === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wp-webauthn");?></label><br>
         <label><input type="radio" name="email_login" value="false" <?php if($wwa_v_el === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wp-webauthn");?></label><br>
-        <p class="description"><?php _e('Allows logging in with an email address. <strong>Note that if enabled attackers may be able to brute force the correspondence between the email address and the user.</strong>');?></p>
+        <p class="description"><?php _e('Allow to login with email addresses. <strong>Note that if enabled attackers may be able to brute force the correspondences between email addresses and users.</strong>');?></p>
     </fieldset>
 </td>
 </tr>
@@ -265,7 +265,7 @@ if($wwa_v_at === false){
 ?>
 <select name="allow_authenticator_type" id="allow_authenticator_type">
     <option value="none"<?php if($wwa_v_at === 'none'){?> selected<?php }?>><?php _e('Any', 'wp-webauthn');?></option>
-    <option value="platform"<?php if($wwa_v_at === 'platform'){?> selected<?php }?>><?php _e('Platform (e.g. built-in fingerprint sensors)', 'wp-webauthn');?></option>
+    <option value="platform"<?php if($wwa_v_at === 'platform'){?> selected<?php }?>><?php _e('Platform (e.g. Passkey or built-in sensors)', 'wp-webauthn');?></option>
     <option value="cross-platform"<?php if($wwa_v_at === 'cross-platform'){?> selected<?php }?>><?php _e('Roaming (e.g. USB security keys)', 'wp-webauthn');?></option>
 </select>
 <p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type when authenticating and user can only register authenticators of selected type.', 'wp-webauthn');?></p>
@@ -288,7 +288,7 @@ if($wwa_v_pr === false){
     <option value="admin"<?php if($wwa_v_pr === 'admin'){?> selected<?php }?>><?php _e('Everyone except administrators', 'wp-webauthn');?></option>
     <option value="all"<?php if($wwa_v_pr === 'all'){?> selected<?php }?>><?php _e('Everyone', 'wp-webauthn');?></option>
 </select>
-<p class="description"><?php _e('Disable the "Set new password" and "Forgot password" features, and remove the "Forgot password" link on the login page. This may be useful when enabling "WebAuthn Only".<br>If "Everyone except administrators" is selected, any user without the "Edit user" permission will be unable to modify their own password, but administrators with the "Edit user" permission will be able to edit the passwords of all users.', 'wp-webauthn');?></p>
+<p class="description"><?php _e('Disable the "Set new password" and "Forgot password" features, and remove the "Forgot password" link on the login page. This may be useful when enabling "WebAuthn Only".<br>If "Everyone except administrators" is selected, only administrators with the "Edit user" permission will be able to update passwords (for all users).', 'wp-webauthn');?></p>
 </td>
 </tr>
 <tr>
@@ -353,7 +353,7 @@ wp_editor(htmlspecialchars_decode($wwa_v_mt), 'wwa-mail-template', array(
 ));
 ?>
 </div>
-<p class="description"><?php _e('Email template used when sending one-time login links. Placeholders can be used to represent dynamic field.', 'wp-webauthn');?></p><details><summary class="wwa-summary"><?php _e('Placeholder list', 'wp-webauthn');?></summary><ul class="wwa-detailes"><?php _e('<li><code>{%username%}</code> will be replaced by the user\'s name</li><li><code>{%useremail%}</code> will be replaced by the user\'s email address</li><li><code>{%loginurl%}</code> will be replaced by the one-time login link URL</li><li><code>{%expiretime%}</code> will be replaced by the duration of validity of one-time login links (in minute)</li><li><code>{%sitename%}</code> will be replaced by the site\'s name</li><li><code>{%homeurl%}</code> will be replaced by the site\'s home URL</li>', 'wp-webauthn');?></ul></details>
+<p class="description"><?php _e('Email template used when sending one-time login links. Placeholders can be used to represent dynamic field.', 'wp-webauthn');?></p><details><summary class="wwa-summary"><?php _e('Placeholder list', 'wp-webauthn');?></summary><ul class="wwa-detailes"><?php _e('<li><code>{%username%}</code> will be replaced by the user\'s name</li><li><code>{%useremail%}</code> will be replaced by the user\'s email address</li><li><code>{%loginurl%}</code> will be replaced by the one-time login link URL</li><li><code>{%expiretime%}</code> will be replaced by the duration of validity of one-time login links (in minute)</li><li><code>{%sitename%}</code> will be replaced by the site\'s name</li><li><code>{%homeurl%}</code> will be replaced by the site\'s home URL</li><li><code>{%generatedtime%}</code> will be replaced by the date and time the link is generated</li><li><code>{%generatedby%}</code> will be replaced by "registration" or the name of the browser that triggered the link generation</li>', 'wp-webauthn');?></ul></details>
 </td>
 </tr>
 <tr>
@@ -373,7 +373,7 @@ if($wwa_v_aur === false){
     <option value="login"<?php if($wwa_v_aur === 'login'){?> selected<?php }?>><?php _e('Log user in and redirect to user\'s profile', 'wp-webauthn');?></option>
     <option value="mail"<?php if($wwa_v_aur === 'mail'){?> selected<?php }?>><?php _e('Send user an one-time login link via email', 'wp-webauthn');?></option>
 </select>
-<p class="description"><?php _e('What to do when a new user registered.<br>By default, new users have to login manually after registration. If "WebAuthn Only" is enabled, they will not be able to login.<br>When using "Log user in", new users will be logged in automatically and redirected to their profile settings so that they can set up WebAuthn authenticators.<br>When using "Send login link", an one-time login link will be automatically sent to the user\'s emaill adress. The user can login using the link for one time. This will replace the default email to be sent by WordPress.<br><strong>"Send login link" will work even if "Allow user login by login link via email" is disabled.</strong>', 'wp-webauthn');?></p>
+<p class="description"><?php _e('What to do when a new user registered.<br>By default, new users have to login manually after registration. If "WebAuthn Only" is enabled, they will not be able to login.<br>When using "Log user in", new users will be logged in automatically and redirected to their profile settings so that they can set up WebAuthn authenticators.<br>When using "Send login link", an one-time login link will be automatically sent to the user\'s emaill adress. This will replace the default email to be sent by WordPress.<br><strong>"Send login link" will work even if "Allow user login by login link via email" is disabled.</strong>', 'wp-webauthn');?></p>
 </td>
 </tr>
 <tr>

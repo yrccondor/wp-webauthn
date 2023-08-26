@@ -555,6 +555,7 @@ function wwa_ajax_auth_start(){
         $user_key = "";
         $usernameless_flag = false;
         $user_icon = null;
+        $user_exist = true;
         if($wwa_get["type"] === "test"){
             if(isset($wwa_get["usernameless"])){
                 if($wwa_get["usernameless"] !== "true"){
@@ -608,6 +609,9 @@ function wwa_ajax_auth_start(){
             // Not testing, create a fake user ID if the user does not exist or haven't bound any authenticator yet
             if(isset($wwa_get["user"]) && $wwa_get["user"] !== ""){
                 $wp_user = wwa_get_user($wwa_get["user"]);
+                if(wwa_get_option("email_login") === "true" && is_email($wwa_get["user"])){
+                    wwa_add_log($res_id, "ajax_auth: email_login => \"true\", trying to find user by email address \"".$wwa_get["user"]."\"");
+                }
                 if($wp_user !== false){
                     $user_info = $wp_user;
                     $user_icon = get_avatar_url($user_info->user_email, array("scheme" => "https"));
@@ -615,6 +619,7 @@ function wwa_ajax_auth_start(){
                     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
                         wwa_add_log($res_id, "ajax_auth: User not initialized, initialize");
                         $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
+                        $user_exist = false;
                     }else{
                         $user_key = wwa_get_option("user_id")[$user_info->user_login];
                     }
@@ -623,8 +628,9 @@ function wwa_ajax_auth_start(){
                     $user_info->user_login = $wwa_get["user"];
                     $user_info->display_name = $wwa_get["user"];
                     $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
-                    wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$wwa_get["user"]."\"");
                     wwa_add_log($res_id, "ajax_auth: User not exists, create a fake id");
+                    wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$wwa_get["user"]."\"");
+                    $user_exist = false;
                 }
             }else{
                 if(wwa_get_option("usernameless_login") === "true"){
@@ -710,6 +716,7 @@ function wwa_ajax_auth_start(){
         // Save for future use
         wwa_set_temp_val("pkcco_auth", base64_encode(serialize($publicKeyCredentialRequestOptions)), $client_id);
         wwa_set_temp_val("auth_type", $wwa_get["type"], $client_id);
+        wwa_set_temp_val("user_exist", $user_exist, $client_id);
         if(!$usernameless_flag){
             wwa_set_temp_val("user_name_auth", $user_info->user_login, $client_id);
         }
@@ -778,7 +785,8 @@ function wwa_ajax_auth(){
             "auth_type" => wwa_get_temp_val("auth_type", $client_id),
             "usernameless_auth" => wwa_get_temp_val("usernameless_auth", $client_id),
             "user_auth" => wwa_get_temp_val("user_auth", $client_id),
-            "user_name_auth" => wwa_get_temp_val("user_name_auth", $client_id)
+            "user_name_auth" => wwa_get_temp_val("user_name_auth", $client_id),
+            "user_exist" => wwa_get_temp_val("user_exist", $client_id),
         );
 
         if($temp_val["auth_type"] === false || $wwa_post["type"] !== $temp_val["auth_type"]){
@@ -790,7 +798,7 @@ function wwa_ajax_auth(){
         if($wwa_post["remember"] !== "true" && $wwa_post["remember"] !== "false"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.", $client_id);
-        }else if(wwa_get_option('remember_me') !== 'true' && $wwa_post["remember"] === "true"){
+        }else if(wwa_get_option("remember_me") !== "true" && $wwa_post["remember"] === "true"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.", $client_id);
         }
@@ -958,81 +966,86 @@ function wwa_ajax_auth(){
 
         wwa_add_log($res_id, "ajax_auth_response: data => ".base64_decode($_POST["data"]));
 
-        $rpEntity = new PublicKeyCredentialRpEntity(
-            wwa_get_option("website_name"),
-            wwa_get_option("website_domain")
-        );
-
-        $server = new Server(
-            $rpEntity,
-            $publicKeyCredentialSourceRepository,
-            null
-        );
-
-        // Allow to bypass scheme verification when under localhost
-        $current_domain = wwa_get_option("website_domain");
-        if($current_domain === "localhost" || $current_domain === "127.0.0.1"){
-            $server->setSecuredRelyingPartyId([$current_domain]);
-            wwa_add_log($res_id, "ajax_auth_response: Localhost, bypass HTTPS check");
-        }
-
-        // Verify
-        try {
-            $server->loadAndCheckAssertionResponse(
-                base64_decode($_POST["data"]),
-                unserialize(base64_decode($temp_val["pkcco_auth"])),
-                $userEntity,
-                $serverRequest
+        if($temp_val["user_exist"]){
+            $rpEntity = new PublicKeyCredentialRpEntity(
+                wwa_get_option("website_name"),
+                wwa_get_option("website_domain")
             );
 
-            wwa_add_log($res_id, "ajax_auth_response: Challenge verified");
+            $server = new Server(
+                $rpEntity,
+                $publicKeyCredentialSourceRepository,
+                null
+            );
 
-            // Success
-            $publicKeyCredentialSourceRepository->updateCredentialLastUsed(base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]));
-            if(!($wwa_post["type"] === "test" && current_user_can("read"))){
-                // Log user in
-                if (!is_user_logged_in()) {
-                    include("wwa-compatibility.php");
-
-                    if(!$usernameless_flag){
-                        $user_login = $temp_val["user_name_auth"];
-                    }else{
-                        $user_login = $user_login_name;
-                    }
-
-                    $user = get_user_by("login", $user_login);
-
-                    if($user_info === false){
-                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong user ID, exit");
-                        wwa_wp_die("Something went wrong.");
-                    }
-
-                    $user_id = $user->ID;
-
-                    wwa_add_log($res_id, "ajax_auth_response: Log in user => \"".$user_login."\"");
-
-                    $remember_flag = false;
-
-                    if ($wwa_post["remember"] === "true" && (wwa_get_option("remember_me") === false ? "false" : wwa_get_option("remember_me")) !== "false") {
-                        $remember_flag = true;
-                        wwa_add_log($res_id, "ajax_auth_response: Remember login for 14 days");
-                    }
-
-                    wp_set_current_user($user_id, $user_login);
-                    if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on"){
-                        wp_set_auth_cookie($user_id, $remember_flag, true);
-                    }else{
-                        wp_set_auth_cookie($user_id, $remember_flag);
-                    }
-                    do_action("wp_login", $user_login, $user);
-                }
+            // Allow to bypass scheme verification when under localhost
+            $current_domain = wwa_get_option("website_domain");
+            if($current_domain === "localhost" || $current_domain === "127.0.0.1"){
+                $server->setSecuredRelyingPartyId([$current_domain]);
+                wwa_add_log($res_id, "ajax_auth_response: Localhost, bypass HTTPS check");
             }
-            echo "true";
-        }catch(\Throwable $exception){
-            // Failed to verify
-            wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$exception->getMessage());
-            wwa_add_log($res_id, wwa_generate_call_trace($exception));
-            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge not verified, exit");
+
+            // Verify
+            try {
+                $server->loadAndCheckAssertionResponse(
+                    base64_decode($_POST["data"]),
+                    unserialize(base64_decode($temp_val["pkcco_auth"])),
+                    $userEntity,
+                    $serverRequest
+                );
+
+                wwa_add_log($res_id, "ajax_auth_response: Challenge verified");
+
+                // Success
+                $publicKeyCredentialSourceRepository->updateCredentialLastUsed(base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]));
+                if(!($wwa_post["type"] === "test" && current_user_can("read"))){
+                    // Log user in
+                    if (!is_user_logged_in()) {
+                        include("wwa-compatibility.php");
+
+                        if(!$usernameless_flag){
+                            $user_login = $temp_val["user_name_auth"];
+                        }else{
+                            $user_login = $user_login_name;
+                        }
+
+                        $user = get_user_by("login", $user_login);
+
+                        if($user_info === false){
+                            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong user ID, exit");
+                            wwa_wp_die("Something went wrong.");
+                        }
+
+                        $user_id = $user->ID;
+
+                        wwa_add_log($res_id, "ajax_auth_response: Log in user => \"".$user_login."\"");
+
+                        $remember_flag = false;
+
+                        if ($wwa_post["remember"] === "true" && (wwa_get_option("remember_me") === false ? "false" : wwa_get_option("remember_me")) !== "false") {
+                            $remember_flag = true;
+                            wwa_add_log($res_id, "ajax_auth_response: Remember login for 14 days");
+                        }
+
+                        wp_set_current_user($user_id, $user_login);
+                        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on"){
+                            wp_set_auth_cookie($user_id, $remember_flag, true);
+                        }else{
+                            wp_set_auth_cookie($user_id, $remember_flag);
+                        }
+                        do_action("wp_login", $user_login, $user);
+                    }
+                }
+                echo "true";
+            }catch(\Throwable $exception){
+                // Failed to verify
+                wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$exception->getMessage());
+                wwa_add_log($res_id, wwa_generate_call_trace($exception));
+                wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge not verified, exit");
+                wwa_wp_die("Something went wrong.", $client_id);
+            }
+        }else{
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)User not exists or has no authenticator, exit without verification");
             wwa_wp_die("Something went wrong.", $client_id);
         }
 
@@ -1241,4 +1254,65 @@ function wwa_ajax_clear_log(){
     exit;
 }
 add_action("wp_ajax_wwa_clear_log" , "wwa_ajax_clear_log");
+
+// Login by one time link
+function wwa_ajax_opl_login(){
+    $res_id = wwa_generate_random_string(5);
+    nocache_headers();
+
+    // Sanitize the input
+    $wwa_get = array();
+    if(isset($_GET["wwa_user"])){
+        $wwa_get["user"] = sanitize_text_field($_GET["wwa_user"]);
+    }else{
+        wp_safe_redirect(wp_login_url("", true));
+        exit;
+    }
+    if(isset($_GET["wwa_token"])){
+        $wwa_get["token"] = sanitize_text_field($_GET["wwa_token"]);
+    }else{
+        wp_safe_redirect(wp_login_url("", true));
+        exit;
+    }
+
+    // If user is already logged in, redirect
+    if(is_user_logged_in()){
+        $user = wp_get_current_user();
+        if($wwa_get["user"] !== $user->user_login){
+            wp_safe_redirect(wp_login_url("", true));
+            exit;
+        }
+        wp_safe_redirect(admin_url());
+        exit;
+    }
+
+    // Verify token
+    $token = wwa_get_timed_key_vals("otlu_".$wwa_get["user"]);
+    if($token === false || $token !== $wwa_get["token"]){
+        wwa_add_log($res_id, "one_time_link: (ERROR)Token for user \"".$wwa_get["user"]."\" is not verified, exit");
+        wp_safe_redirect(wp_login_url());
+        exit;
+    }
+
+    $user = get_user_by("login", $wwa_get["user"]);
+    if(!$user){
+        wwa_add_log($res_id, "one_time_link: (ERROR)User \"".$wwa_get["user"]."\" not found, exit");
+        wp_safe_redirect(wp_login_url());
+    }else{
+        // Log the user in
+        wp_set_current_user($user->ID, $wwa_get["user"]);
+        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on"){
+            wp_set_auth_cookie($user->ID, false, true);
+        }else{
+            wp_set_auth_cookie($user->ID, false);
+        }
+        do_action("wp_login", $wwa_get["user"], $user);
+        wwa_del_timed_key_vals("otlu_".$wwa_get["user"]);
+        wwa_add_log($res_id, "one_time_link: Log user \"".$wwa_get["user"]."\" in by one time login link");
+        wp_safe_redirect(admin_url());
+    }
+    exit;
+}
+add_action("wp_ajax_wwa_opl_login" , "wwa_ajax_opl_login");
+add_action("wp_ajax_nopriv_wwa_opl_login" , "wwa_ajax_opl_login");
 ?>
