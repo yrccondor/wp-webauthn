@@ -1,7 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form').length > 0) {
+    if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form, #resetpassform').length > 0) {
         return;
     }
     if (document.getElementById('loginform').getAttribute('name') !== 'loginform') {
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             wwa_dom('user_login', (dom) => { dom.focus() }, 'id');
             wwa_dom('wp-submit', (dom) => { dom.disabled = true }, 'id');
         }
-        if (document.querySelectorAll('#lostpasswordform, #registerform').length > 0) {
+        if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form, #resetpassform').length > 0) {
             return;
         }
         wwa_dom('user_pass', (dom) => { dom.disabled = false }, 'id');
