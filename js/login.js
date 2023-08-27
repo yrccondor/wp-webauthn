@@ -74,9 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form, #resetpassform').length > 0) {
         return;
     }
-    if (document.getElementById('loginform').getAttribute('name') !== 'loginform') {
+    if (document.getElementById('loginform') === null || document.getElementById('loginform').getAttribute('name') !== 'loginform') {
         return;
     }
+    document.addEventListener('keydown', parseKey, false);
     let button_check = document.createElement('button');
     button_check.id = 'wp-webauthn-check';
     button_check.type = 'button';
@@ -139,11 +140,9 @@ window.onresize = function () {
     }
 }
 
-document.addEventListener('keydown', parseKey, false);
-
 function parseKey(event) {
-    if (wwaSupported && document.getElementById('wp-webauthn-check').style.display === 'block') {
-        if (event.keyCode === 13) {
+    if (event.keyCode === 13) {
+        if (wwaSupported && document.getElementById('wp-webauthn-check').style.display === 'block') {
             event.preventDefault();
             wwa_dom('wp-webauthn-check', (dom) => { dom.click() }, 'id');
         }
@@ -161,7 +160,6 @@ function base64url2base64(input) {
     }
     return input;
 }
-
 
 function arrayToBase64String(a) {
     return btoa(String.fromCharCode(...a));

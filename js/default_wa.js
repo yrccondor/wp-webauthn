@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form, #resetpassform').length > 0) {
         return;
     }
-    if (document.getElementById('loginform').getAttribute('name') !== 'loginform') {
+    if (document.getElementById('loginform') === null || document.getElementById('loginform').getAttribute('name') !== 'loginform') {
         return;
     }
     window.onload = () => {

@@ -1290,14 +1290,20 @@ function wwa_ajax_opl_login(){
     $token = wwa_get_timed_key_vals("otlu_".$wwa_get["user"]);
     if($token === false || $token !== $wwa_get["token"]){
         wwa_add_log($res_id, "one_time_link: (ERROR)Token for user \"".$wwa_get["user"]."\" is not verified, exit");
-        wp_safe_redirect(wp_login_url());
+        wp_safe_redirect(add_query_arg(array(
+            'action' => 'wwa_otl',
+            'invalid' => 'true',
+        ), wp_login_url()));
         exit;
     }
 
     $user = get_user_by("login", $wwa_get["user"]);
     if(!$user){
         wwa_add_log($res_id, "one_time_link: (ERROR)User \"".$wwa_get["user"]."\" not found, exit");
-        wp_safe_redirect(wp_login_url());
+        wp_safe_redirect(add_query_arg(array(
+            'action' => 'wwa_otl',
+            'invalid' => 'true',
+        ), wp_login_url()));
     }else{
         // Log the user in
         wp_set_current_user($user->ID, $wwa_get["user"]);
