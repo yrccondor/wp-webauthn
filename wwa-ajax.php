@@ -1074,7 +1074,7 @@ function wwa_ajax_authenticator_list(){
     wwa_init_new_options();
 
     if(!current_user_can("read")){
-        wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Missing parameters, exit");
+        wwa_add_log($res_id, "ajax_authenticator_list: (ERROR)Missing parameters, exit");
         wwa_wp_die("Something went wrong.");
     }
 
@@ -1083,19 +1083,19 @@ function wwa_ajax_authenticator_list(){
     if(isset($_GET["user_id"])){
         $user_id = intval(sanitize_text_field($_GET["user_id"]));
         if($user_id <= 0){
-            wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Wrong parameters, exit");
+            wwa_add_log($res_id, "ajax_authenticator_list: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.");
         }
 
         if($user_info->ID !== $user_id){
             if(!current_user_can("edit_user", $user_id)){
-                wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)No permission, exit");
+                wwa_add_log($res_id, "ajax_authenticator_list: (ERROR)No permission, exit");
                 wwa_wp_die("Something went wrong.");
             }
             $user_info = get_user_by('id', $user_id);
 
             if($user_info === false){
-                wwa_add_log($res_id, "ajax_ajax_authenticator_list: (ERROR)Wrong user ID, exit");
+                wwa_add_log($res_id, "ajax_authenticator_list: (ERROR)Wrong user ID, exit");
                 wwa_wp_die("Something went wrong.");
             }
         }
@@ -1105,7 +1105,6 @@ function wwa_ajax_authenticator_list(){
 
     $user_key = "";
     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
-        wwa_add_log($res_id, "ajax_ajax_authenticator_list: Empty authenticator list");
         // The user haven't bound any authenticator, return empty list
         echo "[]";
         exit;

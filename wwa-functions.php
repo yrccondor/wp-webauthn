@@ -573,19 +573,21 @@ function wwa_add_otl_form() {
         $error = false;
 
         if(isset($_POST['user_login']) && trim($_POST['user_login']) !== ''){
-            $user = wwa_get_user(sanitize_text_field(trim($_POST['user_login'])));
-            if($user){
-                $user_login = stripslashes($user->user_login);
-                $user_email = stripslashes($user->user_email);
+            if(wwa_get_option('magic_link') === 'true'){
+                $user = wwa_get_user(sanitize_text_field(trim($_POST['user_login'])));
+                if($user){
+                    $user_login = stripslashes($user->user_login);
+                    $user_email = stripslashes($user->user_email);
 
-                $mail_content = wwa_build_otl_mail_content($user_email, $user_login, wwa_create_onetime_login_url('login', $user_login), wwa_get_current_browser());
+                    $mail_content = wwa_build_otl_mail_content($user_email, $user_login, wwa_create_onetime_login_url('login', $user_login), wwa_get_current_browser());
 
-                if(!wp_mail($user->user_email, wp_specialchars_decode(sprintf(__('[%s] Please login following the one time link', 'wp-webauthn'), get_bloginfo('name'))), $mail_content, '')){
-                    $errors->add(
-                        'retrieve_password_email_failure',
-                        __('<strong>Error:</strong> The email could not be sent. Your site may not be correctly configured to send emails.', 'wp-webauthn')
-                    );
-                    $error = true;
+                    if(!wp_mail($user->user_email, wp_specialchars_decode(sprintf(__('[%s] Please login following the one time link', 'wp-webauthn'), get_bloginfo('name'))), $mail_content, '')){
+                        $errors->add(
+                            'opl_email_failure',
+                            __('<strong>Error:</strong> The email could not be sent. Your site may not be correctly configured to send emails.', 'wp-webauthn')
+                        );
+                        $error = true;
+                    }
                 }
             }
         }else{
