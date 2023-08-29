@@ -32,62 +32,8 @@ function wwa_wp_die($message = '', $client_id = false){
     wp_die($message);
 }
 
-// Add a timed key-val by name
-function wwa_add_timed_key_vals($name, $val, $expire){
-    $data = get_option('wwa_timed_key_vals');
-    if(!$data){
-        $current = array();
-        $current[$name] = array(
-            'val' => serialize($val),
-            'expire' => time() + $expire
-        );
-        update_option('wwa_timed_key_vals', $current);
-        return;
-    }else{
-        $current = $data;
-    }
-    // Remove expired key-vals
-    $current = array_filter($current, function($v) {
-        return $v['expire'] >= time();
-    });
-    $current[$name] = array(
-        'val' => serialize($val),
-        'expire' => time() + $expire
-    );
-    update_option('wwa_timed_key_vals', $current);
-}
-
-// Get a timed key-val by name
-function wwa_get_timed_key_vals($name){
-    $data = get_option('wwa_timed_key_vals');
-    if(!$data){
-        return false;
-    }else{
-        $current = $data;
-    }
-    // Remove expired key-vals
-    $current = array_filter($current, function($v) {
-        return $v['expire'] >= time();
-    });
-    update_option('wwa_timed_key_vals', $current);
-    if(isset($current[$name])){
-        return unserialize($current[$name]['val']);
-    }
-    return false;
-}
-
-// Remove a timed key-val by name
-function wwa_del_timed_key_vals($name){
-    $data = get_option('wwa_timed_key_vals');
-    if($data && isset($data[$name])){
-        unset($data[$name]);
-        update_option('wwa_timed_key_vals', $data);
-    }
-}
-
 // Init data for new options
 function wwa_init_new_options(){
-    include('wwa_default_mail_template.php');
     if(wwa_get_option('allow_authenticator_type') === false){
         wwa_update_option('allow_authenticator_type', 'none');
     }
@@ -105,15 +51,6 @@ function wwa_init_new_options(){
     }
     if(wwa_get_option('after_user_registration') === false){
         wwa_update_option('after_user_registration', 'none');
-    }
-    if(wwa_get_option('magic_link') === false){
-        wwa_update_option('magic_link', 'false');
-    }
-    if(wwa_get_option('magic_link_expire') === false){
-        wwa_update_option('magic_link_expire', '3');
-    }
-    if(wwa_get_option('mail_template') === false){
-        wwa_update_option('mail_template', $wwa_default_mail_template);
     }
 }
 
@@ -263,73 +200,25 @@ function wwa_base64_decode_url($string) {
     return base64_decode(str_replace(['-', '_'], ['+', '/'], $string));
 }
 
-// Create one-time login URL
-function wwa_create_onetime_login_url($source, $user){
-    $key = wwa_base64_encode_url(wp_generate_password(72, true, true));
-    $url = add_query_arg(array(
-        'action' => 'wwa_opl_login',
-        'wwa_token' => urlencode($key),
-        'wwa_user' => urlencode($user),
-    ), admin_url('admin-ajax.php'));
-    $expire = intval(wwa_get_option('magic_link_expire')) * 60;
-    wwa_add_timed_key_vals('otlu_'.$user, $key, $expire);
-    wwa_add_log(wwa_generate_random_string(5), 'one_time_link: One-time login URL "'.$url.'" created for user "'.$user.'", usage => "'.$source.'", expire => "'.date('Y-m-d H:i:s', current_time('timestamp') + $expire).'"');
-    return $url;
-}
-
-function wwa_handle_user_register_auto_login($user_id){
+function wwa_handle_user_register($user_id){
+    if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all'){
+        update_user_option($user_id, 'default_password_nag', false);
+    }
     if(wwa_get_option('after_user_registration') === 'login'){
         wp_set_current_user($user_id);
         wp_set_auth_cookie($user_id);
         wp_redirect(admin_url('profile.php?wwa_registered=true#wwa-webauthn-start'));
-        exit();
+        exit;
     }
 }
-if(wwa_get_option('after_user_registration') === 'login'){
-    add_action('user_register', 'wwa_handle_user_register_auto_login');
-}
-
-// Build email contents from the template
-function wwa_build_otl_mail_content($user_email, $user_login, $link, $generated_by){
-    $mail_content = htmlspecialchars_decode(wwa_get_option('mail_template'));
-    $mail_content = str_replace('{%useremail%}', $user_email, $mail_content);
-    $mail_content = str_replace('{%homeurl%}', home_url(), $mail_content);
-    $mail_content = str_replace('{%expiretime%}', wwa_get_option('magic_link_expire'), $mail_content);
-    $mail_content = str_replace('{%sitename%}', get_bloginfo('name'), $mail_content);
-    $mail_content = str_replace('{%username%}', $user_login, $mail_content);
-    $mail_content = str_replace('{%generatedtime%}', current_time('mysql'), $mail_content);
-    $mail_content = str_replace('{%generatedby%}', $generated_by, $mail_content);
-
-    $mail_content = str_replace('{%loginurl%}', $link, $mail_content);
-
-    return $mail_content;
-}
-
-// Send magic link after user registration
-function wwa_new_user_notification_email($wp_new_user_notification_email, $user, $blogname) {
-    if(wwa_get_option('after_user_registration') === 'mail'){
-        $user_login = stripslashes($user->user_login);
-        $user_email = stripslashes($user->user_email);
-
-        $mail_content = wwa_build_otl_mail_content($user_email, $user_login, wwa_create_onetime_login_url('register', $user_login), __('registration', 'wp-webauthn'));
-
-        $wp_new_user_notification_email['subject'] = sprintf(__('[%s] Please login following the one time link', 'wp-webauthn'), $blogname);
-        $wp_new_user_notification_email['headers'] = array('Content-Type: text/html; charset=UTF-8');
-        $wp_new_user_notification_email['message'] = $mail_content;
-    }
-
-    return $wp_new_user_notification_email;
-}
-if(wwa_get_option('after_user_registration') === 'mail'){
-    add_filter('wp_new_user_notification_email', 'wwa_new_user_notification_email', 10, 3);
-}
+add_action('register_new_user', 'wwa_handle_user_register');
 
 // Disable Password Reset URL & Redirect
 function wwa_disable_lost_password(){
     if((wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all') && isset( $_GET['action'] )){
         if(in_array($_GET['action'], array('lostpassword', 'retrievepassword', 'resetpass', 'rp'))){
             wp_redirect(wp_login_url(), 302);
-            exit();
+            exit;
         }
     }
 }
@@ -515,169 +404,4 @@ function wwa_get_user($username) {
         return get_user_by('login', $username);
     }
 }
-
-// Get the name of the browser from UA (and IP)
-function wwa_get_current_browser(){
-    $u_agent = $_SERVER['HTTP_USER_AGENT'];
-    if(preg_match('/linux/i', $u_agent)){
-        $platform = 'Linux';
-    }elseif(preg_match('/macintosh|mac os x/i', $u_agent)){
-        $platform = 'Mac OS';
-    }elseif(preg_match('/windows|win32/i', $u_agent)){
-        $platform = 'Windows';
-    }else{
-        $platform = '';
-    }
-
-    if(preg_match('/MSIE/i', $u_agent) && !preg_match('/Opera/i', $u_agent)){
-        $bname = 'Internet Explorer';
-    }elseif(strpos($u_agent, 'Firefox')){
-        $bname = 'Mozilla Firefox';
-    }elseif(strpos($u_agent, 'Edge') || strpos($u_agent, 'Edg/')){
-        $bname = 'Google Chrome';
-    }elseif(strpos($u_agent, 'Chrome')){
-        $bname = 'Google Chrome';
-    }elseif(strpos($u_agent, 'Safari')){
-        $bname = 'Apple Safari';
-    }elseif(strpos($u_agent, 'Opera') || strpos($u_agent, 'OPR/')){
-        $bname = 'Opera';
-    }elseif(preg_match('/Netscape/i',$u_agent)){
-        $bname = 'Netscape';
-    }else{
-        $bname = '';
-    }
-
-    $name = $bname.' / '.$platform;
-
-    if($platform === ''){
-        $name = $bname;
-    }
-    if($bname === ''){
-        $name = __('Unknown Browser');
-    }
-
-    if(!is_user_logged_in()){
-        $requester_ip = $_SERVER['REMOTE_ADDR'];
-        if($requester_ip){
-            $name .= ' ('.$requester_ip.')';
-        }
-    }
-    return $name;
-}
-
-// Display a custom form for requesting the one time login link
-function wwa_add_otl_form() {
-    $http_post = ('POST' === $_SERVER['REQUEST_METHOD']);
-    $errors = new WP_Error();
-    if ($http_post) {
-        $error = false;
-
-        if(isset($_POST['user_login']) && trim($_POST['user_login']) !== ''){
-            if(wwa_get_option('magic_link') === 'true'){
-                $user = wwa_get_user(sanitize_text_field(trim($_POST['user_login'])));
-                if($user){
-                    $user_login = stripslashes($user->user_login);
-                    $user_email = stripslashes($user->user_email);
-
-                    $mail_content = wwa_build_otl_mail_content($user_email, $user_login, wwa_create_onetime_login_url('login', $user_login), wwa_get_current_browser());
-
-                    if(!wp_mail($user->user_email, wp_specialchars_decode(sprintf(__('[%s] Please login following the one time link', 'wp-webauthn'), get_bloginfo('name'))), $mail_content, '')){
-                        $errors->add(
-                            'opl_email_failure',
-                            __('<strong>Error:</strong> The email could not be sent. Your site may not be correctly configured to send emails.', 'wp-webauthn')
-                        );
-                        $error = true;
-                    }
-                }
-            }
-        }else{
-            wp_safe_redirect(add_query_arg(array(
-                'action' => 'wwa_otl',
-                'empty' => 'true',
-            ), wp_login_url()));
-        }
-        login_header(__('Request One Time Login Link', 'wp-webauthn'), '', $errors);
-        if(!$error){
-        ?>
-            <form name="lostpasswordform" id="lostpasswordform">
-                <p>
-                    <? _e('An email message is sent to the corresponding email address. Check your email box and follow the instruction.', 'wp-webauthn'); ?>
-                </p>
-            </form>
-        <?php }else{ ?>
-            <form name="lostpasswordform" id="lostpasswordform">
-                <p>
-                    <? _e('Email is not sent.', 'wp-webauthn'); ?>
-                </p>
-                <p class="submit">
-                    <a id="wp-submit" class="button button-primary button-large" href="<?php echo esc_url(add_query_arg(array('action' => 'wwa_otl'), wp_login_url())); ?>"><?php _e('Go Back', 'wp-webauthn'); ?></a>
-                </p>
-            </form>
-        <?php } ?>
-
-        <p id="nav">
-            <a href="<?php echo esc_url(wp_login_url()); ?>"><?php _e('Log in'); ?></a>
-            <?php
-            if(get_option('users_can_register')){
-                $registration_url = sprintf('<a href="%s">%s</a>', esc_url(wp_registration_url()), __('Register'));
-                echo esc_html(apply_filters('login_link_separator', ' | '));
-                echo apply_filters('register', $registration_url);
-            }
-            echo esc_html(apply_filters('login_link_separator', ' | '));
-            $html_link = sprintf('<a href="%s">%s</a>', esc_url(wp_lostpassword_url()), __('Lost your password?'));
-            echo apply_filters('lost_password_html_link', $html_link);
-            ?>
-        </p>
-        <?php
-        login_footer('user_login');
-        exit;
-    }
-
-    if(isset($_GET['invalid']) && $_GET['invalid'] === 'true'){
-        $errors->add('invalidkey', __('<strong>Error:</strong> Your one time login link appears to be invalid. Please request a new link below.', 'wp-webauthn'));
-    }
-    if(isset($_GET['empty']) && $_GET['empty'] === 'true'){
-        $errors->add('empty_username', __('<strong>Error:</strong> Please enter a username or email address.'));
-    }
-
-    login_header(__('Request One Time Login Link', 'wp-webauthn'), '<p class="message">'.__('Please enter your username or email address. You will receive an email message with a one time login link.', 'wp-webauthn').'</p>', $errors);
-    ?>
-
-    <?php if(wwa_get_option('magic_link') === 'true'){ ?>
-        <form name="lostpasswordform" id="lostpasswordform" action="<?php echo esc_url(add_query_arg(array('action' => 'wwa_otl'), wp_login_url())); ?>" method="post">
-            <p>
-                <label for="user_login"><?php _e( 'Username or Email Address' ); ?></label>
-                <input type="text" name="user_login" id="user_login" class="input" value="" size="20" autocapitalize="off" autocomplete="username" required="required">
-            </p>
-            <p class="submit">
-                <input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large" value="<?php esc_attr_e('Request Link', 'wp-webauthn'); ?>">
-            </p>
-        </form>
-    <?php }else{ ?>
-        <form name="lostpasswordform" id="lostpasswordform">
-            <p>
-                <? _e('You cannot create one time login links currently. Please contact the site administrator.', 'wp-webauthn'); ?>
-            </p>
-        </form>
-    <?php } ?>
-
-    <p id="nav">
-        <a href="<?php echo esc_url(wp_login_url()); ?>"><?php _e('Log in'); ?></a>
-        <?php
-        if(get_option('users_can_register')){
-            $registration_url = sprintf('<a href="%s">%s</a>', esc_url(wp_registration_url()), __('Register'));
-            echo esc_html(apply_filters('login_link_separator', ' | '));
-            echo apply_filters('register', $registration_url);
-        }
-        echo esc_html(apply_filters('login_link_separator', ' | '));
-        $html_link = sprintf('<a href="%s">%s</a>', esc_url(wp_lostpassword_url()), __('Lost your password?'));
-        echo apply_filters('lost_password_html_link', $html_link);
-        ?>
-    </p>
-    <?php
-    login_footer('user_login');
-    exit;
-}
-add_filter('login_form_wwa_otl', '__return_true');
-add_action('login_form_wwa_otl', 'wwa_add_otl_form');
 ?>

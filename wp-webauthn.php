@@ -48,9 +48,6 @@ function wwa_init_data(){
             'allow_authenticator_type' => 'none',
             'password_reset' => 'off',
             'after_user_registration' => 'none',
-            'magic_link' => 'false',
-            'magic_link_expire' => '3',
-            'mail_template' => $wwa_default_mail_template,
             'logging' => 'false'
         );
         update_option('wwa_options', $wwa_init_options);
