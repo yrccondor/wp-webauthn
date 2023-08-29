@@ -154,6 +154,8 @@ function wwa_login_js(){
         'email_login' => (wwa_get_option('email_login') === false ? 'false' : wwa_get_option('email_login')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
         'webauthn_only' => ($first_choice === 'webauthn' && !$wwa_not_allowed) ? 'true' : 'false',
+        'password_reset' => ((wwa_get_option('password_reset') === false || wwa_get_option('password_reset') === 'off') ? 'false' : 'true'),
+        'separator' => apply_filters('login_link_separator', ' | '),
         'i18n_1' => __('Auth', 'wp-webauthn'),
         'i18n_2' => __('Authenticate with WebAuthn', 'wp-webauthn'),
         'i18n_3' => __('Hold on...', 'wp-webauthn'),

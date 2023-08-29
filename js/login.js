@@ -71,6 +71,19 @@ const wwa_dom = (selector, callback = () => { }, method = 'query') => {
 
 let wwaSupported = true;
 document.addEventListener('DOMContentLoaded', () => {
+    if (document.querySelector('p#nav') && php_vars.password_reset !== 'false') {
+        const placeholder = document.getElementById('wwa-lost-password-link-placeholder');
+        if (placeholder) {
+            const previous = placeholder.previousSibling;
+            const next = placeholder.nextElementSibling;
+            if (previous && previous.nodeType === Node.TEXT_NODE && previous.data.trim() === php_vars.separator.trim()) {
+                previous.remove();
+            } else if (next && next.nodeType === Node.TEXT_NODE && next.data.trim() === php_vars.separator.trim()) {
+                next.remove();
+            }
+        }
+        placeholder.remove();
+    }
     if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form, #resetpassform').length > 0) {
         return;
     }
