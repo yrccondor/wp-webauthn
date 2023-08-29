@@ -601,7 +601,7 @@ function wwa_add_otl_form() {
         ?>
             <form name="lostpasswordform" id="lostpasswordform">
                 <p>
-                    <? _e('An email message is sent to the corresponding email address. Check your email box and follow the instruction.', 'wp-webauthn'); ?>
+                    <? _e('An email message has sent to the corresponding email address. Check your email box and follow the instruction.', 'wp-webauthn'); ?>
                 </p>
             </form>
         <?php }else{ ?>

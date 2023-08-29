@@ -306,7 +306,7 @@ if($wwa_v_ml === false){
     <fieldset>
         <label><input type="radio" name="magic_link" value="true" <?php if($wwa_v_ml === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wp-webauthn");?></label><br>
         <label><input type="radio" name="magic_link" value="false" <?php if($wwa_v_ml === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wp-webauthn");?></label><br>
-        <p class="description"><?php _e('Allow users to request one-time login links if they lose their authenticator. The link will be sent to user\'s emaill adress on request.<br><strong>Using one-time login links, users can login directly without any further authentication, including WebAuthn.</strong>', 'wp-webauthn');?></p>
+        <p class="description"><?php _e('Allow users to request one-time login links if they lose their authenticator. The link will be sent to user\'s emaill adress on request.<br><strong>Using one-time login links, users can login directly without WebAuthn authentication.</strong>', 'wp-webauthn');?></p>
     </fieldset>
 </td>
 </tr>
