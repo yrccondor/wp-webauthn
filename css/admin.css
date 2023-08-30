@@ -52,16 +52,3 @@
 #wp-webauthn-uv-warning {
     margin: 15px 0 0;
 }
-#wwa-mail-template-editor {
-    overflow: hidden;
-}
-.wwa-number-input {
-    width: 60px;
-}
-.wwa-summary {
-    cursor: pointer;
-}
-.wwa-detailes {
-    margin-bottom: 0;
-    margin-top: 4px;
-}

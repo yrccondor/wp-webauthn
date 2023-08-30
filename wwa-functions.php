@@ -194,14 +194,6 @@ function wwa_disable_password($user){
 }
 add_filter('wp_authenticate_user', 'wwa_disable_password', 10, 1);
 
-function wwa_base64_encode_url($string) {
-    return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($string));
-}
-
-function wwa_base64_decode_url($string) {
-    return base64_decode(str_replace(['-', '_'], ['+', '/'], $string));
-}
-
 function wwa_handle_user_register($user_id){
     if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all'){
         update_user_option($user_id, 'default_password_nag', false);

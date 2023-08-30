@@ -1,21 +1,21 @@
 === WP-WebAuthn ===
 Contributors: axton
 Donate link: https://flyhigher.top/about
-Tags: u2f, fido, fido2, webauthn, login, security, password, authentication
+Tags: u2f, fido, fido2, webauthn, passkey, login, security, password, authentication
 Requires at least: 5.0
-Tested up to: 6.1
-Stable tag: 1.2.8
+Tested up to: 6.3
+Stable tag: 1.3.0
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-WP-WebAuthn enables passwordless login through FIDO2 and U2F devices like FaceID or Windows Hello for your site.
+WP-WebAuthn enables passwordless login through FIDO2 and U2F devices like Passkey, FaceID or Windows Hello for your site.
 
 == Description ==
 
-WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like USB Keys, fingerprint scanners, Windows Hello compatible cameras, FaceID/TouchID and more. Using WebAuthn, you can login to your a website with a glance or touch.
+WebAuthn is a new way for you to authenticate in web. It helps you replace your passwords with devices like Passkeys, USB Keys, fingerprint scanners, Windows Hello compatible cameras, FaceID/TouchID and more. Using WebAuthn, you can login to your a website with a glance or touch.
 
-When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.**
+When using WebAuthn, you just need to click once and perform a simple verification on the authenticator, then you are logged in. **No password needed.** If your device supports Passkey, your authenticator can roam seamlessly across multiple devices for a more convenient login experience.
 
 WP-WebAuthn is a plug-in for WordPress to enable WebAuthn on your site. Just download and install it, and you are in the future of web authentication.
 
@@ -79,6 +79,16 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 5. Profile
 
 == Changelog ==
+
+= 1.3.0 =
+Add: Allow to login with email addresses
+Add: Disable password reset
+Add: After user registration
+Add: Spanish-Latam translation (thanks to Eduardo Chongkan), Catalan translation (thanks to Aniol Pagès), Spanish and Italian translations (thanks to AlwaysReading)
+Fix: Undefined username in Gutenberg Blocks
+Fix: 2FA compatibility
+Update: Translations
+Update: Third party libraries
 
 = 1.2.8 =
 Fix: privilege check for admin panel
