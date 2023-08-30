@@ -41,6 +41,31 @@ wp_localize_script('wwa_profile', 'configs', array('usernameless' => (wwa_get_op
 <br>
 <h2 id="wwa-webauthn-start">WebAuthn</h2>
 <?php
+if(isset($_GET['wwa_registered']) && $_GET['wwa_registered'] === 'true'){
+    $count = 0;
+    if(user_can($user, 'read')){
+        $user_ids = wwa_get_option("user_id");
+        if(isset($user_ids[$user->user_login])){
+            $user_id = $user_ids[$user->user_login];
+            $count = 0;
+            $data = json_decode(wwa_get_option("user_credentials_meta"), true);
+            foreach($data as $key => $value){
+                if($user_id === $value["user"]){
+                    $count++;
+                }
+            }
+        }
+    }
+    if($count === 0){
+?>
+<div id="wp-webauthn-message-container">
+    <div class="notice notice-info is-dismissible" role="alert" id="wp-webauthn-message">
+        <p><?php _e('You\'ve successfully registered! Now you can register your authenticators below.', 'wp-webauthn')?></p>
+    </div>
+</div>
+<?php
+    }
+}
 $wwa_not_allowed = false;
 if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
     $wwa_not_allowed = true;

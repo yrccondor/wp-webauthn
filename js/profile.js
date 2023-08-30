@@ -12,6 +12,9 @@ window.addEventListener('load', () => {
     if (document.getElementById('wp-webauthn-error-container')) {
         document.getElementById('wp-webauthn-error-container').insertBefore(document.getElementById('wp-webauthn-error'), null);
     }
+    if (document.getElementById('wp-webauthn-message-container')) {
+        document.getElementById('wp-webauthn-message-container').insertBefore(document.getElementById('wp-webauthn-message'), null);
+    }
 })
 
 // Update authenticator list
