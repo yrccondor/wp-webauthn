@@ -35,9 +35,10 @@ jobs:
     - name: Add vendor
       if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
+        git config --global --add safe.directory $GITHUB_WORKSPACE
         rm -rf .gitignore
-        git config --global user.email "10upbot+github@10up.com"
-        git config --global user.name "10upbot on GitHub"
+        git config --global user.email "i@yrc.me"
+        git config --global user.name "yrccondor"
         git add .
         git commit -m "Add vendor"
 
