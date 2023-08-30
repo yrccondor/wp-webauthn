@@ -1,0 +1,11 @@
+/.wordpress-org
+/.github
+/README
+/gutenberg-src
+/.vscode
+/.gitattributes
+/.gitignore
+/.distignore
+/README.md
+/composer.json
+/composer.lock
