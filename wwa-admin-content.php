@@ -197,7 +197,7 @@ if($wwa_v_el === false){
     <fieldset>
         <label><input type="radio" name="email_login" value="true" <?php if($wwa_v_el === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wp-webauthn");?></label><br>
         <label><input type="radio" name="email_login" value="false" <?php if($wwa_v_el === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wp-webauthn");?></label><br>
-        <p class="description"><?php _e('Allow to find users via email addresses when logging in.<br><strong>Note that if enabled attackers may be able to brute force the correspondences between email addresses and users.</strong>');?></p>
+        <p class="description"><?php _e('Allow to find users via email addresses when logging in.<br><strong>Note that if enabled attackers may be able to brute force the correspondences between email addresses and users.</strong>', 'wp-webauthn');?></p>
     </fieldset>
 </td>
 </tr>
