@@ -145,6 +145,10 @@ msgstr ""
 msgid "Allow to login with email addresses"
 msgstr ""
 
+#: wwa-admin-content.php:200
+msgid "Allow to find users via email addresses when logging in.<br><strong>Note that if enabled attackers may be able to brute force the correspondences between email addresses and users.</strong>"
+msgstr ""
+
 #: wwa-admin-content.php:205
 msgid "Require user verification"
 msgstr ""
