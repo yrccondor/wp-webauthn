@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, fido, fido2, webauthn, passkey, login, security, password, authentication
 Requires at least: 5.0
 Tested up to: 6.3
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -79,6 +79,9 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 5. Profile
 
 == Changelog ==
+
+= 1.3.1 =
+Update: Translations
 
 = 1.3.0 =
 Add: Allow to login with email addresses
