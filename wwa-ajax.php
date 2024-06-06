@@ -1011,7 +1011,7 @@ function wwa_ajax_auth(){
 
                         $user = get_user_by("login", $user_login);
 
-                        if($user_info === false){
+                        if($user === false){
                             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong user ID, exit");
                             wwa_wp_die("Something went wrong.");
                         }
