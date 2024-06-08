@@ -177,7 +177,7 @@ function wwa_auth() {
         alert(wwa_php_vars.i18n_31);
         return;
     }
-    let wwa_username = this.parentNode.previousElementSibling.previousElementSibling.getElementsByClassName('wwa-user-name')[0].value;
+    let wwa_username = this.closest('.wwa-login-form').getElementsByClassName('wwa-user-name')[0].value;
     if (wwa_username === '' && wwa_php_vars.usernameless !== 'true') {
         alert(wwa_php_vars.i18n_11);
         return;
