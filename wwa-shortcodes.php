@@ -70,22 +70,27 @@ function wwa_login_form_shortcode($vals){
 
     $html_form = '<div class="wwa-login-form">';
 
-    $args = array('echo' => false, 'value_username' => $username);
-    $to_wwa = "";
+    $args = array('echo' => false, 'value_username' => sanitize_user($username));
+    $to_wwa = '';
     if($to !== ""){
-        $args["redirect"] = $to;
-        if(substr($to, 0, 7) !== "http://" && substr($to, 0, 8) !== "https://" && substr($to, 0, 6) !== "ftp://" && substr($to, 0, 7) !== "mailto:"){
-            $to_wwa = '<input type="hidden" name="wwa-redirect-to" class="wwa-redirect-to" id="wwa-redirect-to" value="http://'.$to.'">';
-        }else{
-            $to_wwa = '<input type="hidden" name="wwa-redirect-to" class="wwa-redirect-to" id="wwa-redirect-to" value="'.$to.'">';
-        }
+        $args['redirect'] = sanitize_url($to);
+        $to_wwa = '<input type="hidden" name="wwa-redirect-to" class="wwa-redirect-to" id="wwa-redirect-to" value="'.$args["redirect"].'">';
     }
 
     if($traditional === 'true' && wwa_get_option('first_choice') !== 'webauthn'){
         $html_form .= '<div class="wwa-login-form-traditional">'.wp_login_form($args).'<br><a class="wwa-t2w" href="#"><span>'.__('Authenticate with WebAuthn', 'wp-webauthn').'</span></a></div>';
     }
 
-    $html_form .= '<div class="wwa-login-form-webauthn"><p class="wwa-login-username"><label for="wwa-user-name">'.(wwa_get_option('email_login') !== 'true' ? __('Username', 'wp-webauthn') : __('Username or Email Address')).'</label><input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.$username.'" size="20"></p><div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn', 'wp-webauthn').'</div><p class="wwa-login-submit-p">'.$to_wwa.'<div class="wwa-form-left">'.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label>' : '').'<a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></div><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'"></p></div></div>';
+    $html_form .= '
+    <div class="wwa-login-form-webauthn">
+        <p class="wwa-login-username">
+            <label for="wwa-user-name">'.(wwa_get_option('email_login') !== 'true' ? __('Username', 'wp-webauthn') : __('Username or Email Address')).'</label>
+            <input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.esc_html(sanitize_user($username, true)).'" size="20">
+        </p>
+        <div class="wp-webauthn-notice">'.__('Authenticate with WebAuthn', 'wp-webauthn').'</div>
+            <p class="wwa-login-submit-p">'.$to_wwa.'<div class="wwa-form-left">'.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label>' : '').'<a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></div><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'"></p>
+        </div>
+    </div>';
 
     return $html_form;
 }
@@ -115,7 +120,21 @@ function wwa_register_form_shortcode($vals){
     wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css', __FILE__), array(), get_option('wwa_version')['version']);
 
     $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : wwa_get_option('allow_authenticator_type');
-    return '<div class="wwa-register-form"><label for="wwa-authenticator-type">'.__('Type of authenticator', 'wp-webauthn').'</label><select name="wwa-authenticator-type" class="wwa-authenticator-type" id="wwa-authenticator-type"><option value="none" class="wwa-type-none"'.($allowed_type !== 'none' ? ' disabled' : '').'>'.__('Any', 'wp-webauthn').'</option><option value="platform" class="wwa-type-platform"'.($allowed_type === 'cross-platform' ? ' disabled' : '').'>'.__('Platform (e.g. built-in fingerprint sensors)', 'wp-webauthn').'</option><option value="cross-platform" class="wwa-type-cross-platform"'.($allowed_type === 'platform' ? ' disabled' : '').'>'.__('Roaming (e.g. USB security keys)', 'wp-webauthn').'</option></select><p class="wwa-bind-name-description">'.__('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wp-webauthn').'</p><label for="wwa-authenticator-name">'.__('Authenticator identifier', 'wp-webauthn').'</label><input required name="wwa-authenticator-name" type="text" class="wwa-authenticator-name" id="wwa-authenticator-name"><p class="wwa-bind-name-description">'.__('An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wp-webauthn').'</p>'.((wwa_get_option('usernameless_login') === "true") ? '<label for="wwa-authenticator-usernameless">'.__('Login without username', 'wp-webauthn').'<br><label><input type="radio" name="wwa-authenticator-usernameless" class="wwa-authenticator-usernameless" value="true"> '.__("Enable", "wp-webauthn").'</label><br><label><input type="radio" name="wwa-authenticator-usernameless" class="wwa-authenticator-usernameless" value="false" checked="checked"> '.__("Disable", "wp-webauthn").'</label></label><br><p class="wwa-bind-usernameless-description">'.__('If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it.', 'wp-webauthn').'</p>' : '').'<p class="wwa-bind"><button class="wwa-bind-submit">'.__('Start registration', 'wp-webauthn').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-progress"></span></p></div>';
+    return '
+    <div class="wwa-register-form">
+        <label for="wwa-authenticator-type">'.__('Type of authenticator', 'wp-webauthn').'</label>
+        <select name="wwa-authenticator-type" class="wwa-authenticator-type" id="wwa-authenticator-type">
+            <option value="none" class="wwa-type-none"'.($allowed_type !== 'none' ? ' disabled' : '').'>'.__('Any', 'wp-webauthn').'</option>
+            <option value="platform" class="wwa-type-platform"'.($allowed_type === 'cross-platform' ? ' disabled' : '').'>'.__('Platform (e.g. built-in fingerprint sensors)', 'wp-webauthn').'</option>
+            <option value="cross-platform" class="wwa-type-cross-platform"'.($allowed_type === 'platform' ? ' disabled' : '').'>'.__('Roaming (e.g. USB security keys)', 'wp-webauthn').'</option>
+        </select>
+        <p class="wwa-bind-name-description">'.__('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wp-webauthn').'</p>
+        <label for="wwa-authenticator-name">'.__('Authenticator identifier', 'wp-webauthn').'</label>
+        <input required name="wwa-authenticator-name" type="text" class="wwa-authenticator-name" id="wwa-authenticator-name">
+        <p class="wwa-bind-name-description">'.__('An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wp-webauthn').'</p>'.(
+            (wwa_get_option('usernameless_login') === "true") ? '<label for="wwa-authenticator-usernameless">'.__('Login without username', 'wp-webauthn').'<br><label><input type="radio" name="wwa-authenticator-usernameless" class="wwa-authenticator-usernameless" value="true"> '.__("Enable", "wp-webauthn").'</label><br><label><input type="radio" name="wwa-authenticator-usernameless" class="wwa-authenticator-usernameless" value="false" checked="checked"> '.__("Disable", "wp-webauthn").'</label></label><br><p class="wwa-bind-usernameless-description">'.__('If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it.', 'wp-webauthn').'</p>' : ''
+        ).'<p class="wwa-bind"><button class="wwa-bind-submit">'.__('Start registration', 'wp-webauthn').'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="wwa-show-progress"></span></p>
+    </div>';
 }
 add_shortcode('wwa_register_form', 'wwa_register_form_shortcode');
 

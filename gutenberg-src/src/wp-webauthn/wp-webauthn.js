@@ -1,4 +1,4 @@
-import { TextControl, TextareaControl, CheckboxControl } from "@wordpress/components";
+import { TextControl, CheckboxControl } from "@wordpress/components";
 
 const { __ } = wp.i18n;
 const { registerBlockType } = wp.blocks;
@@ -14,14 +14,16 @@ registerBlockType("wp-webauthn/login", {
             default: true
         },
         username: {
-            type: "string"
+            type: "string",
+            default: ''
         },
         autoHide: {
             type: "boolean",
             default: true
         },
         to: {
-            type: "string"
+            type: "string",
+            default: ''
         }
     },
     edit: ({ attributes, setAttributes, className }) => {
@@ -74,7 +76,7 @@ registerBlockType("wp-webauthn/login", {
         );
     },
     save: ({ attributes }) => {
-        return `[wwa_login_form traditional="${attributes.traditional}" username="${attributes.username}" auto_hide="${attributes.autoHide}" to="${attributes.to}"]`;
+        return `[wwa_login_form traditional="${attributes.traditional}" auto_hide="${attributes.autoHide}"${attributes.username ? ` username="${attributes.username}"` : ''}${attributes.to ? ` to="${attributes.to}"` : ''}]`;
     }
 });
 
