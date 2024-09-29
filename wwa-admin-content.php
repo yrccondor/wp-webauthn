@@ -24,7 +24,7 @@ if(!function_exists('sodium_crypto_sign_detached')){
     add_settings_error('wwa_settings', 'sodium_error', __("PHP extension sodium doesn't seem to exist, rendering WP-WebAuthn unable to function.", 'wp-webauthn'));
     $wwa_not_allowed = true;
 }
-if(!wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+if(!wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
     add_settings_error('wwa_settings', 'https_error', __('WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>.', 'wp-webauthn'));
     $wwa_not_allowed = true;
 }
@@ -33,18 +33,22 @@ if(
     (isset($_POST['wwa_ref']) && $_POST['wwa_ref'] === 'true')
     && check_admin_referer('wwa_options_update')
     && wwa_validate_privileges()
-    && ($_POST['first_choice'] === 'true' || $_POST['first_choice'] === 'false' || $_POST['first_choice'] === 'webauthn')
-    && ($_POST['remember_me'] === 'true' || $_POST['remember_me'] === 'false')
-    && ($_POST['email_login'] === 'true' || $_POST['email_login'] === 'false')
-    && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false')
-    && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false')
-    && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform')
-    && ($_POST['password_reset'] === 'off' || $_POST['password_reset'] === 'admin' || $_POST['password_reset'] === 'all')
-    && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login')
-    && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false')
+    && (isset($_POST['first_choice']) && ($_POST['first_choice'] === 'true' || $_POST['first_choice'] === 'false' || $_POST['first_choice'] === 'webauthn'))
+    && (isset($_POST['remember_me']) && ($_POST['remember_me'] === 'true' || $_POST['remember_me'] === 'false'))
+    && (isset($_POST['email_login']) && ($_POST['email_login'] === 'true' || $_POST['email_login'] === 'false'))
+    && (isset($_POST['user_verification']) && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false'))
+    && (isset($_POST['usernameless_login']) && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false'))
+    && (isset($_POST['allow_authenticator_type']) && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform'))
+    && (isset($_POST['password_reset']) && ($_POST['password_reset'] === 'off' || $_POST['password_reset'] === 'admin' || $_POST['password_reset'] === 'all'))
+    && (isset($_POST['after_user_registration']) && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login'))
+    && (isset($_POST['logging']) && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false'))
+    && isset($_POST['website_name'])
+    && isset($_POST['website_domain'])
 ){
     $res_id = wwa_generate_random_string(5);
-    if(sanitize_text_field($_POST['logging']) === 'true' && wwa_get_option('logging') === 'false'){
+
+    $post_logging = sanitize_text_field(wp_unslash($_POST['logging']));
+    if($post_logging === 'true' && wwa_get_option('logging') === 'false'){
         // Initialize log
         if(!function_exists('gmp_intval')){
             wwa_add_log($res_id, 'Warning: PHP extension gmp not found', true);
@@ -55,70 +59,70 @@ if(
         if(!function_exists('sodium_crypto_sign_detached')){
             wwa_add_log($res_id, 'Warning: PHP extension sodium not found', true);
         }
-        if(!wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+        if(!wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
             wwa_add_log($res_id, 'Warning: Not in security context', true);
         }
         wwa_add_log($res_id, 'PHP Version => '.phpversion().', WordPress Version => '.get_bloginfo('version').', WP-WebAuthn Version => '.get_option('wwa_version')['version'], true);
         wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", email_login => "'.wwa_get_option('email_login').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'"', true);
         wwa_add_log($res_id, 'Logger initialized', true);
     }
-    wwa_update_option('logging', sanitize_text_field($_POST['logging']));
+    wwa_update_option('logging', $post_logging);
 
-    $post_first_choice = sanitize_text_field($_POST['first_choice']);
+    $post_first_choice = sanitize_text_field(wp_unslash($_POST['first_choice']));
     if($post_first_choice !== wwa_get_option('first_choice')){
         wwa_add_log($res_id, 'first_choice: "'.wwa_get_option('first_choice').'"->"'.$post_first_choice.'"');
     }
     wwa_update_option('first_choice', $post_first_choice);
 
-    $post_website_name = sanitize_text_field($_POST['website_name']);
+    $post_website_name = sanitize_text_field(wp_unslash($_POST['website_name']));
     if($post_website_name !== wwa_get_option('website_name')){
         wwa_add_log($res_id, 'website_name: "'.wwa_get_option('website_name').'"->"'.$post_website_name.'"');
     }
     wwa_update_option('website_name', $post_website_name);
 
-    $post_website_domain = str_replace('https:', '', str_replace('/', '', sanitize_text_field($_POST['website_domain'])));
+    $post_website_domain = str_replace('https:', '', str_replace('/', '', sanitize_text_field(wp_unslash($_POST['website_domain']))));
     if($post_website_domain !== wwa_get_option('website_domain')){
         wwa_add_log($res_id, 'website_domain: "'.wwa_get_option('website_domain').'"->"'.$post_website_domain.'"');
     }
     wwa_update_option('website_domain', $post_website_domain);
 
-    $post_remember_me = sanitize_text_field($_POST['remember_me']);
+    $post_remember_me = sanitize_text_field(wp_unslash($_POST['remember_me']));
     if($post_remember_me !== wwa_get_option('remember_me')){
         wwa_add_log($res_id, 'remember_me: "'.wwa_get_option('remember_me').'"->"'.$post_remember_me.'"');
     }
     wwa_update_option('remember_me', $post_remember_me);
 
-    $post_email_login = sanitize_text_field($_POST['email_login']);
+    $post_email_login = sanitize_text_field(wp_unslash($_POST['email_login']));
     if($post_email_login !== wwa_get_option('email_login')){
         wwa_add_log($res_id, 'email_login: "'.wwa_get_option('email_login').'"->"'.$post_email_login.'"');
     }
     wwa_update_option('email_login', $post_email_login);
 
-    $post_user_verification = sanitize_text_field($_POST['user_verification']);
+    $post_user_verification = sanitize_text_field(wp_unslash($_POST['user_verification']));
     if($post_user_verification !== wwa_get_option('user_verification')){
         wwa_add_log($res_id, 'user_verification: "'.wwa_get_option('user_verification').'"->"'.$post_user_verification.'"');
     }
     wwa_update_option('user_verification', $post_user_verification);
 
-    $post_allow_authenticator_type = sanitize_text_field($_POST['allow_authenticator_type']);
+    $post_allow_authenticator_type = sanitize_text_field(wp_unslash($_POST['allow_authenticator_type']));
     if($post_allow_authenticator_type !== wwa_get_option('allow_authenticator_type')){
         wwa_add_log($res_id, 'allow_authenticator_type: "'.wwa_get_option('allow_authenticator_type').'"->"'.$post_allow_authenticator_type.'"');
     }
     wwa_update_option('allow_authenticator_type', $post_allow_authenticator_type);
 
-    $post_usernameless_login = sanitize_text_field($_POST['usernameless_login']);
+    $post_usernameless_login = sanitize_text_field(wp_unslash($_POST['usernameless_login']));
     if($post_usernameless_login !== wwa_get_option('usernameless_login')){
         wwa_add_log($res_id, 'usernameless_login: "'.wwa_get_option('usernameless_login').'"->"'.$post_usernameless_login.'"');
     }
     wwa_update_option('usernameless_login', $post_usernameless_login);
 
-    $post_password_reset = sanitize_text_field($_POST['password_reset']);
+    $post_password_reset = sanitize_text_field(wp_unslash($_POST['password_reset']));
     if($post_password_reset !== wwa_get_option('password_reset')){
         wwa_add_log($res_id, 'password_reset: "'.wwa_get_option('password_reset').'"->"'.$post_password_reset.'"');
     }
     wwa_update_option('password_reset', $post_password_reset);
 
-    $post_after_user_registration = sanitize_text_field($_POST['after_user_registration']);
+    $post_after_user_registration = sanitize_text_field(wp_unslash($_POST['after_user_registration']));
     if($post_after_user_registration !== wwa_get_option('after_user_registration')){
         wwa_add_log($res_id, 'after_user_registration: "'.wwa_get_option('after_user_registration').'"->"'.$post_after_user_registration.'"');
     }
@@ -316,6 +320,7 @@ if($wwa_v_log === false){
 <p class="description"><?php _e('Automatic update every 5 seconds.', 'wp-webauthn');?></p>
 <br>
 </div>
-<?php }}?>
+<?php }}
+/* translators: %s: admin profile url */ ?>
 <p class="description"><?php printf(__('To register a new authenticator or edit your authenticators, please go to <a href="%s#wwa-webauthn-start">your profile</a>.', 'wp-webauthn'), admin_url('profile.php'));?></p>
 </div>

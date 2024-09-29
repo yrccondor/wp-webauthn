@@ -172,9 +172,9 @@ function wwa_list_shortcode($vals){
         ), $vals)
     );
 
-    $thead = '<div class="wwa-table-container"><table class="wwa-list-table"><thead><tr><th>'.__('Identifier', 'wp-webauthn').'</th><th>'.__('Type', 'wp-webauthn').'</th><th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'.__('Last used', 'time', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></thead><tbody class="wwa-authenticator-list">';
+    $thead = '<div class="wwa-table-container"><table class="wwa-list-table"><thead><tr><th>'.__('Identifier', 'wp-webauthn').'</th><th>'.__('Type', 'wp-webauthn').'</th><th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'._x('Last used', 'time', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></thead><tbody class="wwa-authenticator-list">';
     $tbody = '<tr><td colspan="5">'.__('Loading...', 'wp-webauthn').'</td></tr>';
-    $tfoot = '</tbody><tfoot><tr><th>'.__('Identifier', 'wp-webauthn').'</th><th>'.__('Type', 'wp-webauthn').'</th><th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'.__('Last used', 'time', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></tfoot></table></div><p class="wwa-authenticator-list-usernameless-tip"></p><p class="wwa-authenticator-list-type-tip"></p>';
+    $tfoot = '</tbody><tfoot><tr><th>'.__('Identifier', 'wp-webauthn').'</th><th>'.__('Type', 'wp-webauthn').'</th><th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'._x('Last used', 'time', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></tfoot></table></div><p class="wwa-authenticator-list-usernameless-tip"></p><p class="wwa-authenticator-list-type-tip"></p>';
 
     // If always display
     if(!current_user_can("read")){

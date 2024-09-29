@@ -29,7 +29,7 @@ function wwa_wp_die($message = '', $client_id = false){
     if($client_id !== false){
         wwa_destroy_temp_val($client_id);
     }
-    wp_die($message);
+    wp_die(esc_html($message));
 }
 
 // Init data for new options
@@ -65,7 +65,7 @@ function wwa_generate_random_string($length = 10){
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
         $randomString = '';
         for($i = 0; $i < $length; $i++){
-            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+            $randomString .= $characters[wp_rand(0, strlen($characters) - 1)];
         }
         return $randomString;
     }
@@ -132,8 +132,8 @@ function wwa_delete_user($user_id){
         }
     }
     wwa_update_option('user_id', $all_user_meta);
-    wwa_update_option('user_credentials_meta', json_encode($all_credentials_meta));
-    wwa_update_option('user_credentials', json_encode($all_credentials));
+    wwa_update_option('user_credentials_meta', wp_json_encode($all_credentials_meta));
+    wwa_update_option('user_credentials', wp_json_encode($all_credentials));
     wwa_add_log($res_id, "Deleted user => \"".$user_data->user_login."\"");
 }
 add_action('delete_user', 'wwa_delete_user');
@@ -141,7 +141,7 @@ add_action('delete_user', 'wwa_delete_user');
 // Add CSS and JS in login page
 function wwa_login_js(){
     $wwa_not_allowed = false;
-    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
     wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
@@ -178,7 +178,7 @@ add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
 // Disable password login
 function wwa_disable_password($user){
-    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         return $user;
     }
     if(wwa_get_option('first_choice') === 'webauthn'){
@@ -209,7 +209,7 @@ add_action('register_new_user', 'wwa_handle_user_register');
 
 // Disable Password Reset URL & Redirect
 function wwa_disable_lost_password(){
-    if((wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all') && isset( $_GET['action'] )){
+    if((wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_reset') === 'all') && isset($_GET['action'])){
         if(in_array($_GET['action'], array('lostpassword', 'retrievepassword', 'resetpass', 'rp'))){
             wp_redirect(wp_login_url(), 302);
             exit;
@@ -272,6 +272,7 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){?>
             <div class="notice notice-warning">
+                <?php /* translators: %s: 'the site' or 'your account', and admin profile url */ ?>
                 <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="%s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'), admin_url('profile.php'));?></p>
             </div>
         <?php }
@@ -317,6 +318,7 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){ ?>
             <div class="notice notice-warning">
+                <?php /* translators: %s: 'the site' or 'your account' */ ?>
                 <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'));?></p>
             </div>
         <?php }
@@ -353,7 +355,7 @@ add_filter('plugin_action_links', 'wwa_settings_link', 10, 2);
 
 function wwa_meta_link($links_array, $plugin_file_name){
     if($plugin_file_name === 'wp-webauthn/wp-webauthn.php'){
-        $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__('Github', 'wp-webauthn').'</a>';
+        $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__('GitHub', 'wp-webauthn').'</a>';
         $links_array[] = '<a href="http://doc.flyhigher.top/wp-webauthn">'.__('Documentation', 'wp-webauthn').'</a>';
     }
     return $links_array;

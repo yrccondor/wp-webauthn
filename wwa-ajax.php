@@ -67,14 +67,14 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
     public function updateCredentialLastUsed(string $publicKeyCredentialId): void {
         $credential = $this->findOneMetaByCredentialId($publicKeyCredentialId);
         if($credential !== null){
-            $credential["last_used"] = date('Y-m-d H:i:s', current_time('timestamp'));
+            $credential["last_used"] = date('Y-m-d H:i:s', current_time('timestamp')); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
             $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
             $meta[base64_encode($publicKeyCredentialId)] = $credential;
-            wwa_update_option("user_credentials_meta", json_encode($meta));
+            wwa_update_option("user_credentials_meta", wp_json_encode($meta));
         }
     }
 
-    // List all authenticators
+    // List all authenticators for the front-end
     public function getShowList(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): array {
         $data = json_decode(wwa_get_option("user_credentials_meta"), true);
         $arr = array();
@@ -91,7 +91,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
                 ));
             }
         }
-        return array_map(function($item){return array("key" => $item["key"], "name" => $item["name"], "type" => $item["type"], "added" => $item["added"], "usernameless" => $item["usernameless"], "last_used" => $item["last_used"]);}, $arr);
+        return array_map(function($item){return array("key" => $item["key"], "name" => esc_html($item["name"]), "type" => $item["type"], "added" => $item["added"], "usernameless" => $item["usernameless"], "last_used" => $item["last_used"]);}, $arr);
     }
 
     // Modify an authenticator
@@ -105,7 +105,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
                 if(base64_encode($item->getPublicKeyCredentialId()) === base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT))){
                     if($action === "rename"){
                         $this->renameCredential(base64_encode($item->getPublicKeyCredentialId()), $name, $res_id);
-                    }else if($action === "remove"){
+                    }elseif($action === "remove"){
                         $this->removeCredential(base64_encode($item->getPublicKeyCredentialId()), $res_id);
                     }
                     wwa_add_log($res_id, "ajax_modify_authenticator: Done");
@@ -122,7 +122,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
         wwa_add_log($res_id, "ajax_modify_authenticator: Rename \"".base64_decode($meta[$id]["human_name"])."\" -> \"".$name."\"");
         $meta[$id]["human_name"] = base64_encode($name);
-        wwa_update_option("user_credentials_meta", json_encode($meta));
+        wwa_update_option("user_credentials_meta", wp_json_encode($meta));
     }
 
     // Remove a credential from database by credential ID
@@ -133,7 +133,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
         wwa_add_log($res_id, "ajax_modify_authenticator: Remove \"".base64_decode($meta[$id]["human_name"])."\"");
         unset($meta[$id]);
-        wwa_update_option("user_credentials_meta", json_encode($meta));
+        wwa_update_option("user_credentials_meta", wp_json_encode($meta));
     }
 
     // Read credential database
@@ -150,14 +150,21 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
 
     // Save credentials data
     private function write(array $data, string $key, bool $usernameless = false): void {
-        if(isset($_POST["type"]) && ($_POST["type"] === "platform" || $_POST["type"] == "cross-platform" || $_POST["type"] === "none") && $key !== ''){
+        if(isset($_POST["name"]) && isset($_POST["type"]) && ($_POST["type"] === "platform" || $_POST["type"] == "cross-platform" || $_POST["type"] === "none") && $key !== ''){
             // Save credentials's meta separately
             $source = $data[$key]->getUserHandle();
             $meta = json_decode(wwa_get_option("user_credentials_meta"), true);
-            $meta[$key] = array("human_name" => base64_encode(sanitize_text_field($_POST["name"])), "added" => date('Y-m-d H:i:s', current_time('timestamp')), "authenticator_type" => $_POST["type"], "user" => $source, "usernameless" => $usernameless, "last_used" => "-");
-            wwa_update_option("user_credentials_meta", json_encode($meta));
+            $meta[$key] = array(
+                "human_name" => base64_encode(sanitize_text_field(wp_unslash($_POST["name"]))),
+                "added" => date('Y-m-d H:i:s', current_time('timestamp')), // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+                "authenticator_type" => sanitize_text_field(wp_unslash($_POST["type"])),
+                "user" => $source,
+                "usernameless" => $usernameless,
+                "last_used" => "-"
+            );
+            wwa_update_option("user_credentials_meta", wp_json_encode($meta));
         }
-        wwa_update_option("user_credentials", json_encode($data));
+        wwa_update_option("user_credentials", wp_json_encode($data));
     }
 }
 
@@ -188,16 +195,16 @@ function wwa_ajax_create(){
         }else{
             // Sanitize the input
             $wwa_get = array();
-            $wwa_get["name"] = sanitize_text_field($_GET["name"]);
-            $wwa_get["type"] = sanitize_text_field($_GET["type"]);
-            $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
+            $wwa_get["name"] = sanitize_text_field(wp_unslash($_GET["name"]));
+            $wwa_get["type"] = sanitize_text_field(wp_unslash($_GET["type"]));
+            $wwa_get["usernameless"] = sanitize_text_field(wp_unslash($_GET["usernameless"]));
             wwa_add_log($res_id, "ajax_create: name => \"".$wwa_get["name"]."\", type => \"".$wwa_get["type"]."\", usernameless => \"".$wwa_get["usernameless"]."\"");
         }
 
         $user_info = wp_get_current_user();
 
         if(isset($_GET["user_id"])){
-            $user_id = intval(sanitize_text_field($_GET["user_id"]));
+            $user_id = intval(sanitize_text_field(wp_unslash($_GET["user_id"])));
             if($user_id <= 0){
                 wwa_add_log($res_id, "ajax_create: (ERROR)Wrong parameters, exit");
                 wwa_wp_die("Bad Request.");
@@ -287,12 +294,12 @@ function wwa_ajax_create(){
             return $credential->getPublicKeyCredentialDescriptor();
         }, $credentialSources);
 
-        wwa_add_log($res_id, "ajax_create: excludeCredentials => ".json_encode($excludeCredentials));
+        wwa_add_log($res_id, "ajax_create: excludeCredentials => ".wp_json_encode($excludeCredentials));
 
         // Set authenticator type
         if($wwa_get["type"] === "platform"){
             $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_PLATFORM;
-        }else if($wwa_get["type"] === "cross-platform"){
+        }elseif($wwa_get["type"] === "cross-platform"){
             $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_CROSS_PLATFORM;
         }else{
             $authenticator_type = AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE;
@@ -335,9 +342,9 @@ function wwa_ajax_create(){
         wwa_set_temp_val("bind_config", array("name" => $wwa_get["name"], "type" => $wwa_get["type"], "usernameless" => $resident_key), $client_id);
 
         header("Content-Type: application/json");
-        $publicKeyCredentialCreationOptions = json_decode(json_encode($publicKeyCredentialCreationOptions), true);
+        $publicKeyCredentialCreationOptions = json_decode(wp_json_encode($publicKeyCredentialCreationOptions), true);
         $publicKeyCredentialCreationOptions["clientID"] = $client_id;
-        echo json_encode($publicKeyCredentialCreationOptions);
+        echo wp_json_encode($publicKeyCredentialCreationOptions);
         wwa_add_log($res_id, "ajax_create: Challenge sent");
         exit;
     }catch(\Exception $exception){
@@ -368,12 +375,13 @@ function wwa_ajax_create_response(){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Missing parameters, exit");
             wp_die("Bad Request.");
         }else{
-            if(strlen($_POST["clientid"]) < 34 || strlen($_POST["clientid"]) > 35){
+            // Sanitize the input
+            $post_client_id = sanitize_text_field(wp_unslash($_POST["clientid"]));
+            if(strlen($post_client_id) < 34 || strlen($post_client_id) > 35){
                 wwa_add_log($res_id, "ajax_create_response: (ERROR)Wrong client ID, exit");
                 wwa_wp_die("Bad Request.", $client_id);
             }
-            // Sanitize the input
-            $client_id = sanitize_text_field($_POST["clientid"]);
+            $client_id = $post_client_id;
         }
 
         if(!current_user_can("read")){
@@ -388,15 +396,15 @@ function wwa_ajax_create_response(){
         }else{
             // Sanitize the input
             $wwa_post = array();
-            $wwa_post["name"] = sanitize_text_field($_POST["name"]);
-            $wwa_post["type"] = sanitize_text_field($_POST["type"]);
-            $wwa_post["usernameless"] = sanitize_text_field($_POST["usernameless"]);
+            $wwa_post["name"] = sanitize_text_field(wp_unslash($_POST["name"]));
+            $wwa_post["type"] = sanitize_text_field(wp_unslash($_POST["type"]));
+            $wwa_post["usernameless"] = sanitize_text_field(wp_unslash($_POST["usernameless"]));
             wwa_add_log($res_id, "ajax_create_response: name => \"".$wwa_post["name"]."\", type => \"".$wwa_post["type"]."\", usernameless => \"".$wwa_post["usernameless"]."\"");
-            wwa_add_log($res_id, "ajax_create_response: data => ".base64_decode($_POST["data"]));
+            wwa_add_log($res_id, "ajax_create_response: data => ".base64_decode(sanitize_text_field(wp_unslash($_POST["data"]))));
         }
 
-        if(isset($_GET["user_id"])){
-            $user_id = intval(sanitize_text_field($_POST["user_id"]));
+        if(isset($_POST["user_id"])){
+            $user_id = intval(sanitize_text_field(wp_unslash($_POST["user_id"])));
             if($user_id <= 0){
                 wwa_add_log($res_id, "ajax_create_response: (ERROR)Wrong parameters, exit");
                 wwa_wp_die("Bad Request.");
@@ -432,8 +440,13 @@ function wwa_ajax_create_response(){
             wwa_wp_die("Bad Request.", $client_id);
         }
 
+        if(!isset($_POST["data"]) || $_POST["data"] === ""){
+            wwa_add_log($res_id, "ajax_create_response: (ERROR)Empty data, exit");
+            wwa_wp_die("Bad Request.", $client_id);
+        }
+
         // Check global unique credential ID
-        $credential_id = base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]);
+        $credential_id = base64_decode(json_decode(base64_decode(sanitize_text_field(wp_unslash($_POST["data"]))), true)["rawId"]);
         $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
         if($publicKeyCredentialSourceRepository->findOneMetaByCredentialId($credential_id) !== null){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential ID not unique, ID => \"".base64_encode($credential_id)."\" , exit");
@@ -473,7 +486,7 @@ function wwa_ajax_create_response(){
         // Verify
         try {
             $publicKeyCredentialSource = $server->loadAndCheckAttestationResponse(
-                base64_decode($_POST["data"]),
+                base64_decode(sanitize_text_field(wp_unslash($_POST["data"]))),
                 unserialize(base64_decode($temp_val["pkcco"])),
                 $serverRequest
             );
@@ -532,12 +545,12 @@ function wwa_ajax_auth_start(){
         }else{
             // Sanitize the input
             $wwa_get = array();
-            $wwa_get["type"] = sanitize_text_field($_GET["type"]);
+            $wwa_get["type"] = sanitize_text_field(wp_unslash($_GET["type"]));
             if(isset($_GET["user"])){
-                $wwa_get["user"] = sanitize_text_field($_GET["user"]);
+                $wwa_get["user"] = sanitize_text_field(wp_unslash($_GET["user"]));
             }
             if(isset($_GET["usernameless"])){
-                $wwa_get["usernameless"] = sanitize_text_field($_GET["usernameless"]);
+                $wwa_get["usernameless"] = sanitize_text_field(wp_unslash($_GET["usernameless"]));
                 // Usernameless authentication not allowed
                 if($wwa_get["usernameless"] === "true" && wwa_get_option("usernameless_login") !== "true"){
                     wwa_add_log($res_id, "ajax_auth: (ERROR)Usernameless authentication not allowed, exit");
@@ -563,7 +576,7 @@ function wwa_ajax_auth_start(){
                     $user_info = wp_get_current_user();
 
                     if(isset($_GET["user_id"])){
-                        $user_id = intval(sanitize_text_field($_GET["user_id"]));
+                        $user_id = intval(sanitize_text_field(wp_unslash($_GET["user_id"])));
                         if($user_id <= 0){
                             wwa_add_log($res_id, "ajax_auth: (ERROR)Wrong parameters, exit");
                             wwa_wp_die("Bad Request.");
@@ -617,7 +630,7 @@ function wwa_ajax_auth_start(){
                     $user_icon = get_avatar_url($user_info->user_email, array("scheme" => "https"));
                     wwa_add_log($res_id, "ajax_auth: type => \"auth\", user => \"".$user_info->user_login."\"");
                     if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
-                        wwa_add_log($res_id, "ajax_auth: User not initialized, initialize");
+                        wwa_add_log($res_id, "ajax_auth: User found but not initialized, create a fake id");
                         $user_key = hash("sha256", $wwa_get["user"]."-".$wwa_get["user"]."-".wwa_generate_random_string(10));
                         $user_exist = false;
                     }else{
@@ -654,8 +667,8 @@ function wwa_ajax_auth_start(){
 
         $credentialSourceRepository = new PublicKeyCredentialSourceRepository();
         $rpEntity = new PublicKeyCredentialRpEntity(
-            wwa_get_option('website_name'),
-            wwa_get_option('website_domain')
+            wwa_get_option("website_name"),
+            wwa_get_option("website_domain")
         );
 
         $server = new Server(
@@ -671,16 +684,16 @@ function wwa_ajax_auth_start(){
         }else{
             // Get the list of authenticators associated to the user
             // $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
-            $allow_authenticator_type = wwa_get_option('allow_authenticator_type');
-            if($allow_authenticator_type === false || $allow_authenticator_type === 'none'){
+            $allow_authenticator_type = wwa_get_option("allow_authenticator_type");
+            if($allow_authenticator_type === false || $allow_authenticator_type === "none"){
                 $credentialSources = $credentialSourceRepository->findAllForUserEntity($userEntity);
-            }else if($allow_authenticator_type !== false && $allow_authenticator_type !== 'none'){
+            }elseif($allow_authenticator_type !== false && $allow_authenticator_type !== "none"){
                 wwa_add_log($res_id, "ajax_auth: allow_authenticator_type => \"".$allow_authenticator_type."\", filter authenticators");
                 $credentialSources = $credentialSourceRepository->findCredentialsForUserEntityByType($userEntity, $allow_authenticator_type);
             }
 
             // Logged in and testing, if the user haven't bind a authenticator yet, exit
-            if(count($credentialSources) === 0 && $wwa_get["type"] === "test" && current_user_can('read')){
+            if(count($credentialSources) === 0 && $wwa_get["type"] === "test" && current_user_can("read")){
                 wwa_add_log($res_id, "ajax_auth: (ERROR)No authenticator, exit");
                 wwa_wp_die("User not inited.", $client_id);
             }
@@ -690,7 +703,7 @@ function wwa_ajax_auth_start(){
                 return $credential->getPublicKeyCredentialDescriptor();
             }, $credentialSources);
 
-            wwa_add_log($res_id, "ajax_auth: allowedCredentials => ".json_encode($allowedCredentials));
+            wwa_add_log($res_id, "ajax_auth: allowedCredentials => ".wp_json_encode($allowedCredentials));
         }
 
         // Set user verification
@@ -728,9 +741,9 @@ function wwa_ajax_auth_start(){
         }
 
         header("Content-Type: application/json");
-        $publicKeyCredentialRequestOptions = json_decode(json_encode($publicKeyCredentialRequestOptions), true);
+        $publicKeyCredentialRequestOptions = json_decode(wp_json_encode($publicKeyCredentialRequestOptions), true);
         $publicKeyCredentialRequestOptions["clientID"] = $client_id;
-        echo json_encode($publicKeyCredentialRequestOptions);
+        echo wp_json_encode($publicKeyCredentialRequestOptions);
         wwa_add_log($res_id, "ajax_auth: Challenge sent");
         exit;
     }catch(\Exception $exception){
@@ -761,12 +774,13 @@ function wwa_ajax_auth(){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Missing parameters, exit");
             wp_die("Bad Request.");
         }else{
-            if(strlen($_POST["clientid"]) < 34 || strlen($_POST["clientid"]) > 35){
+            // Sanitize the input
+            $post_client_id = sanitize_text_field(wp_unslash($_POST["clientid"]));
+            if(strlen($post_client_id) < 34 || strlen($post_client_id) > 35){
                 wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong client ID, exit");
                 wwa_wp_die("Bad Request.", $client_id);
             }
-            // Sanitize the input
-            $client_id = sanitize_text_field($_POST["clientid"]);
+            $client_id = $post_client_id;
         }
 
         // Check POST
@@ -776,8 +790,8 @@ function wwa_ajax_auth(){
         }else{
             // Sanitize the input
             $wwa_post = array();
-            $wwa_post["type"] = sanitize_text_field($_POST["type"]);
-            $wwa_post["remember"] = sanitize_text_field($_POST["remember"]);
+            $wwa_post["type"] = sanitize_text_field(wp_unslash($_POST["type"]));
+            $wwa_post["remember"] = sanitize_text_field(wp_unslash($_POST["remember"]));
         }
 
         $temp_val = array(
@@ -798,7 +812,7 @@ function wwa_ajax_auth(){
         if($wwa_post["remember"] !== "true" && $wwa_post["remember"] !== "false"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.", $client_id);
-        }else if(wwa_get_option("remember_me") !== "true" && $wwa_post["remember"] === "true"){
+        }elseif(wwa_get_option("remember_me") !== "true" && $wwa_post["remember"] === "true"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.", $client_id);
         }
@@ -843,8 +857,8 @@ function wwa_ajax_auth(){
         if($wwa_post["type"] === "test" && current_user_can('read') && !$usernameless_flag){
             $user_info = wp_get_current_user();
 
-            if(isset($_GET["user_id"])){
-                $user_id = intval(sanitize_text_field($_POST["user_id"]));
+            if(isset($_POST["user_id"])){
+                $user_id = intval(sanitize_text_field(wp_unslash($_POST["user_id"])));
                 if($user_id <= 0){
                     wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
                     wwa_wp_die("Bad Request.");
@@ -882,7 +896,7 @@ function wwa_ajax_auth(){
             wwa_add_log($res_id, "ajax_auth_response: type => \"test\", user => \"".$user_info->user_login."\"");
         }else{
             if($usernameless_flag){
-                $data_array = json_decode(base64_decode($_POST["data"]), true);
+                $data_array = json_decode(base64_decode(sanitize_text_field(wp_unslash($_POST["data"]))), true);
                 if(!isset($data_array["response"]["userHandle"]) || !isset($data_array["rawId"])){
                     wwa_add_log($res_id, "ajax_auth_response: (ERROR)Client data not correct, exit");
                     wwa_wp_die("Bad request.", $client_id);
@@ -964,7 +978,8 @@ function wwa_ajax_auth(){
             }
         }
 
-        wwa_add_log($res_id, "ajax_auth_response: data => ".base64_decode($_POST["data"]));
+        $decoded_data = base64_decode(sanitize_text_field(wp_unslash($_POST["data"])));
+        wwa_add_log($res_id, "ajax_auth_response: data => ".$decoded_data);
 
         if($temp_val["user_exist"]){
             $rpEntity = new PublicKeyCredentialRpEntity(
@@ -988,7 +1003,7 @@ function wwa_ajax_auth(){
             // Verify
             try {
                 $server->loadAndCheckAssertionResponse(
-                    base64_decode($_POST["data"]),
+                    $decoded_data,
                     unserialize(base64_decode($temp_val["pkcco_auth"])),
                     $userEntity,
                     $serverRequest
@@ -997,7 +1012,7 @@ function wwa_ajax_auth(){
                 wwa_add_log($res_id, "ajax_auth_response: Challenge verified");
 
                 // Success
-                $publicKeyCredentialSourceRepository->updateCredentialLastUsed(base64_decode(json_decode(base64_decode($_POST["data"]), true)["rawId"]));
+                $publicKeyCredentialSourceRepository->updateCredentialLastUsed(base64_decode(json_decode($decoded_data, true)["rawId"]));
                 if(!($wwa_post["type"] === "test" && current_user_can("read"))){
                     // Log user in
                     if (!is_user_logged_in()) {
@@ -1081,7 +1096,7 @@ function wwa_ajax_authenticator_list(){
     $user_info = wp_get_current_user();
 
     if(isset($_GET["user_id"])){
-        $user_id = intval(sanitize_text_field($_GET["user_id"]));
+        $user_id = intval(sanitize_text_field(wp_unslash($_GET["user_id"])));
         if($user_id <= 0){
             wwa_add_log($res_id, "ajax_authenticator_list: (ERROR)Wrong parameters, exit");
             wwa_wp_die("Bad Request.");
@@ -1120,7 +1135,7 @@ function wwa_ajax_authenticator_list(){
     );
 
     $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
-    echo json_encode($publicKeyCredentialSourceRepository->getShowList($userEntity));
+    echo wp_json_encode($publicKeyCredentialSourceRepository->getShowList($userEntity));
     exit;
 }
 add_action("wp_ajax_wwa_authenticator_list" , "wwa_ajax_authenticator_list");
@@ -1147,7 +1162,7 @@ function wwa_ajax_modify_authenticator(){
         $user_info = wp_get_current_user();
 
         if(isset($_GET["user_id"])){
-            $user_id = intval(sanitize_text_field($_GET["user_id"]));
+            $user_id = intval(sanitize_text_field(wp_unslash($_GET["user_id"])));
             if($user_id <= 0){
                 wwa_add_log($res_id, "ajax_modify_authenticator: (ERROR)Wrong parameters, exit");
                 wwa_wp_die("Bad Request.");
@@ -1198,9 +1213,9 @@ function wwa_ajax_modify_authenticator(){
         $publicKeyCredentialSourceRepository = new PublicKeyCredentialSourceRepository();
 
         if($_GET["target"] === "rename"){
-            echo $publicKeyCredentialSourceRepository->modifyAuthenticator($_GET["id"], sanitize_text_field($_GET["name"]), $userEntity, "rename", $res_id);
-        }else if($_GET["target"] === "remove"){
-            echo $publicKeyCredentialSourceRepository->modifyAuthenticator($_GET["id"], "", $userEntity, "remove", $res_id);
+            echo $publicKeyCredentialSourceRepository->modifyAuthenticator(sanitize_text_field(wp_unslash($_GET["id"])), sanitize_text_field(wp_unslash($_GET["name"])), $userEntity, "rename", $res_id);
+        }elseif($_GET["target"] === "remove"){
+            echo $publicKeyCredentialSourceRepository->modifyAuthenticator(sanitize_text_field(wp_unslash($_GET["id"])), "", $userEntity, "remove", $res_id);
         }
         exit;
     }catch(\Exception $exception){
@@ -1230,7 +1245,7 @@ function wwa_ajax_get_log(){
     if($log === false){
         echo "[]";
     }else{
-        echo json_encode($log);
+        echo wp_json_encode($log);
     }
 
     exit;

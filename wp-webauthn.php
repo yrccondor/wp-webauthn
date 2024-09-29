@@ -32,7 +32,7 @@ wwa_init_data();
 function wwa_init_data(){
     if(!get_option('wwa_init')){
         // Init
-        $site_domain = parse_url(site_url(), PHP_URL_HOST);
+        $site_domain = wp_parse_url(site_url(), PHP_URL_HOST);
         $wwa_init_options = array(
             'user_credentials' => '{}',
             'user_credentials_meta' => '{}',
@@ -53,7 +53,7 @@ function wwa_init_data(){
         include('wwa-version.php');
         update_option('wwa_version', $wwa_version);
         update_option('wwa_log', array());
-        update_option('wwa_init', md5(date('Y-m-d H:i:s')));
+        update_option('wwa_init', md5(date('Y-m-d H:i:s'))); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
     }else{
         include('wwa-version.php');
         if(!get_option('wwa_version') || get_option('wwa_version')['version'] != $wwa_version['version']){
