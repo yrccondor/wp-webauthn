@@ -142,7 +142,7 @@ if(wwa_validate_privileges()){ ?>
 <?php
 wp_nonce_field('wwa_options_update');
 ?>
-<input type='hidden' name='wwa_ref' value='true'>
+<input type="hidden" name="wwa_ref" value="true">
 <table class="form-table">
 <tr>
 <th scope="row"><label for="first_choice"><?php _e('Preferred login method', 'wp-webauthn');?></label></th>
