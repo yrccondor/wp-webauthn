@@ -19,21 +19,19 @@ jobs:
 
     - name: Get composer cache directory
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Cache dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
 
     - name: Install dependencies
-      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs --no-dev --optimize-autoloader
 
     - name: Add vendor
-      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
         rm -rf .gitignore
         git config --global user.email "i@yrc.me"
