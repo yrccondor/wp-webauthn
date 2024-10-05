@@ -15,7 +15,7 @@ const wwa_ajax = function () {
             xmlHttpReq.send();
             xmlHttpReq.onreadystatechange = () => {
                 if (xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200) {
-                    callback(xmlHttpReq.responseText, true);
+                    callback(xmlHttpReq.responseText.trim(), true);
                 } else if (xmlHttpReq.readyState === 4) {
                     callback('Network Error.', false);
                 }
@@ -33,7 +33,7 @@ const wwa_ajax = function () {
             xmlHttpReq.send(data);
             xmlHttpReq.onreadystatechange = () => {
                 if (xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200) {
-                    callback(xmlHttpReq.responseText, true);
+                    callback(xmlHttpReq.responseText.trim(), true);
                 } else if (xmlHttpReq.readyState === 4) {
                     callback('Network Error.', false);
                 }

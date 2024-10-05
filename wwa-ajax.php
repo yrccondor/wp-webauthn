@@ -1268,4 +1268,3 @@ function wwa_ajax_clear_log(){
     exit;
 }
 add_action("wp_ajax_wwa_clear_log" , "wwa_ajax_clear_log");
-?>

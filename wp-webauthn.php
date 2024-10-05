@@ -83,4 +83,3 @@ include('wwa-menus.php');
 include('wwa-functions.php');
 include('wwa-ajax.php');
 include('wwa-shortcodes.php');
-?>

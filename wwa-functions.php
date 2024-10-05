@@ -400,4 +400,3 @@ function wwa_get_user($username) {
         return get_user_by('login', $username);
     }
 }
-?>

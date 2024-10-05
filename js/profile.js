@@ -247,7 +247,7 @@ jQuery('#wwa-bind').click((e) => {
                         user_id: php_vars.user_id
                     },
                     success: function (data) {
-                        if (data === 'true') {
+                        if (data.trim() === 'true') {
                             // Registered
                             jQuery('#wwa-show-progress').html(php_vars.i18n_3);
                             jQuery('#wwa-bind').removeAttr('disabled');
@@ -382,7 +382,7 @@ jQuery('#wwa-test, #wwa-test_usernameless').click((e) => {
                         user_id: php_vars.user_id
                     },
                     success: function (data) {
-                        if (data === 'true') {
+                        if (data.trim() === 'true') {
                             jQuery(tip_id).html(php_vars.i18n_16);
                             jQuery('#wwa-test, #wwa-test_usernameless').removeAttr('disabled');
                             updateList();

@@ -197,4 +197,3 @@ function wwa_list_shortcode($vals){
     return $thead.$tbody.$tfoot;
 }
 add_shortcode('wwa_list', 'wwa_list_shortcode');
-?>
