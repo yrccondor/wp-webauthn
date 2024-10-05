@@ -16,6 +16,9 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
+      env:
+        update: true
+
 
     - name: Get composer cache directory
       id: composer-cache
@@ -29,7 +32,7 @@ jobs:
         restore-keys: ${{ runner.os }}-composer-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs --no-dev --optimize-autoloader
+      run: composer install --prefer-dist --no-progress --ignore-platform-reqs --no-dev --optimize-autoloader
 
     - name: Add vendor
       run: |
