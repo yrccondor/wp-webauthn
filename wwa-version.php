@@ -1,6 +1,6 @@
 <?php
 $wwa_version = array(
-    'version' => '1.3.2',
-    'commit' => '7f6c960'
+    'version' => '1.3.3',
+    'commit' => 'b7ef5ce'
 );
 ?>

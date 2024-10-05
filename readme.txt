@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: u2f, webauthn, passkey, login, security
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 Requires PHP: 7.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -79,6 +79,16 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 5. Profile
 
 == Changelog ==
+
+= 1.3.3 =
+Fix: Support for PHP 7.2+
+Note: We'll soon drop support for PHP 7.4 and below. Please upgrade your PHP version to 8.0+.
+
+= 1.3.2 =
+Fix: XSS issues in login form shortcode
+Fix: Wrong user variable check (thanks to bfren)
+Fix: Javascript error in login form shortcode (thanks to David Stone)
+Fix: Javascript error with certain authenticator names in authenticator list tables
 
 = 1.3.1 =
 Update: Translations
