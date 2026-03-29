@@ -86,7 +86,7 @@ function wwa_add_log($id, $content = '', $init = false){
     if($log === false){
         $log = array();
     }
-    $log[] = '['.current_time('mysql').']['.$id.'] '.$content;
+    $log[] = '['.current_time('mysql').']['.$id.'] '.wp_strip_all_tags($content);
     update_option('wwa_log', $log);
 }
 

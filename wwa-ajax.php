@@ -406,7 +406,7 @@ function wwa_ajax_create_response(){
             $wwa_post["type"] = sanitize_text_field(wp_unslash($_POST["type"]));
             $wwa_post["usernameless"] = sanitize_text_field(wp_unslash($_POST["usernameless"]));
             wwa_add_log($res_id, "ajax_create_response: name => \"".$wwa_post["name"]."\", type => \"".$wwa_post["type"]."\", usernameless => \"".$wwa_post["usernameless"]."\"");
-            wwa_add_log($res_id, "ajax_create_response: data => ".base64_decode(sanitize_text_field(wp_unslash($_POST["data"]))));
+            wwa_add_log($res_id, "ajax_create_response: data => ".sanitize_text_field(base64_decode(sanitize_text_field(wp_unslash($_POST["data"])))));
         }
 
         if(isset($_POST["user_id"])){
@@ -910,7 +910,7 @@ function wwa_ajax_auth(){
                 }
 
                 wwa_add_log($res_id, "ajax_auth_response: type => \"".$wwa_post["type"]."\"");
-                wwa_add_log($res_id, "ajax_auth_response: Usernameless authentication, try to find user by credential_id => \"".$data_array["rawId"]."\", userHandle => \"".$data_array["response"]["userHandle"]."\"");
+                wwa_add_log($res_id, "ajax_auth_response: Usernameless authentication, try to find user by credential_id => \"".sanitize_text_field($data_array["rawId"])."\", userHandle => \"".sanitize_text_field($data_array["response"]["userHandle"])."\"");
 
                 $credential_meta = $publicKeyCredentialSourceRepository->findOneMetaByCredentialId(base64_decode($data_array["rawId"]));
 
@@ -989,7 +989,7 @@ function wwa_ajax_auth(){
         }
 
         $decoded_data = base64_decode(sanitize_text_field(wp_unslash($_POST["data"])));
-        wwa_add_log($res_id, "ajax_auth_response: data => ".$decoded_data);
+        wwa_add_log($res_id, "ajax_auth_response: data => ".sanitize_text_field($decoded_data));
 
         if($temp_val["user_exist"]){
             $rpEntity = new PublicKeyCredentialRpEntity(
