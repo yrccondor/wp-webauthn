@@ -1,7 +1,7 @@
 <?php
 // Add menu
 function wwa_admin_menu(){
-    add_options_page('WP-WebAuthn' , 'WP-WebAuthn', 'read', 'wwa_admin','wwa_display_main_menu');
+    add_options_page('WP-WebAuthn' , 'WP-WebAuthn', 'manage_options', 'wwa_admin','wwa_display_main_menu');
 }
 function wwa_display_main_menu(){
     include('wwa-admin-content.php');

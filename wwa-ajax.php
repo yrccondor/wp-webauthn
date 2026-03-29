@@ -102,7 +102,7 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         // Check if the user has the authenticator
         foreach($keys as $item){
             if($item->getUserHandle() === $user_id){
-                if(base64_encode($item->getPublicKeyCredentialId()) === base64_decode(str_pad(strtr($id, '-_', '+/'), strlen($id) % 4, '=', STR_PAD_RIGHT))){
+                if(base64_encode($item->getPublicKeyCredentialId()) === base64_decode(strtr($id, '-_', '+/'))){
                     if($action === "rename"){
                         $this->renameCredential(base64_encode($item->getPublicKeyCredentialId()), $name, $res_id);
                     }elseif($action === "remove"){
@@ -170,6 +170,8 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
 
 // Bind an authenticator
 function wwa_ajax_create(){
+    check_ajax_referer('wwa_ajax');
+    $client_id = false;
     try{
         $res_id = wwa_generate_random_string(5);
         $client_id = strval(time()).wwa_generate_random_string(24);
@@ -261,14 +263,17 @@ function wwa_ajax_create(){
 
         // Get user ID or create one
         $user_key = "";
-        if(!isset(wwa_get_option("user_id")[$user_info->user_login])){
+        $user_id_map = wwa_get_option("user_id");
+        if(!is_array($user_id_map)){
+            $user_id_map = array();
+        }
+        if(!isset($user_id_map[$user_info->user_login])){
             wwa_add_log($res_id, "ajax_create: User not initialized, initialize");
-            $user_array = wwa_get_option("user_id");
             $user_key = hash("sha256", $user_info->user_login."-".$user_info->display_name."-".wwa_generate_random_string(10));
-            $user_array[$user_info->user_login] = $user_key;
-            wwa_update_option("user_id", $user_array);
+            $user_id_map[$user_info->user_login] = $user_key;
+            wwa_update_option("user_id", $user_id_map);
         }else{
-            $user_key = wwa_get_option("user_id")[$user_info->user_login];
+            $user_key = $user_id_map[$user_info->user_login];
         }
 
         $user = array(
@@ -363,6 +368,7 @@ add_action("wp_ajax_wwa_create" , "wwa_ajax_create");
 
 // Verify the attestation
 function wwa_ajax_create_response(){
+    check_ajax_referer('wwa_ajax');
     $client_id = false;
     try{
         $res_id = wwa_generate_random_string(5);
@@ -530,6 +536,7 @@ add_action("wp_ajax_wwa_create_response" , "wwa_ajax_create_response");
 
 // Auth challenge
 function wwa_ajax_auth_start(){
+    $client_id = false;
     try{
         $res_id = wwa_generate_random_string(5);
         $client_id = strval(time()).wwa_generate_random_string(24);
@@ -920,6 +927,9 @@ function wwa_ajax_auth(){
 
                         // Try to find user
                         $all_user = wwa_get_option("user_id");
+                        if(!is_array($all_user)){
+                            $all_user = array();
+                        }
                         $user_login_name = false;
                         foreach($all_user as $user => $user_id){
                             if($user_id === $credential_meta["user"]){
@@ -1084,6 +1094,7 @@ add_action("wp_ajax_nopriv_wwa_auth" , "wwa_ajax_auth");
 
 // Get authenticator list
 function wwa_ajax_authenticator_list(){
+    check_ajax_referer('wwa_ajax');
     $res_id = wwa_generate_random_string(5);
 
     wwa_init_new_options();
@@ -1142,6 +1153,7 @@ add_action("wp_ajax_wwa_authenticator_list" , "wwa_ajax_authenticator_list");
 
 // Modify an authenticator
 function wwa_ajax_modify_authenticator(){
+    check_ajax_referer('wwa_ajax');
     try{
         $res_id = wwa_generate_random_string(5);
 
@@ -1234,6 +1246,7 @@ add_action("wp_ajax_wwa_modify_authenticator" , "wwa_ajax_modify_authenticator")
 
 // Print log
 function wwa_ajax_get_log(){
+    check_ajax_referer('wwa_admin_ajax');
     if(!wwa_validate_privileges()){
         wwa_wp_die("Bad Request.");
     }
@@ -1254,6 +1267,7 @@ add_action("wp_ajax_wwa_get_log" , "wwa_ajax_get_log");
 
 // Clear log
 function wwa_ajax_clear_log(){
+    check_ajax_referer('wwa_admin_ajax');
     if(!wwa_validate_privileges()){
         wwa_wp_die("Bad Request.");
     }

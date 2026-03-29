@@ -3,12 +3,13 @@
 Plugin Name: WP-WebAuthn
 Plugin URI: https://flyhigher.top
 Description: WP-WebAuthn allows you to safely login to your WordPress site without password.
-Version: 1.3.4
+Version: 1.3.5
 Author: Axton
 Author URI: https://axton.cc
 License: GPLv3
 Text Domain: wp-webauthn
 Domain Path: /languages
+Network: true
 */
 /* Copyright 2020 Axton
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version  of the License, or (at your option) any later version.
@@ -18,6 +19,7 @@ You should have received a copy of the GNU General Public License along with thi
 */
 
 register_activation_hook(__FILE__, 'wwa_init');
+register_uninstall_hook(__FILE__, 'wwa_uninstall');
 
 function wwa_init(){
     if(version_compare(get_bloginfo('version'), '5.0', '<')){
@@ -25,6 +27,13 @@ function wwa_init(){
     }else{
         wwa_init_data();
     }
+}
+
+function wwa_uninstall(){
+    delete_option('wwa_options');
+    delete_option('wwa_version');
+    delete_option('wwa_log');
+    delete_option('wwa_init');
 }
 
 wwa_init_data();
@@ -47,7 +56,9 @@ function wwa_init_data(){
             'allow_authenticator_type' => 'none',
             'password_reset' => 'off',
             'after_user_registration' => 'none',
-            'logging' => 'false'
+            'logging' => 'false',
+            'terminology' => 'passkey',
+            'ror_origins' => ''
         );
         update_option('wwa_options', $wwa_init_options);
         include('wwa-version.php');
@@ -83,3 +94,6 @@ include('wwa-menus.php');
 include('wwa-functions.php');
 include('wwa-ajax.php');
 include('wwa-shortcodes.php');
+
+register_activation_hook(__FILE__, 'wwa_apply_rewrite_rules');
+register_deactivation_hook(__FILE__, 'flush_rewrite_rules');

@@ -1,11 +1,11 @@
 === WP-WebAuthn ===
 Contributors: axton
 Donate link: https://flyhigher.top/about
-Tags: u2f, webauthn, passkey, login, security
+Tags: webauthn, passkey, login, security, fido, password, faceid
 Requires at least: 5.0
-Tested up to: 6.6
-Stable tag: 1.3.4
-Requires PHP: 7.2
+Tested up to: 6.9
+Stable tag: 1.3.5
+Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -31,7 +31,7 @@ Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before
 
 You can contribute to this plugin on [GitHub](https://github.com/yrccondor/wp-webauthn).
 
-Please note that this plugin does NOT support Internet Explorer (including IE 11). To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
+> Please note that this plugin does NOT support Internet Explorer (including IE 11). To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 = Security and Privacy =
 
@@ -80,6 +80,16 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Changelog ==
 
+= 1.3.5 =
+Add: "Passkey" terminology option
+Add: Multisite compatibility
+Add: Related Origins Request support
+Update: Improved Passkey experience on login page
+Update: Minimum PHP version raised to 7.4
+Update: Translations
+Update: Third party libraries
+Chore: Updated role checking
+
 = 1.3.4 =
 Fix: Make sure AJAX works with extra spaces/new lines
 Note: We'll soon drop support for PHP 7.4 and below. Please upgrade your PHP version to 8.0+.
@@ -106,68 +116,7 @@ Fix: 2FA compatibility
 Update: Translations
 Update: Third party libraries
 
-= 1.2.8 =
-Fix: privilege check for admin panel
-
-= 1.2.7 =
-Add: Now a security warning will be shown if user verification is disabled
-Fix: Style broken with some locales
-Fix: privilege check for admin panel (thanks to @vanpop)
-Update: Third party libraries
-
-= 1.2.6 =
-Update: Third party libraries
-
-= 1.2.5 =
-Update: German translation (thanks to niiconn)
-Fix: HTTPS check
-
-= 1.2.4 =
-Add: French translation (thanks to Spomky) and Turkish translate (thanks to Sn0bzy)
-Fix: HTTPS check
-Update: Existing translations
-Update: Third party libraries
-
-= 1.2.3 =
-Feat: Avoid locking users out if WebAuthn is not available
-Update: translations
-Update: Third party libraries
-
-= 1.2.2 =
-Fix: Cannot access to js files in apache 2.4+
-
-= 1.2.1 =
-Feat: Allow to disable password login completely
-Feat: Now we use WordPress transients instead of PHP sessions
-Feat: Move register related settings to user's profile
-Feat: Gutenberg block support
-Feat: Traditional Chinese (Hong Kong) & Traditional Chinese (Taiwan) translation
-Update: Chinese translation
-Update: Third-party libraries
-
-= 1.1.0 =
-Add: Allow to remember login option
-Add: Only allow a specific type of authenticator option
-Fix: Toggle button may not working in login form
-Update: Chinese translation
-Update: Third-party libraries
-
 == Upgrade Notice ==
 
-= 1.2.5 =
-Improvred HTTPS checking and updated German translation (by niiconn)
-
-= 1.2.4 =
-Improvred HTTPS checking and added new translations
-
-= 1.2.3 =
-Avoid locking users out if WebAuthn is not available and update translations
-
-= 1.2.2 =
-Fixed a problem that js files were broken in apache 2.4+
-
-= 1.2.1 =
-New features, bug fixing and new translations
-
-= 1.1.0 =
-2 new features & bug fixing
+= 1.3.5 =
+New "Passkey" terminology option, Related Origins Request support, multisite compatibility, improved Passkey experience and more

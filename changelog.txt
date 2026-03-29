@@ -1,0 +1,45 @@
+= 1.2.8 =
+Fix: privilege check for admin panel
+
+= 1.2.7 =
+Add: Now a security warning will be shown if user verification is disabled
+Fix: Style broken with some locales
+Fix: privilege check for admin panel (thanks to @vanpop)
+Update: Third party libraries
+
+= 1.2.6 =
+Update: Third party libraries
+
+= 1.2.5 =
+Update: German translation (thanks to niiconn)
+Fix: HTTPS check
+
+= 1.2.4 =
+Add: French translation (thanks to Spomky) and Turkish translate (thanks to Sn0bzy)
+Fix: HTTPS check
+Update: Existing translations
+Update: Third party libraries
+
+= 1.2.3 =
+Feat: Avoid locking users out if WebAuthn is not available
+Update: translations
+Update: Third party libraries
+
+= 1.2.2 =
+Fix: Cannot access to js files in apache 2.4+
+
+= 1.2.1 =
+Feat: Allow to disable password login completely
+Feat: Now we use WordPress transients instead of PHP sessions
+Feat: Move register related settings to user's profile
+Feat: Gutenberg block support
+Feat: Traditional Chinese (Hong Kong) & Traditional Chinese (Taiwan) translation
+Update: Chinese translation
+Update: Third-party libraries
+
+= 1.1.0 =
+Add: Allow to remember login option
+Add: Only allow a specific type of authenticator option
+Fix: Toggle button may not working in login form
+Update: Chinese translation
+Update: Third-party libraries

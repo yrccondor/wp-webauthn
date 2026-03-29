@@ -6,7 +6,7 @@ function wwa_set_temp_val($name, $value, $client_id){
 
 function wwa_get_temp_val($name, $client_id){
     $val = get_transient('wwa_'.$name.$client_id);
-    return $val === false ? false : unserialize($val);
+    return $val === false ? false : maybe_unserialize($val);
 }
 
 function wwa_delete_temp_val($name, $client_id){
@@ -51,6 +51,12 @@ function wwa_init_new_options(){
     }
     if(wwa_get_option('after_user_registration') === false){
         wwa_update_option('after_user_registration', 'none');
+    }
+    if(wwa_get_option('terminology') === false){
+        wwa_update_option('terminology', 'webauthn');
+    }
+    if(wwa_get_option('ror_origins') === false){
+        wwa_update_option('ror_origins', '');
     }
 }
 
@@ -109,7 +115,15 @@ function wwa_delete_user($user_id){
     $res_id = wwa_generate_random_string(5);
 
     $user_data = get_userdata($user_id);
+    if($user_data === false){
+        return;
+    }
+
     $all_user_meta = wwa_get_option('user_id');
+    if(!is_array($all_user_meta)){
+        return;
+    }
+
     $user_key = '';
 
     // Delete user meta
@@ -122,31 +136,39 @@ function wwa_delete_user($user_id){
     }
 
     // Delete credentials
-    $all_credentials_meta = json_decode(wwa_get_option('user_credentials_meta'), true);
-    $all_credentials = json_decode(wwa_get_option('user_credentials'), true);
-    foreach($all_credentials_meta as $credential => $meta){
-        if($user_key === $meta['user']){
-            wwa_add_log($res_id, "Delete credential => \"".$credential."\"");
-            unset($all_credentials_meta[$credential]);
-            unset($all_credentials[$credential]);
+    $raw_meta = wwa_get_option('user_credentials_meta');
+    $all_credentials_meta = is_string($raw_meta) ? json_decode($raw_meta, true) : null;
+    $raw_creds = wwa_get_option('user_credentials');
+    $all_credentials = is_string($raw_creds) ? json_decode($raw_creds, true) : null;
+
+    if(is_array($all_credentials_meta) && is_array($all_credentials)){
+        foreach($all_credentials_meta as $credential => $meta){
+            if($user_key === $meta['user']){
+                wwa_add_log($res_id, "Delete credential => \"".$credential."\"");
+                unset($all_credentials_meta[$credential]);
+                unset($all_credentials[$credential]);
+            }
         }
+        wwa_update_option('user_credentials_meta', wp_json_encode($all_credentials_meta));
+        wwa_update_option('user_credentials', wp_json_encode($all_credentials));
     }
+
     wwa_update_option('user_id', $all_user_meta);
-    wwa_update_option('user_credentials_meta', wp_json_encode($all_credentials_meta));
-    wwa_update_option('user_credentials', wp_json_encode($all_credentials));
     wwa_add_log($res_id, "Deleted user => \"".$user_data->user_login."\"");
 }
 add_action('delete_user', 'wwa_delete_user');
 
 // Add CSS and JS in login page
 function wwa_login_js(){
+    wwa_init_new_options();
+
     $wwa_not_allowed = false;
     if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
     wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
     $first_choice = wwa_get_option('first_choice');
-    wp_localize_script('wwa_login', 'php_vars', array(
+    wp_localize_script('wwa_login', 'wwa_login_php_vars', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'admin_url' => admin_url(),
         'usernameless' => (wwa_get_option('usernameless_login') === false ? 'false' : wwa_get_option('usernameless_login')),
@@ -156,8 +178,9 @@ function wwa_login_js(){
         'webauthn_only' => ($first_choice === 'webauthn' && !$wwa_not_allowed) ? 'true' : 'false',
         'password_reset' => ((wwa_get_option('password_reset') === false || wwa_get_option('password_reset') === 'off') ? 'false' : 'true'),
         'separator' => apply_filters('login_link_separator', ' | '),
+        'terminology' => (wwa_get_option('terminology') === false ? 'passkey' : wwa_get_option('terminology')),
         'i18n_1' => __('Auth', 'wp-webauthn'),
-        'i18n_2' => __('Authenticate with WebAuthn', 'wp-webauthn'),
+        'i18n_2' => wwa_get_option('terminology') === 'webauthn' ? __('Authenticate with WebAuthn', 'wp-webauthn') : __('Authenticate with a passkey', 'wp-webauthn'),
         'i18n_3' => __('Hold on...', 'wp-webauthn'),
         'i18n_4' => __('Please proceed...', 'wp-webauthn'),
         'i18n_5' => __('Authenticating...', 'wp-webauthn'),
@@ -167,7 +190,9 @@ function wwa_login_js(){
         'i18n_9' => __('Username', 'wp-webauthn'),
         'i18n_10' => __('Username or Email Address'),
         'i18n_11' => __('<strong>Error</strong>: The username field is empty.', 'wp-webauthn'),
-        'i18n_12' => '<span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>'
+        'i18n_12' => '<span class="wwa-try-username">'.__('Try to enter the username', 'wp-webauthn').'</span>',
+        'i18n_13' => __('Password'),
+        'i18n_14' => wwa_get_option('terminology') === 'webauthn' ? 'WebAuthn' : __('Passkey', 'wp-webauthn')
     ));
     if($first_choice === 'true' || $first_choice === 'webauthn'){
         wp_enqueue_script('wwa_default', plugins_url('js/default_wa.js', __FILE__), array(), get_option('wwa_version')['version'], true);
@@ -272,8 +297,8 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){?>
             <div class="notice notice-warning">
-                <?php /* translators: %s: 'the site' or 'your account', and admin profile url */ ?>
-                <p><?php printf(__('Logging in with password has been disabled for %s but you haven\'t register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href="%s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'), admin_url('profile.php'));?></p>
+                <?php /* translators: %s: 'the site' or 'your account', 'WebAuthn authenticator' or 'passkey', and admin profile url */ ?>
+                <p><?php printf(__('Logging in with password has been disabled for %1$s but you haven\'t register any %2$s yet. You may unable to login again once you log out. <a href="%3$s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'), admin_url('profile.php'));?></p>
             </div>
         <?php }
     }
@@ -318,8 +343,8 @@ function wwa_no_authenticator_warning(){
 
         if($show_notice_flag){ ?>
             <div class="notice notice-warning">
-                <?php /* translators: %s: 'the site' or 'your account' */ ?>
-                <p><?php printf(__('Logging in with password has been disabled for %s but <strong>this account</strong> haven\'t register any WebAuthn authenticator yet. This user may unable to login.', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'));?></p>
+                <?php /* translators: %s: 'the site' or 'your account', and 'WebAuthn authenticator' or 'passkey' */ ?>
+                <p><?php printf(__('Logging in with password has been disabled for %1$s but <strong>this account</strong> haven\'t register any %2$s yet. This user may unable to login.', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'));?></p>
             </div>
         <?php }
     }
@@ -363,7 +388,7 @@ function wwa_meta_link($links_array, $plugin_file_name){
 add_filter('plugin_row_meta', 'wwa_meta_link', 10, 2);
 
 // Check if we are under HTTPS
-function wwa_check_ssl() {
+function wwa_check_ssl(){
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' && $_SERVER['HTTPS'] !== '') {
         return true;
     }
@@ -380,7 +405,7 @@ function wwa_check_ssl() {
 }
 
 // Check user privileges
-function wwa_validate_privileges() {
+function wwa_validate_privileges(){
     $user = wp_get_current_user();
     $allowed_roles = array('administrator');
     if(array_intersect($allowed_roles, $user->roles)){
@@ -389,8 +414,33 @@ function wwa_validate_privileges() {
     return false;
 }
 
+// Get Related Origins Request list
+function wwa_get_ror_list(){
+    $raw = wwa_get_option('ror_origins');
+    if($raw === false || $raw === ''){
+        return array();
+    }
+    $origins = array();
+    $lines = explode("\n", $raw);
+    foreach($lines as $line){
+        $line = trim($line);
+        if($line === ''){
+            continue;
+        }
+        $parsed = wp_parse_url($line);
+        if(isset($parsed['scheme']) && isset($parsed['host'])){
+            $origin = $parsed['scheme'] . '://' . $parsed['host'];
+            if(isset($parsed['port'])){
+                $origin .= ':' . $parsed['port'];
+            }
+            $origins[] = $origin;
+        }
+    }
+    return $origins;
+}
+
 // Get user by username or email
-function wwa_get_user($username) {
+function wwa_get_user($username){
     if(wwa_get_option('email_login') !== 'true'){
         return get_user_by('login', $username);
     }else{
@@ -400,3 +450,42 @@ function wwa_get_user($username) {
         return get_user_by('login', $username);
     }
 }
+
+// Provide plugin version for other plugins
+function wwa_loaded_version(){
+    if(!get_option('wwa_version')){
+        return '0.0.1';
+    }
+    return get_option('wwa_version')['version'];
+}
+
+// Register query vars
+function wwa_query_vars($vars) {
+    $vars[] = 'wwa-well-known-ror';
+    return $vars;
+}
+
+// Add rewrite rules for .well-known/webauthn
+function wwa_add_rewrite_rules() {
+    add_rewrite_rule('^\.well-known/webauthn$', 'index.php?wwa-well-known-ror=true', 'top');
+}
+function wwa_apply_rewrite_rules() {
+    wwa_add_rewrite_rules();
+    flush_rewrite_rules();
+}
+
+// Handle .well-known/webauthn
+function wwa_handle_ror($wp) {
+    if (array_key_exists('wwa-well-known-ror', $wp->query_vars)) {
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
+        echo wp_json_encode(array(
+            'origins'=> wwa_get_ror_list()
+        ));
+        exit;
+    }
+}
+
+add_filter('query_vars', 'wwa_query_vars');
+add_action('parse_request', 'wwa_handle_ror', 99);
+add_action('init', 'wwa_add_rewrite_rules', 1);

@@ -33,7 +33,8 @@ function updateLog() {
         url: php_vars.ajax_url,
         type: 'GET',
         data: {
-            action: 'wwa_get_log'
+            action: 'wwa_get_log',
+            _ajax_nonce: php_vars._ajax_nonce
         },
         success: function (data) {
             if (typeof data === 'string') {
@@ -71,7 +72,8 @@ jQuery('#clear_log').click((e) => {
         url: php_vars.ajax_url,
         type: 'GET',
         data: {
-            action: 'wwa_clear_log'
+            action: 'wwa_clear_log',
+            _ajax_nonce: php_vars._ajax_nonce
         },
         success: function () {
             updateLog();

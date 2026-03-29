@@ -314,7 +314,7 @@ function wwa_bind() {
     wwa_dom('wwa-authenticator-type', (dom) => { dom.disabled = true }, 'class');
     wwa_dom('wwa-authenticator-usernameless', (dom) => { dom.disabled = true }, 'class');
     let request = wwa_ajax();
-    request.get(wwa_php_vars.ajax_url, `?action=wwa_create&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}`, (rawData, status) => {
+    request.get(wwa_php_vars.ajax_url, `?action=wwa_create&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (rawData, status) => {
         if (status) {
             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_28;
             let data = rawData;
@@ -381,7 +381,7 @@ function wwa_bind() {
                 return publicKeyCredential;
             }).then(JSON.stringify).then((AuthenticatorAttestationResponse) => {
                 let response = wwa_ajax();
-                response.post(`${wwa_php_vars.ajax_url}?action=wwa_create_response`, `data=${encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))}&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}&clientid=${clientID}`, (rawData, status) => {
+                response.post(`${wwa_php_vars.ajax_url}?action=wwa_create_response`, `data=${encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))}&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}&clientid=${clientID}&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (rawData, status) => {
                     if (status) {
                         if (rawData === 'true') {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_29;
@@ -526,7 +526,7 @@ function updateList() {
         return;
     }
     let request = wwa_ajax();
-    request.get(wwa_php_vars.ajax_url, '?action=wwa_authenticator_list', (rawData, status) => {
+    request.get(wwa_php_vars.ajax_url, `?action=wwa_authenticator_list&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (rawData, status) => {
         if (status) {
             let data = rawData;
             try {
@@ -603,7 +603,7 @@ function renameAuthenticator(id, name) {
     } else if (new_name !== null && new_name !== name) {
         let request = wwa_ajax();
         wwa_dom(`wwa-key-${id}`, (dom) => { dom.innerText = wwa_php_vars.i18n_22 }, 'class');
-        request.get(wwa_php_vars.ajax_url, `?action=wwa_modify_authenticator&id=${encodeURIComponent(id)}&name=${encodeURIComponent(new_name)}&target=rename`, (data, status) => {
+        request.get(wwa_php_vars.ajax_url, `?action=wwa_modify_authenticator&id=${encodeURIComponent(id)}&name=${encodeURIComponent(new_name)}&target=rename&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (data, status) => {
             if (status) {
                 updateList();
             } else {
@@ -623,7 +623,7 @@ function removeAuthenticator(id, name) {
     if (confirm(wwa_php_vars.i18n_18 + name + (document.getElementsByClassName('wwa-authenticator-list')[0].children.length === 1 ? '\n' + wwa_php_vars.i18n_34 : ''))) {
         wwa_dom(`wwa-key-${id}`, (dom) => { dom.innerText = wwa_php_vars.i18n_19 }, 'class');
         let request = wwa_ajax();
-        request.get(wwa_php_vars.ajax_url, `?action=wwa_modify_authenticator&id=${encodeURIComponent(id)}&target=remove`, (data, status) => {
+        request.get(wwa_php_vars.ajax_url, `?action=wwa_modify_authenticator&id=${encodeURIComponent(id)}&target=remove&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (data, status) => {
             if (status) {
                 updateList();
             } else {

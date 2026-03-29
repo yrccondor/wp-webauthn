@@ -52,3 +52,9 @@
 #wp-webauthn-uv-warning {
     margin: 15px 0 0;
 }
+.wwa-table-svg {
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+    width: 20px;
+}

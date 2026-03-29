@@ -1,5 +1,6 @@
 #wp-webauthn {
     margin-right: 5px;
+    width: 56px;
 }
 #wp-webauthn span {
     line-height: 30px;
@@ -47,8 +48,19 @@
 #loginform.wwa-webauthn-only {
     padding-bottom: 30px;
 }
+#loginform .wwa-passkey-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
 @media(max-width: 782px){
     #wp-webauthn span {
         line-height: 38px;
+    }
+}
+@media(max-width: 782px){
+    .interim-login #wp-webauthn span {
+        line-height: 30px;
     }
 }
