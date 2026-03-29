@@ -93,7 +93,7 @@ if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check
         <td>
             <label for="webauthn_only">
                 <?php $wwa_v_first_choice = wwa_get_option('first_choice');?>
-                <input name="webauthn_only" type="checkbox" id="webauthn_only" value="true"<?php if(!$wwa_not_allowed){if($wwa_v_first_choice === 'webauthn'){echo ' disabled checked';}else{if(get_the_author_meta('webauthn_only', $user->ID) === 'true'){echo ' checked';}}}else{echo ' disabled';} ?>> <?php _e('Disable password login for this account', 'wp-webauthn');?>
+                <input name="webauthn_only" type="checkbox" id="webauthn_only" value="true"<?php if(!$wwa_not_allowed){if($wwa_v_first_choice === 'webauthn'){echo ' disabled checked';}else{if(get_user_option('webauthn_only', $user->ID) === 'true'){echo ' checked';}}}else{echo ' disabled';} ?>> <?php _e('Disable password login for this account', 'wp-webauthn');?>
             </label>
             <p class="description"><?php $wwa_term ? _e('When checked, password login will be completely disabled. Please make sure your browser supports WebAuthn and you have a registered authenticator, otherwise you may unable to login.', 'wp-webauthn') : _e('When checked, password login will be completely disabled. Please make sure you have a registered passkey, otherwise you may unable to login.', 'wp-webauthn');if($wwa_v_first_choice === 'webauthn' && !$wwa_not_allowed){?><br><strong><?php _e('The site administrator has disabled password login for the whole site.', 'wp-webauthn');?></strong><?php }?></p>
         </td>

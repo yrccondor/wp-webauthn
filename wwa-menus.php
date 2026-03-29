@@ -28,11 +28,11 @@ function wwa_save_user_profile_fields($user_id){
     }
 
     if(!isset($_POST['webauthn_only'])){
-        update_user_meta($user_id, 'webauthn_only', 'false');
+        update_user_option($user_id, 'webauthn_only', 'false');
     }elseif(sanitize_text_field(wp_unslash($_POST['webauthn_only'])) === 'true'){
-        update_user_meta($user_id, 'webauthn_only', 'true');
+        update_user_option($user_id, 'webauthn_only', 'true');
     }else{
-        update_user_meta($user_id, 'webauthn_only', 'false');
+        update_user_option($user_id, 'webauthn_only', 'false');
     }
 }
 add_action('personal_options_update', 'wwa_save_user_profile_fields');

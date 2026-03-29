@@ -158,6 +158,17 @@ function wwa_delete_user($user_id){
 }
 add_action('delete_user', 'wwa_delete_user');
 
+// Clean up credentials when a user is deleted from the network
+function wwa_delete_user_multisite($user_id){
+    $blogs = get_blogs_of_user($user_id);
+    foreach($blogs as $blog){
+        switch_to_blog($blog->userblog_id);
+        wwa_delete_user($user_id);
+        restore_current_blog();
+    }
+}
+add_action('wpmu_delete_user', 'wwa_delete_user_multisite');
+
 // Add CSS and JS in login page
 function wwa_login_js(){
     wwa_init_new_options();
@@ -212,7 +223,7 @@ function wwa_disable_password($user){
     if(is_wp_error($user)){
         return $user;
     }
-    if(get_the_author_meta('webauthn_only', $user->ID) === 'true'){
+    if(get_user_option('webauthn_only', $user->ID) === 'true'){
         return new WP_Error('wwa_password_disabled_for_account', __('Logging in with password has been disabled for this account.', 'wp-webauthn'));
     }
     return $user;
@@ -270,7 +281,7 @@ function wwa_no_authenticator_warning(){
     $user_info = wp_get_current_user();
     $first_choice = wwa_get_option('first_choice');
     $check_self = true;
-    if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID ) !== 'true'){
+    if($first_choice !== 'webauthn' && get_user_option('webauthn_only', $user_info->ID ) !== 'true'){
         $check_self = false;
     }
 
@@ -318,7 +329,7 @@ function wwa_no_authenticator_warning(){
             return;
         }
 
-        if($first_choice !== 'webauthn' && get_the_author_meta('webauthn_only', $user_info->ID) !== 'true'){
+        if($first_choice !== 'webauthn' && get_user_option('webauthn_only', $user_info->ID) !== 'true'){
             return;
         }
 
@@ -406,12 +417,7 @@ function wwa_check_ssl(){
 
 // Check user privileges
 function wwa_validate_privileges(){
-    $user = wp_get_current_user();
-    $allowed_roles = array('administrator');
-    if(array_intersect($allowed_roles, $user->roles)){
-        return true;
-    }
-    return false;
+    return current_user_can('manage_options');
 }
 
 // Get Related Origins Request list

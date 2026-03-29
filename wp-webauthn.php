@@ -30,6 +30,19 @@ function wwa_init(){
 }
 
 function wwa_uninstall(){
+    if(is_multisite()){
+        $sites = get_sites(array('fields' => 'ids'));
+        foreach($sites as $blog_id){
+            switch_to_blog($blog_id);
+            wwa_uninstall_site();
+            restore_current_blog();
+        }
+    }else{
+        wwa_uninstall_site();
+    }
+}
+
+function wwa_uninstall_site(){
     delete_option('wwa_options');
     delete_option('wwa_version');
     delete_option('wwa_log');
@@ -65,10 +78,12 @@ function wwa_init_data(){
         update_option('wwa_version', $wwa_version);
         update_option('wwa_log', array());
         update_option('wwa_init', md5(date('Y-m-d H:i:s'))); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+        add_action('wp_loaded', 'wwa_apply_rewrite_rules');
     }else{
         include('wwa-version.php');
         if(!get_option('wwa_version') || get_option('wwa_version')['version'] != $wwa_version['version']){
             update_option('wwa_version', $wwa_version); //update version
+            add_action('wp_loaded', 'wwa_apply_rewrite_rules');
         }
     }
 }
@@ -96,4 +111,17 @@ include('wwa-ajax.php');
 include('wwa-shortcodes.php');
 
 register_activation_hook(__FILE__, 'wwa_apply_rewrite_rules');
-register_deactivation_hook(__FILE__, 'flush_rewrite_rules');
+register_deactivation_hook(__FILE__, 'wwa_deactivate');
+
+function wwa_deactivate($network_wide){
+    if(is_multisite() && $network_wide){
+        $sites = get_sites(array('fields' => 'ids'));
+        foreach($sites as $blog_id){
+            switch_to_blog($blog_id);
+            flush_rewrite_rules();
+            restore_current_blog();
+        }
+    }else{
+        flush_rewrite_rules();
+    }
+}
