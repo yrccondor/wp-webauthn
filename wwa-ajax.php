@@ -543,7 +543,8 @@ function wwa_ajax_auth_start(){
 
         wwa_init_new_options();
 
-        wwa_add_log($res_id, "ajax_auth: Start");
+        $is_conditional = isset($_GET['conditional']) && $_GET['conditional'] === 'true';
+        wwa_add_log($res_id, "ajax_auth: Start" . ($is_conditional ? " (conditional)" : ""));
 
         // Check queries
         if(!isset($_GET["type"])){
@@ -775,7 +776,8 @@ function wwa_ajax_auth(){
 
         wwa_init_new_options();
 
-        wwa_add_log($res_id, "ajax_auth_response: Client response received");
+        $is_conditional = isset($_POST['conditional']) && $_POST['conditional'] === 'true';
+        wwa_add_log($res_id, "ajax_auth_response: Client response received" . ($is_conditional ? " (conditional)" : ""));
 
         if(!isset($_POST["clientid"])){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Missing parameters, exit");

@@ -392,7 +392,7 @@ add_filter('plugin_action_links', 'wwa_settings_link', 10, 2);
 function wwa_meta_link($links_array, $plugin_file_name){
     if($plugin_file_name === 'wp-webauthn/wp-webauthn.php'){
         $links_array[] = '<a href="https://github.com/yrccondor/wp-webauthn">'.__('GitHub', 'wp-webauthn').'</a>';
-        $links_array[] = '<a href="http://doc.flyhigher.top/wp-webauthn">'.__('Documentation', 'wp-webauthn').'</a>';
+        $links_array[] = '<a href="https://doc.flyhigher.top/wp-webauthn">'.__('Documentation', 'wp-webauthn').'</a>';
     }
     return $links_array;
 }
@@ -491,6 +491,18 @@ function wwa_handle_ror($wp) {
         exit;
     }
 }
+
+// Initialize plugin data for a new site created in a multisite network
+function wwa_new_site_init($new_site){
+    $network_active = get_site_option('active_sitewide_plugins');
+    if(isset($network_active['wp-webauthn/wp-webauthn.php'])){
+        switch_to_blog($new_site->id);
+        wwa_init_data();
+        wwa_apply_rewrite_rules();
+        restore_current_blog();
+    }
+}
+add_action('wp_initialize_site', 'wwa_new_site_init');
 
 add_filter('query_vars', 'wwa_query_vars');
 add_action('parse_request', 'wwa_handle_ror', 99);

@@ -73,6 +73,141 @@ const wwa_dom = (selector, callback = () => { }, method = 'query') => {
 }
 
 let wwaSupported = true;
+let wwa_conditional_ui_abort = null;
+let wwa_conditional_ui_active = false;
+
+/**
+ * Start a Conditional UI (passkey autofill) request.
+ * The browser will show a passkey picker in the username autocomplete dropdown.
+ * Aborted automatically when the user manually triggers a normal WebAuthn check.
+ */
+function wwa_start_conditional_ui() {
+    if (wwa_conditional_ui_active) return;
+    if (!window.PublicKeyCredential) return;
+
+    // Prefer getClientCapabilities() (Chrome 128+) for a richer capability check;
+    // fall back to isConditionalMediationAvailable() for older browsers.
+    const conditionalAvailablePromise =
+        typeof PublicKeyCredential.getClientCapabilities === 'function'
+            ? PublicKeyCredential.getClientCapabilities().then((caps) => !!caps.conditionalGet)
+            : typeof PublicKeyCredential.isConditionalMediationAvailable === 'function'
+                ? PublicKeyCredential.isConditionalMediationAvailable()
+                : Promise.resolve(false);
+
+    conditionalAvailablePromise.then((available) => {
+        if (!available) return;
+
+        wwa_conditional_ui_active = true;
+        wwa_conditional_ui_abort = new AbortController();
+        const signal = wwa_conditional_ui_abort.signal;
+
+        // Request an empty-user challenge (usernameless style: no allowCredentials)
+        let startReq = wwa_ajax();
+        startReq.get(wwa_login_php_vars.ajax_url,
+            '?action=wwa_auth_start&type=auth&usernameless=true&conditional=true',
+            (rawData, status) => {
+                if (!status || signal.aborted) {
+                    wwa_conditional_ui_active = false;
+                    return;
+                }
+                let data;
+                try {
+                    data = JSON.parse(rawData);
+                } catch (e) {
+                    wwa_conditional_ui_active = false;
+                    return;
+                }
+
+                data.challenge = Uint8Array.from(
+                    window.atob(base64url2base64(data.challenge)),
+                    (c) => c.charCodeAt(0)
+                );
+                if (data.allowCredentials) {
+                    data.allowCredentials = data.allowCredentials.map((item) => {
+                        item.id = Uint8Array.from(
+                            window.atob(base64url2base64(item.id)),
+                            (c) => c.charCodeAt(0)
+                        );
+                        return item;
+                    });
+                }
+
+                const clientID = data.clientID;
+                delete data.clientID;
+
+                navigator.credentials.get({
+                    publicKey: data,
+                    mediation: 'conditional',
+                    signal: signal
+                }).then((credentialInfo) => {
+                    if (!credentialInfo) {
+                        wwa_conditional_ui_active = false;
+                        return;
+                    }
+                    // Show authenticating state
+                    wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = wwa_login_php_vars.i18n_5; }, 'class');
+                    wwa_dom('user_login', (dom) => { dom.readOnly = true; }, 'id');
+                    wwa_dom('#wp-webauthn-check, #wp-webauthn', (dom) => { dom.disabled = true; });
+
+                    const publicKeyCredential = {
+                        id: credentialInfo.id,
+                        type: credentialInfo.type,
+                        rawId: arrayToBase64String(new Uint8Array(credentialInfo.rawId)),
+                        response: {
+                            authenticatorData: arrayToBase64String(new Uint8Array(credentialInfo.response.authenticatorData)),
+                            clientDataJSON: arrayToBase64String(new Uint8Array(credentialInfo.response.clientDataJSON)),
+                            signature: arrayToBase64String(new Uint8Array(credentialInfo.response.signature)),
+                            userHandle: credentialInfo.response.userHandle
+                                ? arrayToBase64String(new Uint8Array(credentialInfo.response.userHandle))
+                                : null
+                        }
+                    };
+
+                    const AuthenticatorResponse = JSON.stringify(publicKeyCredential);
+                    // The server needs the usernameless path, so username is empty
+                    const userField = document.getElementById('user_login');
+                    const username = userField ? userField.value : '';
+
+                    let response = wwa_ajax();
+                    response.post(
+                        `${wwa_login_php_vars.ajax_url}?action=wwa_auth`,
+                        `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&clientid=${clientID}&user=${encodeURIComponent(username)}&conditional=true&remember=${wwa_login_php_vars.remember_me === 'false' ? 'false' : (document.getElementById('rememberme') ? (document.getElementById('rememberme').checked ? 'true' : 'false') : 'false')}` ,
+                        (resData, resStatus) => {
+                            wwa_conditional_ui_active = false;
+                            if (resStatus && resData === 'true') {
+                                wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = wwa_login_php_vars.i18n_6; }, 'class');
+                                const redirectInput = document.querySelector('p.submit input[name="redirect_to"]');
+                                const redirectTo = redirectInput
+                                    ? redirectInput.value
+                                    : (getQueryString('redirect_to') || wwa_login_php_vars.admin_url);
+                                setTimeout(() => { window.location.href = redirectTo; }, 200);
+                            } else {
+                                wwa_dom('wp-webauthn-notice', (dom) => {
+                                    dom.innerHTML = wwa_login_php_vars.terminology === 'passkey'
+                                        ? `<span class="wwa-passkey-notice">${wwa_passkey_notice_svg} ${wwa_login_php_vars.i18n_2}</span>`
+                                        : `<span><span class="dashicons dashicons-shield-alt"></span> ${wwa_login_php_vars.i18n_2}</span>`;
+                                }, 'class');
+                                wwa_dom('user_login', (dom) => { dom.readOnly = false; }, 'id');
+                                wwa_dom('#wp-webauthn-check, #wp-webauthn', (dom) => { dom.disabled = false; });
+                                // Restart Conditional UI after a failed attempt
+                                wwa_start_conditional_ui();
+                            }
+                        }
+                    );
+                }).catch((err) => {
+                    wwa_conditional_ui_active = false;
+                    // AbortError is expected when check() aborts — do nothing
+                    if (err && err.name !== 'AbortError') {
+                        console.warn('WP-WebAuthn Conditional UI error:', err);
+                    }
+                });
+            }
+        );
+    }).catch(() => {
+        // isConditionalMediationAvailable not supported or threw — silently ignore
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('p#nav') && wwa_login_php_vars.password_reset !== 'false') {
         const placeholder = document.getElementById('wwa-lost-password-link-placeholder');
@@ -278,6 +413,8 @@ function toggle() {
                     inputDom[0].innerText = wwa_login_php_vars.email_login === 'true' ? wwa_login_php_vars.i18n_10 : wwa_login_php_vars.i18n_9;
                 }
             }
+            // Start Conditional UI when switching into WebAuthn mode
+            wwa_start_conditional_ui();
         }
     }
 }
@@ -319,6 +456,12 @@ function check() {
             document.getElementById(form).style.position = 'relative';
             wwa_shake(form, shake, 20);
             return;
+        }
+        // Abort any pending Conditional UI before starting a new modal request
+        if (wwa_conditional_ui_abort) {
+            wwa_conditional_ui_abort.abort();
+            wwa_conditional_ui_abort = null;
+            wwa_conditional_ui_active = false;
         }
         wwa_dom('user_login', (dom) => { dom.readOnly = true }, 'id');
         wwa_dom('#wp-webauthn-check, #wp-webauthn', (dom) => { dom.disabled = true });

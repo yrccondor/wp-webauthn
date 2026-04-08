@@ -54,12 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
             wwa_dom('wp-webauthn-notice', (dom) => { dom.style.display = 'flex' }, 'class');
             wwa_dom('wp-webauthn-check', (dom) => { dom.style.cssText = `${dom.style.cssText}display: block !important` }, 'id');
             wwa_dom('user_login', (dom) => {
-                dom.setAttribute('autocomplete', 'webauthn');
+                dom.setAttribute('autocomplete', 'username webauthn');
                 setTimeout(() => {
                     dom.focus();
                 }, 0);
             }, 'id');
             wwa_dom('wp-submit', (dom) => { dom.disabled = true }, 'id');
+            // Start Conditional UI (passkey autofill) once WebAuthn mode is active
+            if (typeof wwa_start_conditional_ui === 'function') {
+                wwa_start_conditional_ui();
+            }
         }
         if (document.querySelectorAll('#lostpasswordform, #registerform, .admin-email-confirm-form, #resetpassform').length > 0) {
             return;

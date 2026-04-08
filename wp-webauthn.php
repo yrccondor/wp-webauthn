@@ -24,6 +24,16 @@ register_uninstall_hook(__FILE__, 'wwa_uninstall');
 function wwa_init(){
     if(version_compare(get_bloginfo('version'), '5.0', '<')){
         deactivate_plugins(basename(__FILE__)); //disable
+        return;
+    }
+    if(is_multisite()){
+        $sites = get_sites(array('fields' => 'ids'));
+        foreach($sites as $blog_id){
+            switch_to_blog($blog_id);
+            wwa_init_data();
+            wwa_apply_rewrite_rules();
+            restore_current_blog();
+        }
     }else{
         wwa_init_data();
     }
