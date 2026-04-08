@@ -77,6 +77,7 @@ function wwa_init_data(){
             'user_verification' => 'false',
             'usernameless_login' => 'false',
             'allow_authenticator_type' => 'none',
+            'show_authenticator_type' => 'false',
             'password_reset' => 'off',
             'after_user_registration' => 'none',
             'logging' => 'false',

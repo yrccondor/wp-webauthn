@@ -305,7 +305,8 @@ function wwa_bind() {
         alert(wwa_php_vars.i18n_12);
         return;
     }
-    let wwa_type = this.parentNode.parentNode.getElementsByClassName('wwa-authenticator-type')[0].value;
+    const wwa_type_el = this.parentNode.parentNode.getElementsByClassName('wwa-authenticator-type')[0];
+    let wwa_type = wwa_type_el ? wwa_type_el.value : (wwa_php_vars.allow_authenticator_type !== 'none' ? wwa_php_vars.allow_authenticator_type : 'none');
     let wwa_usernameless = this.parentNode.parentNode.querySelectorAll('.wwa-authenticator-usernameless:checked')[0] ? this.parentNode.parentNode.querySelectorAll('.wwa-authenticator-usernameless:checked')[0].value : 'false';
     button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_3;
     wwa_disable_buttons();
@@ -521,6 +522,20 @@ function wwa_verify() {
 }
 
 // Update authenticator list
+// Compute current number of visible columns for colspan
+function getFrontendColspan() {
+    let cols = 4; // Identifier, Registered, Last used, Action
+    const typeTh = document.getElementsByClassName('wwa-type-th')[0];
+    if (typeTh && typeTh.style.display !== 'none') {
+        cols++;
+    }
+    const ulTh = document.getElementsByClassName('wwa-usernameless-th')[0];
+    if (ulTh && ulTh.style.display !== 'none') {
+        cols++;
+    }
+    return cols;
+}
+
 function updateList() {
     if (document.getElementsByClassName('wwa-authenticator-list').length === 0) {
         return;
@@ -533,7 +548,7 @@ function updateList() {
                 data = JSON.parse(rawData);
             } catch (e) {
                 console.warn(rawData);
-                wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${document.getElementsByClassName('wwa-usernameless-th')[0].style.display === 'none' ? '5' : '6'}">${wwa_php_vars.i18n_17}</td></tr>` }, 'class');
+                wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${getFrontendColspan()}">${wwa_php_vars.i18n_17}</td></tr>` }, 'class');
                 return;
             }
             if (data.length === 0) {
@@ -542,7 +557,7 @@ function updateList() {
                 } else {
                     wwa_dom('.wwa-usernameless-th, .wwa-usernameless-td', (dom) => { dom.style.display = 'none' });
                 }
-                wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${document.getElementsByClassName('wwa-usernameless-th')[0].style.display === 'none' ? '5' : '6'}">${wwa_php_vars.i18n_23}</td></tr>` }, 'class');
+                wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${getFrontendColspan()}">${wwa_php_vars.i18n_23}</td></tr>` }, 'class');
                 wwa_dom('wwa-authenticator-list-usernameless-tip', (dom) => { dom.innerText = '' }, 'class');
                 wwa_dom('wwa-authenticator-list-type-tip', (dom) => { dom.innerText = '' }, 'class');
                 return;
@@ -561,7 +576,7 @@ function updateList() {
                         item_type_disabled = true;
                     }
                 }
-                htmlStr += `<tr><td>${item.name}</td><td>${item.type === 'none' ? wwa_php_vars.i18n_24 : (item.type === 'platform' ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26)}${item_type_disabled ? wwa_php_vars.i18n_35 : ''}</td><td>${item.added}</td><td>${item.last_used}</td><td class="wwa-usernameless-td">${item.usernameless ? wwa_php_vars.i18n_1 + (wwa_php_vars.usernameless === 'true' ? '' : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8}</td><td class="wwa-key-${item.key}"><a href="javascript:renameAuthenticator('${item.key}', '${item.name.replaceAll('\'', '\\\'').replaceAll('&#039;', '\\&#039;').replaceAll('"', '\\"')}')">${wwa_php_vars.i18n_20}</a> | <a href="javascript:removeAuthenticator('${item.key}', '${item.name.replaceAll('\'', '\\\'').replaceAll('&#039;', '\\&#039;').replaceAll('"', '\\"')}')">${wwa_php_vars.i18n_27}</a></td></tr>`;
+                htmlStr += `<tr><td>${item.name}</td>${wwa_php_vars.show_authenticator_type === 'true' ? `<td class="wwa-type-td">${item.type === 'none' ? wwa_php_vars.i18n_24 : (item.type === 'platform' ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26)}${item_type_disabled ? wwa_php_vars.i18n_35 : ''}</td>` : ''}<td>${item.added}</td><td>${item.last_used}</td><td class="wwa-usernameless-td">${item.usernameless ? wwa_php_vars.i18n_1 + (wwa_php_vars.usernameless === 'true' ? '' : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8}</td><td class="wwa-key-${item.key}"><a href="javascript:renameAuthenticator('${item.key}', '${item.name.replaceAll('\'', '\\\'').replaceAll('&#039;', '\\&#039;').replaceAll('"', '\\"')}')">${wwa_php_vars.i18n_20}</a> | <a href="javascript:removeAuthenticator('${item.key}', '${item.name.replaceAll('\'', '\\\'').replaceAll('&#039;', '\\&#039;').replaceAll('"', '\\"')}')">${wwa_php_vars.i18n_27}</a></td></tr>`;
             }
             wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = htmlStr }, 'class');
             if (has_usernameless || wwa_php_vars.usernameless === 'true') {
@@ -586,7 +601,7 @@ function updateList() {
                 wwa_dom('wwa-authenticator-list-type-tip', (dom) => { dom.innerText = ''; dom.style.display = 'none' }, 'class');
             }
         } else {
-            wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${document.getElementsByClassName('wwa-usernameless-th')[0].style.display === 'none' ? '5' : '6'}">${wwa_php_vars.i18n_17}</td></tr>` }, 'class');
+            wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${getFrontendColspan()}">${wwa_php_vars.i18n_17}</td></tr>` }, 'class');
         }
     })
 }

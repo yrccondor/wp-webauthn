@@ -40,6 +40,7 @@ if(
     && (isset($_POST['user_verification']) && ($_POST['user_verification'] === 'true' || $_POST['user_verification'] === 'false'))
     && (isset($_POST['usernameless_login']) && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false'))
     && (isset($_POST['allow_authenticator_type']) && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform'))
+    && (isset($_POST['show_authenticator_type']) && ($_POST['show_authenticator_type'] === 'true' || $_POST['show_authenticator_type'] === 'false'))
     && (isset($_POST['password_reset']) && ($_POST['password_reset'] === 'off' || $_POST['password_reset'] === 'admin' || $_POST['password_reset'] === 'all'))
     && (isset($_POST['after_user_registration']) && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login' || $_POST['after_user_registration'] === 'mail'))
     && (isset($_POST['terminology']) && ($_POST['terminology'] === 'webauthn' || $_POST['terminology'] === 'passkey'))
@@ -66,7 +67,7 @@ if(
             wwa_add_log($res_id, 'Warning: Not in security context', true);
         }
         wwa_add_log($res_id, 'PHP Version => '.phpversion().', WordPress Version => '.get_bloginfo('version').', WP-WebAuthn Version => '.get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", email_login => "'.wwa_get_option('email_login').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", terminology => "'.wwa_get_option('terminology').'", ror_origins => "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"', true);
+        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", email_login => "'.wwa_get_option('email_login').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", show_authenticator_type => "'.wwa_get_option('show_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", terminology => "'.wwa_get_option('terminology').'", ror_origins => "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"', true);
         $extra_logger_info = apply_filters('wwa_logger_init', array());
         foreach($extra_logger_info as $info){
             wwa_add_log($res_id, $info, true);
@@ -139,6 +140,12 @@ if(
         wwa_add_log($res_id, 'allow_authenticator_type: "'.wwa_get_option('allow_authenticator_type').'"->"'.$post_allow_authenticator_type.'"');
     }
     wwa_update_option('allow_authenticator_type', $post_allow_authenticator_type);
+
+    $post_show_authenticator_type = sanitize_text_field(wp_unslash($_POST['show_authenticator_type']));
+    if($post_show_authenticator_type !== wwa_get_option('show_authenticator_type')){
+        wwa_add_log($res_id, 'show_authenticator_type: "'.wwa_get_option('show_authenticator_type').'"->"'.$post_show_authenticator_type.'"');
+    }
+    wwa_update_option('show_authenticator_type', $post_show_authenticator_type);
 
     $post_usernameless_login = sanitize_text_field(wp_unslash($_POST['usernameless_login']));
     if($post_usernameless_login !== wwa_get_option('usernameless_login')){
@@ -315,6 +322,22 @@ if($wwa_v_at === false){
     <option value="cross-platform"<?php if($wwa_v_at === 'cross-platform'){?> selected<?php }?>><?php _e('Roaming (e.g. USB security keys)', 'wp-webauthn');?></option>
 </select>
 <p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type when authenticating and user can only register authenticators of selected type.', 'wp-webauthn');?></p>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="show_authenticator_type"><?php _e('Allow users to choose authenticator type', 'wp-webauthn');?></label></th>
+<td>
+<?php $wwa_v_sat=wwa_get_option('show_authenticator_type');
+if($wwa_v_sat === false){
+    wwa_update_option('show_authenticator_type', 'true');
+    $wwa_v_sat = 'true';
+}
+?>
+    <fieldset>
+        <label><input type="radio" name="show_authenticator_type" value="true" <?php if($wwa_v_sat === 'true'){?>checked="checked"<?php }?>> <?php _e("Enable", "wp-webauthn");?></label><br>
+        <label><input type="radio" name="show_authenticator_type" value="false" <?php if($wwa_v_sat === 'false'){?>checked="checked"<?php }?>> <?php _e("Disable", "wp-webauthn");?></label><br>
+        <p class="description"><?php _e('When enabled, users can select the authenticator type when registering.<br>The "Allow a specific type" restriction above still applies regardless of this setting.', 'wp-webauthn');?></p>
+    </fieldset>
 </td>
 </tr>
 <tr>

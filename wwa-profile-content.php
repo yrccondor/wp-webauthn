@@ -40,7 +40,11 @@ wp_localize_script('wwa_profile', 'php_vars', array(
     'i18n_31' => __('The site administrator only allow roaming authenticators currently.', 'wp-webauthn')
 ));
 wp_enqueue_style('wwa_profile', plugins_url('css/admin.css', __FILE__));
-wp_localize_script('wwa_profile', 'configs', array('usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')), 'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type'))));
+wp_localize_script('wwa_profile', 'configs', array(
+    'usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')),
+    'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
+    'show_authenticator_type' => (wwa_get_option('show_authenticator_type') === false ? "true" : wwa_get_option('show_authenticator_type'))
+));
 ?>
 <br>
 <h2 id="wwa-webauthn-start"><?php if($wwa_term){ ?>WebAuthn<?php }else{ esc_html_e('Passkeys', 'wp-webauthn'); }?></h2>
@@ -105,7 +109,7 @@ if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check
     <thead>
         <tr>
             <th><?php _e('Identifier', 'wp-webauthn');?></th>
-            <th><?php _e('Type', 'wp-webauthn');?></th>
+            <?php if(wwa_get_option('show_authenticator_type') !== 'false'){?><th class="wwa-type-th"><?php _e('Type', 'wp-webauthn');?></th><?php }?>
             <th><?php _ex('Registered', 'time', 'wp-webauthn');?></th>
             <th><?php _e('Last used', 'wp-webauthn');?></th>
             <th class="wwa-usernameless-th"><?php _e('Usernameless', 'wp-webauthn');?></th>
@@ -114,13 +118,13 @@ if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check
     </thead>
     <tbody id="wwa-authenticator-list">
         <tr>
-            <td colspan="5"><?php _e('Loading...', 'wp-webauthn');?></td>
+            <td colspan="<?php echo wwa_get_option('show_authenticator_type') !== 'false' ? '5' : '4'; ?>"><?php _e('Loading...', 'wp-webauthn');?></td>
         </tr>
     </tbody>
     <tfoot>
         <tr>
             <th><?php _e('Identifier', 'wp-webauthn');?></th>
-            <th><?php _e('Type', 'wp-webauthn');?></th>
+            <?php if(wwa_get_option('show_authenticator_type') !== 'false'){?><th class="wwa-type-th"><?php _e('Type', 'wp-webauthn');?></th><?php }?>
             <th><?php _ex('Registered', 'time', 'wp-webauthn');?></th>
             <th><?php _e('Last used', 'wp-webauthn');?></th>
             <th class="wwa-usernameless-th"><?php _e('Usernameless', 'wp-webauthn');?></th>
@@ -138,6 +142,7 @@ if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check
 <?php /* translators: %s: 'an authenticator' or 'a passkey', user login name, and 'authenticators' or 'passkeys' */ ?>
 <p class="description"><?php printf(__('You are about to associate %1$s with the current account <strong>%2$s</strong>.<br>You can register multiple %3$s for an account.', 'wp-webauthn'), $wwa_term ? __('an authenticator', 'wp-webauthn') : __('a passkey', 'wp-webauthn'), $user->user_login, $wwa_term ? __('authenticators', 'wp-webauthn') : __('passkeys', 'wp-webauthn'));?></p>
 <table class="form-table">
+<?php if(wwa_get_option('show_authenticator_type') !== 'false'){?>
 <tr>
 <th scope="row"><label for="wwa_authenticator_type"><?php _e('Type of authenticator', 'wp-webauthn');?></label></th>
 <td>
@@ -152,6 +157,7 @@ $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : 
 <p class="description"><?php _e('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wp-webauthn');?></p>
 </td>
 </tr>
+<?php }?>
 <tr>
 <th scope="row"><label for="wwa_authenticator_name"><?php _e('Authenticator Identifier', 'wp-webauthn');?></label></th>
 <td>

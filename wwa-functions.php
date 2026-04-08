@@ -37,6 +37,10 @@ function wwa_init_new_options(){
     if(wwa_get_option('allow_authenticator_type') === false){
         wwa_update_option('allow_authenticator_type', 'none');
     }
+    // Existing installs default to 'true' to preserve previous behaviour
+    if(wwa_get_option('show_authenticator_type') === false){
+        wwa_update_option('show_authenticator_type', 'true');
+    }
     if(wwa_get_option('remember_me') === false){
         wwa_update_option('remember_me', 'false');
     }

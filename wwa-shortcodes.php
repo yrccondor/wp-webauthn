@@ -9,6 +9,7 @@ function wwa_localize_frontend(){
         'usernameless' => (wwa_get_option('usernameless_login') === false ? "false" : wwa_get_option('usernameless_login')),
         'remember_me' => (wwa_get_option('remember_me') === false ? "false" : wwa_get_option('remember_me')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
+        'show_authenticator_type' => (wwa_get_option('show_authenticator_type') === false ? "true" : wwa_get_option('show_authenticator_type')),
         'terminology' => (wwa_get_option('terminology') === false ? 'passkey' : wwa_get_option('terminology')),
         'i18n_1' => __('Ready', 'wp-webauthn'),
         'i18n_2' => wwa_get_option('terminology') === 'webauthn' ? __('Authenticate with WebAuthn', 'wp-webauthn') : __('Authenticate with a passkey', 'wp-webauthn'),
@@ -123,15 +124,17 @@ function wwa_register_form_shortcode($vals){
     wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css', __FILE__), array(), get_option('wwa_version')['version']);
 
     $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : wwa_get_option('allow_authenticator_type');
-    return '
-    <div class="wwa-register-form">
+    $show_type = wwa_get_option('show_authenticator_type') !== 'false';
+    $type_selector = $show_type ? '
         <label for="wwa-authenticator-type">'.__('Type of authenticator', 'wp-webauthn').'</label>
         <select name="wwa-authenticator-type" class="wwa-authenticator-type" id="wwa-authenticator-type">
             <option value="none" class="wwa-type-none"'.($allowed_type !== 'none' ? ' disabled' : '').'>'.__('Any', 'wp-webauthn').'</option>
             <option value="platform" class="wwa-type-platform"'.($allowed_type === 'cross-platform' ? ' disabled' : '').'>'.__('Platform (e.g. built-in fingerprint sensors)', 'wp-webauthn').'</option>
             <option value="cross-platform" class="wwa-type-cross-platform"'.($allowed_type === 'platform' ? ' disabled' : '').'>'.__('Roaming (e.g. USB security keys)', 'wp-webauthn').'</option>
         </select>
-        <p class="wwa-bind-name-description">'.__('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wp-webauthn').'</p>
+        <p class="wwa-bind-name-description">'.__('If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you\'ve registered.', 'wp-webauthn').'</p>' : '';
+    return '
+    <div class="wwa-register-form">'.$type_selector.'
         <label for="wwa-authenticator-name">'.__('Authenticator identifier', 'wp-webauthn').'</label>
         <input required name="wwa-authenticator-name" type="text" class="wwa-authenticator-name" id="wwa-authenticator-name">
         <p class="wwa-bind-name-description">'.__('An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wp-webauthn').'</p>'.(
@@ -175,9 +178,12 @@ function wwa_list_shortcode($vals){
         ), $vals
     );
 
-    $thead = '<div class="wwa-table-container"><table class="wwa-list-table"><thead><tr><th>'.__('Identifier', 'wp-webauthn').'</th><th>'.__('Type', 'wp-webauthn').'</th><th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'.__('Last used', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></thead><tbody class="wwa-authenticator-list">';
-    $tbody = '<tr><td colspan="5">'.__('Loading...', 'wp-webauthn').'</td></tr>';
-    $tfoot = '</tbody><tfoot><tr><th>'.__('Identifier', 'wp-webauthn').'</th><th>'.__('Type', 'wp-webauthn').'</th><th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'.__('Last used', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></tfoot></table></div><p class="wwa-authenticator-list-usernameless-tip"></p><p class="wwa-authenticator-list-type-tip"></p>';
+    $show_type = wwa_get_option('show_authenticator_type') !== 'false';
+    $type_th = $show_type ? '<th class="wwa-type-th">'.__('Type', 'wp-webauthn').'</th>' : '';
+    $loading_colspan = $show_type ? '5' : '4';
+    $thead = '<div class="wwa-table-container"><table class="wwa-list-table"><thead><tr><th>'.__('Identifier', 'wp-webauthn').'</th>'.$type_th.'<th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'.__('Last used', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></thead><tbody class="wwa-authenticator-list">';
+    $tbody = '<tr><td colspan="'.$loading_colspan.'">'.__('Loading...', 'wp-webauthn').'</td></tr>';
+    $tfoot = '</tbody><tfoot><tr><th>'.__('Identifier', 'wp-webauthn').'</th>'.$type_th.'<th>'._x('Registered', 'time', 'wp-webauthn').'</th><th>'.__('Last used', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.__('Usernameless', 'wp-webauthn').'</th><th>'.__('Action', 'wp-webauthn').'</th></tr></tfoot></table></div><p class="wwa-authenticator-list-usernameless-tip"></p><p class="wwa-authenticator-list-type-tip"></p>';
 
     // If always display
     if(!current_user_can("read")){
@@ -185,7 +191,7 @@ function wwa_list_shortcode($vals){
             // Load CSS
             wp_enqueue_style('wwa_frondend_css', plugins_url('css/frontend.css', __FILE__), array(), get_option('wwa_version')['version']);
 
-            return $thead.'<tr><td colspan="5">'.__('You haven\'t logged in yet.', 'wp-webauthn').'</td></tr>'.$tfoot;
+            return $thead.'<tr><td colspan="'.$loading_colspan.'">'.__('You haven\'t logged in yet.', 'wp-webauthn').'</td></tr>'.$tfoot;
         }else{
             return '';
         }
