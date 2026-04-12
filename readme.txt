@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: webauthn, passkey, login, security, fido, password, faceid
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.3.5
+Stable tag: 1.4.0
 Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -80,9 +80,9 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Changelog ==
 
-= 1.3.5 =
+= 1.4.0 =
 Add: "Passkey" terminology option
-Add: Multisite compatibility
+Add: Multisite support
 Add: Related Origins Request support
 Update: Improved Passkey experience on login page
 Update: Minimum PHP version raised to 7.4
@@ -118,5 +118,5 @@ Update: Third party libraries
 
 == Upgrade Notice ==
 
-= 1.3.5 =
-New "Passkey" terminology option, Related Origins Request support, multisite compatibility, improved Passkey experience and more
+= 1.4.0 =
+New "Passkey" terminology option, Related Origins Request support, multisite support, improved Passkey experience and more

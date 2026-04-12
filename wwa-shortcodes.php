@@ -1,4 +1,8 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 function wwa_localize_frontend(){
     wwa_init_new_options();
     wp_enqueue_script('wwa_frontend_js', plugins_url('js/frontend.js', __FILE__), array(), get_option('wwa_version')['version'], true);

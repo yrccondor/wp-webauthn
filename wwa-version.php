@@ -1,5 +1,9 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 $wwa_version = array(
-    'version' => '1.3.5',
-    'commit' => 'b7ef5ce'
+    'version' => '1.4.0',
+    'commit' => '31d150f'
 );

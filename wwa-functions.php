@@ -1,4 +1,8 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 // WordPress transient adapter
 function wwa_set_temp_val($name, $value, $client_id){
     return set_transient('wwa_'.$name.$client_id, serialize($value), 90);
@@ -114,64 +118,60 @@ function wwa_generate_call_trace($exception = false){
     return "Traceback:\n                              ".implode("\n                              ", $result);
 }
 
-// Delete all credentials when deleting user
+function wwa_cleanup_blog_credentials($user_id, $blog_id){
+    global $wpdb;
+    $wpdb->delete($wpdb->wwa_credentials, array(
+        'user_id' => $user_id,
+        'registered_blog_id' => $blog_id
+    ));
+}
+
+function wwa_cleanup_all_user_credentials($user_id){
+    global $wpdb;
+    $wpdb->delete($wpdb->wwa_credentials, array('user_id' => $user_id));
+    delete_user_meta($user_id, 'wwa_user_handle');
+    delete_user_meta($user_id, 'wwa_webauthn_only');
+}
+
 function wwa_delete_user($user_id){
     $res_id = wwa_generate_random_string(5);
 
     $user_data = get_userdata($user_id);
-    if($user_data === false){
-        return;
+    if($user_data !== false){
+        wwa_add_log($res_id, "Deleted user credentials for => \"".$user_data->user_login."\"");
     }
 
-    $all_user_meta = wwa_get_option('user_id');
-    if(!is_array($all_user_meta)){
-        return;
+    if(is_multisite()){
+        wwa_cleanup_blog_credentials($user_id, get_current_blog_id());
+    }else{
+        wwa_cleanup_all_user_credentials($user_id);
     }
-
-    $user_key = '';
-
-    // Delete user meta
-    foreach($all_user_meta as $user => $id){
-        if($user === $user_data->user_login){
-            $user_key = $id;
-            wwa_add_log($res_id, "Delete user_key => \"".$id."\"");
-            unset($all_user_meta[$user]);
-        }
-    }
-
-    // Delete credentials
-    $raw_meta = wwa_get_option('user_credentials_meta');
-    $all_credentials_meta = is_string($raw_meta) ? json_decode($raw_meta, true) : null;
-    $raw_creds = wwa_get_option('user_credentials');
-    $all_credentials = is_string($raw_creds) ? json_decode($raw_creds, true) : null;
-
-    if(is_array($all_credentials_meta) && is_array($all_credentials)){
-        foreach($all_credentials_meta as $credential => $meta){
-            if($user_key === $meta['user']){
-                wwa_add_log($res_id, "Delete credential => \"".$credential."\"");
-                unset($all_credentials_meta[$credential]);
-                unset($all_credentials[$credential]);
-            }
-        }
-        wwa_update_option('user_credentials_meta', wp_json_encode($all_credentials_meta));
-        wwa_update_option('user_credentials', wp_json_encode($all_credentials));
-    }
-
-    wwa_update_option('user_id', $all_user_meta);
-    wwa_add_log($res_id, "Deleted user => \"".$user_data->user_login."\"");
 }
 add_action('delete_user', 'wwa_delete_user');
 
-// Clean up credentials when a user is deleted from the network
 function wwa_delete_user_multisite($user_id){
-    $blogs = get_blogs_of_user($user_id);
-    foreach($blogs as $blog){
-        switch_to_blog($blog->userblog_id);
-        wwa_delete_user($user_id);
-        restore_current_blog();
+    $res_id = wwa_generate_random_string(5);
+
+    $user_data = get_userdata($user_id);
+    if($user_data !== false){
+        wwa_add_log($res_id, "Deleted all user credentials for => \"".$user_data->user_login."\" (network deletion)");
     }
+
+    wwa_cleanup_all_user_credentials($user_id);
 }
 add_action('wpmu_delete_user', 'wwa_delete_user_multisite');
+
+function wwa_remove_user_from_blog($user_id, $blog_id){
+    $res_id = wwa_generate_random_string(5);
+
+    $user_data = get_userdata($user_id);
+    if($user_data !== false){
+        wwa_add_log($res_id, "Deleted user credentials for => \"".$user_data->user_login."\" (removed from blog ".$blog_id.")");
+    }
+
+    wwa_cleanup_blog_credentials($user_id, $blog_id);
+}
+add_action('remove_user_from_blog', 'wwa_remove_user_from_blog', 10, 2);
 
 // Add CSS and JS in login page
 function wwa_login_js(){
@@ -227,7 +227,7 @@ function wwa_disable_password($user){
     if(is_wp_error($user)){
         return $user;
     }
-    if(get_user_option('webauthn_only', $user->ID) === 'true'){
+    if(get_user_meta($user->ID, 'wwa_webauthn_only', true) === 'true'){
         return new WP_Error('wwa_password_disabled_for_account', __('Logging in with password has been disabled for this account.', 'wp-webauthn'));
     }
     return $user;
@@ -280,86 +280,65 @@ if(wwa_get_option('password_reset') === 'admin' || wwa_get_option('password_rese
     add_filter('allow_password_reset', 'wwa_handle_password');
 }
 
-// Show a notice in admin pages
 function wwa_no_authenticator_warning(){
+    if(is_network_admin()){
+        return;
+    }
+
     $user_info = wp_get_current_user();
     $first_choice = wwa_get_option('first_choice');
     $check_self = true;
-    if($first_choice !== 'webauthn' && get_user_option('webauthn_only', $user_info->ID ) !== 'true'){
+    if($first_choice !== 'webauthn' && get_user_meta($user_info->ID, 'wwa_webauthn_only', true) !== 'true'){
         $check_self = false;
     }
 
     if($check_self){
-        // Check current user
-        $user_id = '';
-        $show_notice_flag = false;
-        if(!isset(wwa_get_option('user_id')[$user_info->user_login])){
-            $show_notice_flag = true;
-        }else{
-            $user_id = wwa_get_option('user_id')[$user_info->user_login];
-        }
-
-        if(!$show_notice_flag){
-            $show_notice_flag = true;
-            $data = json_decode(wwa_get_option('user_credentials_meta'), true);
-            foreach($data as $value){
-                if($user_id === $value['user']){
-                    $show_notice_flag = false;
-                    break;
-                }
-            }
-        }
-
-        if($show_notice_flag){?>
+        global $wpdb;
+        $count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->wwa_credentials}
+             WHERE user_id = %d AND registered_blog_id = %d",
+            $user_info->ID, get_current_blog_id()
+        ));
+        if(intval($count) === 0){ ?>
             <div class="notice notice-warning">
                 <?php /* translators: %s: 'the site' or 'your account', 'WebAuthn authenticator' or 'passkey', and admin profile url */ ?>
-                <p><?php printf(__('Logging in with password has been disabled for %1$s but you haven\'t register any %2$s yet. You may unable to login again once you log out. <a href="%3$s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'), admin_url('profile.php'));?></p>
+                <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but you haven\'t register any %2$s on the current site yet. You may unable to login again once you log out. <a href="%3$s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn')), esc_html(wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn')), esc_url(admin_url('profile.php'))), array('a' => array('href' => array())));?></p>
+                <?php if(is_multisite() && !is_subdomain_install()){
+                    /* translators: %s: 'WebAuthn authenticators' or 'Passkeys' */ ?>
+                <p><?php echo esc_html(sprintf(__('%s registered on other sites within this network may also be used to log in.', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticators', 'wp-webauthn') : __('Passkeys', 'wp-webauthn'))); ?></p>
+                <?php } ?>
             </div>
         <?php }
     }
-    // Check other user
+
     global $pagenow;
     if($pagenow == 'user-edit.php' && isset($_GET['user_id']) && intval($_GET['user_id']) !== $user_info->ID){
         $user_id_wp = intval($_GET['user_id']);
-        if($user_id_wp <= 0){
+        if($user_id_wp <= 0 || !current_user_can('edit_user', $user_id_wp)){
             return;
         }
-        if(!current_user_can('edit_user', $user_id_wp)){
+        $other_user = get_user_by('id', $user_id_wp);
+        if($other_user === false){
             return;
         }
-        $user_info = get_user_by('id', $user_id_wp);
-
-        if($user_info === false){
-            return;
-        }
-
-        if($first_choice !== 'webauthn' && get_user_option('webauthn_only', $user_info->ID) !== 'true'){
+        if($first_choice !== 'webauthn' && get_user_meta($other_user->ID, 'wwa_webauthn_only', true) !== 'true'){
             return;
         }
 
-        $user_id = '';
-        $show_notice_flag = false;
-        if(!isset(wwa_get_option('user_id')[$user_info->user_login])){
-            $show_notice_flag = true;
-        }else{
-            $user_id = wwa_get_option('user_id')[$user_info->user_login];
-        }
-
-        if(!$show_notice_flag){
-            $show_notice_flag = true;
-            $data = json_decode(wwa_get_option('user_credentials_meta'), true);
-            foreach($data as $value){
-                if($user_id === $value['user']){
-                    $show_notice_flag = false;
-                    break;
-                }
-            }
-        }
-
-        if($show_notice_flag){ ?>
+        global $wpdb;
+        $count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->wwa_credentials}
+             WHERE user_id = %d AND registered_blog_id = %d",
+            $other_user->ID, get_current_blog_id()
+        ));
+        if(intval($count) === 0){ ?>
             <div class="notice notice-warning">
                 <?php /* translators: %s: 'the site' or 'your account', and 'WebAuthn authenticator' or 'passkey' */ ?>
-                <p><?php printf(__('Logging in with password has been disabled for %1$s but <strong>this account</strong> haven\'t register any %2$s yet. This user may unable to login.', 'wp-webauthn'), $first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'));?></p>
+                <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but <strong>this account</strong> haven\'t register any %2$s on the current site yet. This user may unable to login.', 'wp-webauthn'), esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn')), esc_html(wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'))), array('strong' => array()));?></p>
+                <?php if(is_multisite() && !is_subdomain_install()){
+                    /* translators: %s: 'WebAuthn authenticators' or 'Passkeys' */ ?>
+                <p><?php echo esc_html(sprintf(__('%s registered on other sites within this network may also be used to log in.', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticators', 'wp-webauthn') : __('Passkeys', 'wp-webauthn'))); ?></p>
+                <?php } ?>
             </div>
         <?php }
     }
@@ -392,6 +371,16 @@ function wwa_settings_link($links_array, $plugin_file_name){
     return $links_array;
 }
 add_filter('plugin_action_links', 'wwa_settings_link', 10, 2);
+
+function wwa_network_settings_link($links_array, $plugin_file_name){
+    if($plugin_file_name === 'wp-webauthn/wp-webauthn.php'){
+        $links_array[] = '<a href="'.esc_url(network_admin_url('settings.php?page=wwa_network_admin')).'">'.__('Network Settings', 'wp-webauthn').'</a>';
+    }
+    return $links_array;
+}
+if(is_multisite()){
+    add_filter('network_admin_plugin_action_links', 'wwa_network_settings_link', 10, 2);
+}
 
 function wwa_meta_link($links_array, $plugin_file_name){
     if($plugin_file_name === 'wp-webauthn/wp-webauthn.php'){
