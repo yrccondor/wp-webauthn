@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button_toggle.id = 'wp-webauthn';
         button_toggle.type = 'button';
         button_toggle.className = 'button button-large';
-        button_toggle.innerHTML = '<span class="dashicons dashicons-ellipsis"></span>&boxv;';
+        button_toggle.innerHTML = '<span class="dashicons dashicons-ellipsis password-icon"></span>';
         button_toggle.title = wwa_login_php_vars.i18n_13;
     }
     let submit = document.getElementById('wp-submit');
@@ -400,7 +400,7 @@ function toggle() {
             wwa_dom('wp-webauthn-notice', (dom) => { dom.innerHTML = wwa_login_php_vars.terminology ==='passkey' ? `<span class="wwa-passkey-notice">${wwa_passkey_notice_svg} ${wwa_login_php_vars.i18n_2}</span>` : `<span><span class="dashicons dashicons-shield-alt"></span> ${wwa_login_php_vars.i18n_2}</span>` }, 'class');
             wwa_dom('wp-submit', (dom) => { dom.disabled = true }, 'id');
             wwa_dom('wp-webauthn', (dom) => {
-                dom.innerHTML = '<span class="dashicons dashicons-ellipsis"></span>&boxv;';
+                dom.innerHTML = '<span class="dashicons dashicons-ellipsis password-icon"></span>';
                 dom.title = wwa_login_php_vars.i18n_13;
                 dom.style.lineHeight = '';
             }, 'id');
