@@ -165,6 +165,10 @@ jQuery('.wwa-cancel').click((e) => {
     jQuery('#wwa-verify-block').hide();
 })
 
+// Prevent WebAuthn registration fields from triggering WordPress's unsaved changes dialog.
+// The form="wwa-registration" attribute on these inputs disassociates them from #your-profile,
+// so they are excluded from jQuery serialize() comparisons in user-profile.js.
+
 jQuery('#wwa_authenticator_name').keydown((e) => {
     if (e.keyCode === 13) {
         jQuery('#wwa-bind').trigger('click');

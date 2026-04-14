@@ -83,7 +83,6 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 = 1.4.0 =
 Add: "Passkey" terminology option
 Add: Multisite support (beta)
-Add: Related Origins Request support
 Update: Improved Passkey experience on login page
 Update: Minimum PHP version raised to 7.4
 Update: Translations
@@ -119,4 +118,4 @@ Update: Third party libraries
 == Upgrade Notice ==
 
 = 1.4.0 =
-New "Passkey" terminology option, Related Origins Request support, multisite support (beta), improved Passkey experience and more
+New "Passkey" terminology option, multisite support (beta), improved Passkey experience and more

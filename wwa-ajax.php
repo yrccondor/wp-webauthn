@@ -218,7 +218,8 @@ class PublicKeyCredentialSourceRepository implements PublicKeyCredentialSourceRe
         $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT credential_id, human_name, authenticator_type, added, usernameless, last_used
              FROM {$wpdb->wwa_credentials}
-             WHERE user_id = %d AND registered_blog_id = %d",
+             WHERE user_id = %d AND registered_blog_id = %d
+             ORDER BY added ASC",
             $wp_user_id, get_current_blog_id()
         ));
         return array_map(function($row){

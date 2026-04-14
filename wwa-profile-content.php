@@ -151,7 +151,7 @@ $wwa_term_plural = esc_html($wwa_term ? __('authenticators', 'wp-webauthn') : __
 <?php
 $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : wwa_get_option('allow_authenticator_type');
 ?>
-<select name="wwa_authenticator_type" id="wwa_authenticator_type">
+<select name="wwa_authenticator_type" id="wwa_authenticator_type" form="wwa-registration">
     <option value="none" id="type-none" class="sub-type"<?php if($allowed_type !== 'none'){echo ' disabled';}?>><?php esc_html_e('Any', 'wp-webauthn');?></option>
     <option value="platform" id="type-platform" class="sub-type"<?php if($allowed_type === 'cross-platform'){echo ' disabled';}?>><?php esc_html_e('Platform (e.g. built-in fingerprint sensors)', 'wp-webauthn');?></option>
     <option value="cross-platform" id="type-cross-platform" class="sub-type"<?php if($allowed_type === 'platform'){echo ' disabled';}?>><?php esc_html_e('Roaming (e.g. USB security keys)', 'wp-webauthn');?></option>
@@ -163,7 +163,7 @@ $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : 
 <tr>
 <th scope="row"><label for="wwa_authenticator_name"><?php esc_html_e('Authenticator Identifier', 'wp-webauthn');?></label></th>
 <td>
-    <input name="wwa_authenticator_name" type="text" id="wwa_authenticator_name" class="regular-text">
+    <input name="wwa_authenticator_name" type="text" id="wwa_authenticator_name" class="regular-text" form="wwa-registration">
     <p class="description"><?php echo wp_kses(__('An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wp-webauthn'), array('strong' => array()));?></p>
 </td>
 </tr>
@@ -172,8 +172,8 @@ $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : 
 <th scope="row"><label for="wwa_authenticator_usernameless"><?php esc_html_e('Login without username', 'wp-webauthn');?></th>
 <td>
     <fieldset>
-        <label><input type="radio" name="wwa_authenticator_usernameless" class="wwa_authenticator_usernameless" value="true"> <?php esc_html_e("Enable", "wp-webauthn");?></label><br>
-        <label><input type="radio" name="wwa_authenticator_usernameless" class="wwa_authenticator_usernameless" value="false" checked="checked"> <?php esc_html_e("Disable", "wp-webauthn");?></label><br>
+        <label><input type="radio" name="wwa_authenticator_usernameless" class="wwa_authenticator_usernameless" value="true" form="wwa-registration"> <?php esc_html_e("Enable", "wp-webauthn");?></label><br>
+        <label><input type="radio" name="wwa_authenticator_usernameless" class="wwa_authenticator_usernameless" value="false" checked="checked" form="wwa-registration"> <?php esc_html_e("Disable", "wp-webauthn");?></label><br>
         <p class="description"><?php echo wp_kses(__('If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it.', 'wp-webauthn'), array('br' => array(), 'strong' => array()));?></p>
     </fieldset>
 </td>

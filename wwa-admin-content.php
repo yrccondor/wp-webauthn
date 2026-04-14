@@ -261,7 +261,7 @@ if($wwa_v_t === false){
 </td>
 </tr>
 <?php if(!is_multisite()){ ?>
-<tr>
+<!-- Feature not fully ready <tr>
 <th scope="row"><label for="ror_origins"><?php esc_html_e('Related origins', 'wp-webauthn');?></label></th>
 <td>
 <?php $wwa_v_ror = wwa_get_option('ror_origins');
@@ -273,7 +273,7 @@ if($wwa_v_ror === false){
     <textarea name="ror_origins" id="ror_origins" rows="4" cols="50" class="large-text code"><?php echo esc_textarea($wwa_v_ror);?></textarea>
     <p class="description"><?php echo wp_kses(__('Allow cross-site passkey usages (<a href="https://passkeys.dev/docs/advanced/related-origins/" target="_blank">Related Origin Requests</a>). May be useful for multi-site networks.<br> Enter one origin per line (e.g. <code>https://example.com</code>). Leave empty to disable.', 'wp-webauthn'), array('a' => array('href' => array(), 'target' => array()), 'br' => array(), 'code' => array()));?></p>
 </td>
-</tr>
+</tr> -->
 <?php } ?>
 <tr>
 <th scope="row"></th>
