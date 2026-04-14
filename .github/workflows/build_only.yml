@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     - name: Setup PHP version
       uses: shivammathur/setup-php@v2
@@ -24,7 +24,7 @@ jobs:
       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Cache dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -33,20 +33,12 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --ignore-platform-reqs --no-dev --optimize-autoloader
 
-    - name: Add vendor
-      run: |
-        rm -rf .gitignore
-        git config --global user.email "i@yrc.me"
-        git config --global user.name "yrccondor"
-        git add .
-        git commit -m "Add vendor"
-
-    - name: Create zip package
-      run: git archive --format=zip --output "${{ github.workspace }}/${{ github.event.repository.name }}.zip" HEAD
+    - name: Prepare build files
+      run: rm -rf .gitignore
 
     - name: Upload build artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ github.event.repository.name }}
-        path: ${{ github.workspace }}/${{ github.event.repository.name }}.zip
+        path: ${{ github.workspace }}
         if-no-files-found: error
