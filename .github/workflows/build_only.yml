@@ -1,8 +1,7 @@
-name: Build and Release
+name: Build Only
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -42,18 +41,12 @@ jobs:
         git add .
         git commit -m "Add vendor"
 
-    - name: WordPress Plugin Deploy
-      id: deploy
-      uses: 10up/action-wordpress-plugin-deploy@2.2.2
-      with:
-        generate-zip: true
-      env:
-        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+    - name: Create zip package
+      run: git archive --format=zip --output "${{ github.workspace }}/${{ github.event.repository.name }}.zip" HEAD
 
-    - name: Upload release asset
-      uses: softprops/action-gh-release@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
       with:
-        files: ${{ github.workspace }}/${{ github.event.repository.name }}.zip
+        name: ${{ github.event.repository.name }}
+        path: ${{ github.workspace }}/${{ github.event.repository.name }}.zip
+        if-no-files-found: error
