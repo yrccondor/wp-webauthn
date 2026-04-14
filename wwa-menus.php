@@ -54,11 +54,10 @@ function wwa_user_profile_fields_check(){
 add_action('plugins_loaded', 'wwa_user_profile_fields_check');
 
 function wwa_network_admin_menu(){
-    add_submenu_page('settings.php', 'WP-WebAuthn', 'WP-WebAuthn', 'manage_network_options', 'wwa_network_admin', 'wwa_display_network_menu');
-}
-function wwa_display_network_menu(){
-    include('wwa-network-admin-content.php');
+    add_submenu_page('settings.php', 'WP-WebAuthn', 'WP-WebAuthn', 'manage_network_options', 'wwa_network_admin', 'wwa_display_network_settings');
 }
 if(is_multisite()){
+    include('wwa-network-admin-content.php');
     add_action('network_admin_menu', 'wwa_network_admin_menu');
+    add_action('network_admin_edit_wwa_network_options_update', 'wwa_handle_network_options_save');
 }
