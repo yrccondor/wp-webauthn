@@ -301,8 +301,12 @@ function wwa_no_authenticator_warning(){
         ));
         if(intval($count) === 0){ ?>
             <div class="notice notice-warning">
-                <?php /* translators: %s: 'the site' or 'your account', 'WebAuthn authenticator' or 'passkey', and admin profile url */ ?>
-                <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but you haven\'t register any %2$s on the current site yet. You may unable to login again once you log out. <a href="%3$s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn')), esc_html(wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn')), esc_url(admin_url('profile.php'))), array('a' => array('href' => array())));?></p>
+                <?php
+                $wwa_scope_label = esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'));
+                $wwa_cred_label = esc_html(wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'));
+                /* translators: %1$s: 'the site' or 'your account', %2$s: 'WebAuthn authenticator' or 'passkey', %3$s: admin profile url */
+                ?>
+                <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but you haven\'t register any %2$s on the current site yet. You may unable to login again once you log out. <a href="%3$s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $wwa_scope_label, $wwa_cred_label, esc_url(admin_url('profile.php'))), array('a' => array('href' => array())));?></p>
                 <?php if(is_multisite() && !is_subdomain_install()){
                     /* translators: %s: 'WebAuthn authenticators' or 'Passkeys' */ ?>
                 <p><?php echo esc_html(sprintf(__('%s registered on other sites within this network may also be used to log in.', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticators', 'wp-webauthn') : __('Passkeys', 'wp-webauthn'))); ?></p>
@@ -333,8 +337,12 @@ function wwa_no_authenticator_warning(){
         ));
         if(intval($count) === 0){ ?>
             <div class="notice notice-warning">
-                <?php /* translators: %s: 'the site' or 'your account', and 'WebAuthn authenticator' or 'passkey' */ ?>
-                <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but <strong>this account</strong> haven\'t register any %2$s on the current site yet. This user may unable to login.', 'wp-webauthn'), esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn')), esc_html(wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'))), array('strong' => array()));?></p>
+                <?php
+                $wwa_scope_label = esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'));
+                $wwa_cred_label = esc_html(wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticator', 'wp-webauthn') : __('passkey', 'wp-webauthn'));
+                /* translators: %1$s: 'the site' or 'this account', %2$s: 'WebAuthn authenticator' or 'passkey' */
+                ?>
+                <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but <strong>this account</strong> haven\'t register any %2$s on the current site yet. This user may unable to login.', 'wp-webauthn'), $wwa_scope_label, $wwa_cred_label), array('strong' => array()));?></p>
                 <?php if(is_multisite() && !is_subdomain_install()){
                     /* translators: %s: 'WebAuthn authenticators' or 'Passkeys' */ ?>
                 <p><?php echo esc_html(sprintf(__('%s registered on other sites within this network may also be used to log in.', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticators', 'wp-webauthn') : __('Passkeys', 'wp-webauthn'))); ?></p>

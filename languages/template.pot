@@ -1,8 +1,8 @@
-# Copyright (C) 2024 Axton
+# Copyright (C) 2026 Axton
 # This file is distributed under the GPLv3.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP-WebAuthn 1.3.2\n"
+"Project-Id-Version: WP-WebAuthn 1.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-webauthn\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,620 +42,789 @@ msgstr ""
 msgid "https://axton.cc"
 msgstr ""
 
-#: wwa-admin-content.php:6
+#: wwa-admin-content.php:11
+#: wwa-network-admin-content.php:98
 msgid "User verification is disabled by default because some mobile devices do not support it (especially on Android devices). But we <strong>recommend you to enable it</strong> if possible to further secure your login."
 msgstr ""
 
-#: wwa-admin-content.php:7
-#: wwa-admin-content.php:307
+#: wwa-admin-content.php:12
+#: wwa-admin-content.php:446
+#: wwa-network-admin-content.php:99
 msgid "Log count: "
 msgstr ""
 
-#: wwa-admin-content.php:8
-#: wwa-profile-content.php:14
-#: wwa-shortcodes.php:26
+#: wwa-admin-content.php:13
+#: wwa-network-admin-content.php:100
+#: wwa-profile-content.php:21
+#: wwa-shortcodes.php:34
 msgid "Loading failed, maybe try refreshing?"
 msgstr ""
 
-#: wwa-admin-content.php:16
+#: wwa-admin-content.php:21
 msgid "PHP extension gmp doesn't seem to exist, rendering WP-WebAuthn unable to function."
 msgstr ""
 
-#: wwa-admin-content.php:20
+#: wwa-admin-content.php:25
 msgid "PHP extension mbstring doesn't seem to exist, rendering WP-WebAuthn unable to function."
 msgstr ""
 
-#: wwa-admin-content.php:24
+#: wwa-admin-content.php:29
 msgid "PHP extension sodium doesn't seem to exist, rendering WP-WebAuthn unable to function."
 msgstr ""
 
-#: wwa-admin-content.php:28
+#: wwa-admin-content.php:33
 msgid "WebAuthn features are restricted to websites in secure contexts. Please make sure your website is served over HTTPS or locally with <code>localhost</code>."
 msgstr ""
 
-#: wwa-admin-content.php:131
+#: wwa-admin-content.php:186
+#: wwa-network-admin-content.php:114
 msgid "Settings saved."
 msgstr ""
 
-#: wwa-admin-content.php:133
+#: wwa-admin-content.php:188
 msgid "Settings NOT saved."
 msgstr ""
 
-#: wwa-admin-content.php:148
+#: wwa-admin-content.php:198
+msgid "Some settings are managed at the network level by the super administrator. %1$sConfigure network settings%2$s"
+msgstr ""
+
+#: wwa-admin-content.php:218
+#: wwa-network-admin-content.php:123
 msgid "Preferred login method"
 msgstr ""
 
-#: wwa-admin-content.php:152
+#: wwa-admin-content.php:222
+#: wwa-network-admin-content.php:127
 msgid "Prefer WebAuthn"
 msgstr ""
 
-#: wwa-admin-content.php:153
+#: wwa-admin-content.php:223
+#: wwa-network-admin-content.php:128
 msgid "Prefer password"
 msgstr ""
 
-#: wwa-admin-content.php:154
-#: wwa-profile-content.php:82
+#: wwa-admin-content.php:224
+#: wwa-network-admin-content.php:129
+#: wwa-profile-content.php:94
 msgid "WebAuthn Only"
 msgstr ""
 
-#: wwa-admin-content.php:156
+#: wwa-admin-content.php:226
+#: wwa-network-admin-content.php:131
 msgid "When using \"WebAuthn Only\", password login will be completely disabled. Please make sure your browser supports WebAuthn, otherwise you may unable to login.<br>User that doesn't have any registered authenticator (e.g. new user) will unable to login when using \"WebAuthn Only\".<br>When the browser does not support WebAuthn, the login method will default to password if password login is not disabled."
 msgstr ""
 
-#: wwa-admin-content.php:160
+#: wwa-admin-content.php:231
+msgid "Terminology used for users"
+msgstr ""
+
+#: wwa-admin-content.php:241
+msgctxt "Please note Passkey is a trademark owned by FIDO Alliance, please follow their guidelines for translation"
+msgid "Passkey"
+msgstr ""
+
+#: wwa-admin-content.php:242
+msgid "Choose how to name the authenticating technology to users.<br>Passkey is the brand name for this new way of digital authentication, while WebAuthn is the name of the technical standard under the hood."
+msgstr ""
+
+#: wwa-admin-content.php:250
 msgid "Website identifier"
 msgstr ""
 
-#: wwa-admin-content.php:163
+#: wwa-admin-content.php:253
 msgid "This identifier is for identification purpose only and <strong>DOES NOT</strong> affect the authentication process in anyway."
 msgstr ""
 
-#: wwa-admin-content.php:167
+#: wwa-admin-content.php:257
 msgid "Website domain"
 msgstr ""
 
-#: wwa-admin-content.php:170
+#: wwa-admin-content.php:260
 msgid "This field <strong>MUST</strong> be exactly the same with the current domain or parent domain."
 msgstr ""
 
-#: wwa-admin-content.php:177
+#: wwa-admin-content.php:265
+#: wwa-network-admin-content.php:186
+msgid "Related origins"
+msgstr ""
+
+#: wwa-admin-content.php:274
+#: wwa-network-admin-content.php:190
+msgid "Allow cross-site passkey usages (<a href=\"https://passkeys.dev/docs/advanced/related-origins/\" target=\"_blank\">Related Origin Requests</a>). May be useful for multi-site networks.<br> Enter one origin per line (e.g. <code>https://example.com</code>). Leave empty to disable."
+msgstr ""
+
+#: wwa-admin-content.php:282
 msgid "Allow to remember login"
 msgstr ""
 
-#: wwa-admin-content.php:186
-#: wwa-admin-content.php:202
-#: wwa-admin-content.php:213
-#: wwa-admin-content.php:229
-#: wwa-admin-content.php:304
-#: wwa-profile-content.php:157
-#: wwa-shortcodes.php:135
+#: wwa-admin-content.php:291
+#: wwa-admin-content.php:307
+#: wwa-admin-content.php:319
+#: wwa-admin-content.php:335
+#: wwa-admin-content.php:368
+#: wwa-admin-content.php:443
+#: wwa-network-admin-content.php:142
+#: wwa-network-admin-content.php:153
+#: wwa-network-admin-content.php:176
+#: wwa-profile-content.php:175
+#: wwa-shortcodes.php:145
 msgid "Enable"
 msgstr ""
 
-#: wwa-admin-content.php:187
-#: wwa-admin-content.php:203
-#: wwa-admin-content.php:214
-#: wwa-admin-content.php:230
-#: wwa-admin-content.php:305
-#: wwa-profile-content.php:158
-#: wwa-shortcodes.php:135
+#: wwa-admin-content.php:292
+#: wwa-admin-content.php:308
+#: wwa-admin-content.php:320
+#: wwa-admin-content.php:336
+#: wwa-admin-content.php:369
+#: wwa-admin-content.php:444
+#: wwa-network-admin-content.php:143
+#: wwa-network-admin-content.php:154
+#: wwa-network-admin-content.php:177
+#: wwa-profile-content.php:176
+#: wwa-shortcodes.php:145
 msgid "Disable"
 msgstr ""
 
-#: wwa-admin-content.php:188
+#: wwa-admin-content.php:293
 msgid "Show the 'Remember Me' checkbox beside the login form when using WebAuthn."
 msgstr ""
 
-#: wwa-admin-content.php:193
+#: wwa-admin-content.php:298
 msgid "Allow to login with email addresses"
 msgstr ""
 
-#: wwa-admin-content.php:204
-msgid "Allow to find users via email addresses when logging in.<br><strong>Note that if enabled attackers may be able to brute force the correspondences between email addresses and users.</strong>"
+#: wwa-admin-content.php:309
+msgid "Allow to find users via email addresses when logging in through WebAuthn.<br><strong>Note that if enabled attackers may be able to brute force the correspondences between email addresses and users.</strong>"
 msgstr ""
 
-#: wwa-admin-content.php:209
+#: wwa-admin-content.php:315
+#: wwa-network-admin-content.php:138
 msgid "Require user verification"
 msgstr ""
 
-#: wwa-admin-content.php:215
+#: wwa-admin-content.php:321
+#: wwa-network-admin-content.php:144
 msgid "User verification can improve security, but is not fully supported by mobile devices. <br> If you cannot register or verify your authenticators, please consider disabling user verification."
 msgstr ""
 
-#: wwa-admin-content.php:220
+#: wwa-admin-content.php:326
+#: wwa-network-admin-content.php:149
 msgid "Allow to login without username"
 msgstr ""
 
-#: wwa-admin-content.php:231
+#: wwa-admin-content.php:337
+#: wwa-network-admin-content.php:155
 msgid "Allow users to register authenticator with usernameless authentication feature and login without username.<br><strong>User verification will be enabled automatically when authenticating with usernameless authentication feature.</strong><br>Some authenticators and some browsers <strong>DO NOT</strong> support this feature."
 msgstr ""
 
-#: wwa-admin-content.php:236
+#: wwa-admin-content.php:342
+#: wwa-network-admin-content.php:160
 msgid "Allow a specific type of authenticator"
 msgstr ""
 
-#: wwa-admin-content.php:245
-#: wwa-profile-content.php:15
-#: wwa-profile-content.php:138
-#: wwa-shortcodes.php:33
-#: wwa-shortcodes.php:127
+#: wwa-admin-content.php:351
+#: wwa-network-admin-content.php:164
+#: wwa-profile-content.php:22
+#: wwa-profile-content.php:155
+#: wwa-shortcodes.php:41
+#: wwa-shortcodes.php:135
 msgid "Any"
 msgstr ""
 
-#: wwa-admin-content.php:246
+#: wwa-admin-content.php:352
+#: wwa-network-admin-content.php:165
 msgid "Platform (e.g. Passkey or built-in sensors)"
 msgstr ""
 
-#: wwa-admin-content.php:247
-#: wwa-profile-content.php:140
-#: wwa-shortcodes.php:129
+#: wwa-admin-content.php:353
+#: wwa-network-admin-content.php:166
+#: wwa-profile-content.php:157
+#: wwa-shortcodes.php:137
 msgid "Roaming (e.g. USB security keys)"
 msgstr ""
 
-#: wwa-admin-content.php:249
+#: wwa-admin-content.php:355
+#: wwa-network-admin-content.php:168
 msgid "If a type is selected, the browser will only prompt for authenticators of selected type when authenticating and user can only register authenticators of selected type."
 msgstr ""
 
-#: wwa-admin-content.php:256
+#: wwa-admin-content.php:359
+#: wwa-network-admin-content.php:172
+msgid "Allow users to choose authenticator type"
+msgstr ""
+
+#: wwa-admin-content.php:370
+#: wwa-network-admin-content.php:178
+msgid "When enabled, users can select the authenticator type when registering.<br>The \"Allow a specific type\" restriction above still applies regardless of this setting."
+msgstr ""
+
+#: wwa-admin-content.php:379
 msgid "Disable password reset for"
 msgstr ""
 
-#: wwa-admin-content.php:265
+#: wwa-admin-content.php:388
 msgid "Off"
 msgstr ""
 
-#: wwa-admin-content.php:266
+#: wwa-admin-content.php:389
 msgid "Everyone except administrators"
 msgstr ""
 
-#: wwa-admin-content.php:267
+#: wwa-admin-content.php:390
 msgid "Everyone"
 msgstr ""
 
-#: wwa-admin-content.php:269
+#: wwa-admin-content.php:392
 msgid "Disable the \"Set new password\" and \"Forgot password\" features, and remove the \"Forgot password\" link on the login page. This may be useful when enabling \"WebAuthn Only\".<br>If \"Everyone except administrators\" is selected, only administrators with the \"Edit user\" permission will be able to update passwords (for all users)."
 msgstr ""
 
-#: wwa-admin-content.php:276
+#: wwa-admin-content.php:399
 msgid "After User Registration"
 msgstr ""
 
-#: wwa-admin-content.php:285
+#: wwa-admin-content.php:413
 msgid "No action"
 msgstr ""
 
-#: wwa-admin-content.php:286
+#: wwa-admin-content.php:414
 msgid "Log user in and redirect to user's profile"
 msgstr ""
 
-#: wwa-admin-content.php:288
+#: wwa-admin-content.php:416
+msgid "Send user an one-time login link via email"
+msgstr ""
+
+#: wwa-admin-content.php:419
 msgid "What to do when a new user registered.<br>By default, new users have to login manually after registration. If \"WebAuthn Only\" is enabled, they will not be able to login.<br>When using \"Log user in\", new users will be logged in automatically and redirected to their profile settings so that they can set up WebAuthn authenticators."
 msgstr ""
 
-#: wwa-admin-content.php:295
+#: wwa-admin-content.php:423
+msgid "<br>When using \"Send login link\", an one-time login link will be automatically sent to the user's email adress. This will replace the default WordPress welcome email.<br><strong>\"Send login link\" will work even if \"Allow user login by login link via email\" is disabled.</strong>"
+msgstr ""
+
+#: wwa-admin-content.php:434
 msgid "Logging"
 msgstr ""
 
-#: wwa-admin-content.php:307
+#: wwa-admin-content.php:446
 msgid "Clear log"
 msgstr ""
 
-#: wwa-admin-content.php:309
+#: wwa-admin-content.php:448
 msgid "For debugging only. Enable only when needed.<br><strong>Note: Logs may contain sensitive information.</strong>"
 msgstr ""
 
-#: wwa-admin-content.php:318
+#: wwa-admin-content.php:457
 msgid "Log"
 msgstr ""
 
-#: wwa-admin-content.php:320
+#: wwa-admin-content.php:459
 msgid "Automatic update every 5 seconds."
 msgstr ""
 
 #. translators: %s: admin profile url
-#: wwa-admin-content.php:325
+#: wwa-admin-content.php:464
 msgid "To register a new authenticator or edit your authenticators, please go to <a href=\"%s#wwa-webauthn-start\">your profile</a>."
 msgstr ""
 
-#: wwa-functions.php:159
-#: wwa-shortcodes.php:91
+#: wwa-functions.php:197
+#: wwa-shortcodes.php:99
 msgid "Auth"
 msgstr ""
 
-#: wwa-functions.php:160
-#: wwa-shortcodes.php:11
-#: wwa-shortcodes.php:81
-#: wwa-shortcodes.php:90
+#: wwa-functions.php:198
+#: wwa-shortcodes.php:19
+#: wwa-shortcodes.php:89
+#: wwa-shortcodes.php:98
 msgid "Authenticate with WebAuthn"
 msgstr ""
 
-#: wwa-functions.php:161
-#: wwa-shortcodes.php:12
+#: wwa-functions.php:198
+#: wwa-shortcodes.php:19
+#: wwa-shortcodes.php:89
+#: wwa-shortcodes.php:98
+msgid "Authenticate with a passkey"
+msgstr ""
+
+#: wwa-functions.php:199
+#: wwa-shortcodes.php:20
 msgid "Hold on..."
 msgstr ""
 
-#: wwa-functions.php:162
-#: wwa-shortcodes.php:13
+#: wwa-functions.php:200
+#: wwa-shortcodes.php:21
 msgid "Please proceed..."
 msgstr ""
 
-#: wwa-functions.php:163
-#: wwa-shortcodes.php:14
+#: wwa-functions.php:201
+#: wwa-shortcodes.php:22
 msgid "Authenticating..."
 msgstr ""
 
-#: wwa-functions.php:164
-#: wwa-shortcodes.php:15
+#: wwa-functions.php:202
+#: wwa-shortcodes.php:23
 msgid "Authenticated"
 msgstr ""
 
-#: wwa-functions.php:165
-#: wwa-shortcodes.php:16
+#: wwa-functions.php:203
+#: wwa-shortcodes.php:24
 msgid "Auth failed"
 msgstr ""
 
-#: wwa-functions.php:166
+#: wwa-functions.php:204
 msgid "It looks like your browser doesn't support WebAuthn, which means you may unable to login."
 msgstr ""
 
-#: wwa-functions.php:167
-#: wwa-shortcodes.php:87
+#: wwa-functions.php:205
+#: wwa-shortcodes.php:95
 msgid "Username"
 msgstr ""
 
-#: wwa-functions.php:169
+#: wwa-functions.php:207
 msgid "<strong>Error</strong>: The username field is empty."
 msgstr ""
 
-#: wwa-functions.php:170
-#: wwa-shortcodes.php:42
+#: wwa-functions.php:208
+#: wwa-shortcodes.php:50
 msgid "Try to enter the username"
 msgstr ""
 
-#: wwa-functions.php:185
+#. translators: %s: 'WebAuthn' or 'passkey'
+#: wwa-functions.php:210
+#: wwa-profile-content.php:41
+#: wwa-profile-content.php:87
+msgid "Passkey"
+msgstr ""
+
+#: wwa-functions.php:225
 msgid "Logging in with password has been disabled by the site manager."
 msgstr ""
 
-#: wwa-functions.php:191
+#: wwa-functions.php:231
 msgid "Logging in with password has been disabled for this account."
 msgstr ""
 
-#. translators: %s: 'the site' or 'your account', and admin profile url
-#: wwa-functions.php:276
-msgid "Logging in with password has been disabled for %s but you haven't register any WebAuthn authenticator yet. You may unable to login again once you log out. <a href=\"%s#wwa-webauthn-start\">Register</a>"
-msgstr ""
-
-#. translators: %s: 'the site' or 'your account', and admin profile url
-#. translators: %s: 'the site' or 'your account'
-#: wwa-functions.php:276
-#: wwa-functions.php:322
+#: wwa-functions.php:305
+#: wwa-functions.php:341
 msgid "the site"
 msgstr ""
 
-#. translators: %s: 'the site' or 'your account', and admin profile url
-#: wwa-functions.php:276
+#: wwa-functions.php:305
 msgid "your account"
 msgstr ""
 
-#. translators: %s: 'the site' or 'your account'
-#: wwa-functions.php:322
-msgid "Logging in with password has been disabled for %s but <strong>this account</strong> haven't register any WebAuthn authenticator yet. This user may unable to login."
+#: wwa-functions.php:306
+#: wwa-functions.php:342
+msgid "WebAuthn authenticator"
 msgstr ""
 
-#. translators: %s: 'the site' or 'your account'
-#: wwa-functions.php:322
+#: wwa-functions.php:306
+#: wwa-functions.php:342
+msgid "passkey"
+msgstr ""
+
+#: wwa-functions.php:309
+msgid "Logging in with password has been disabled for %1$s but you haven't register any %2$s on the current site yet. You may unable to login again once you log out. <a href=\"%3$s#wwa-webauthn-start\">Register</a>"
+msgstr ""
+
+#. translators: %s: 'WebAuthn authenticators' or 'Passkeys'
+#: wwa-functions.php:312
+#: wwa-functions.php:348
+msgid "%s registered on other sites within this network may also be used to log in."
+msgstr ""
+
+#. translators: %s: 'WebAuthn authenticators' or 'Passkeys'
+#: wwa-functions.php:312
+#: wwa-functions.php:348
+msgid "WebAuthn authenticators"
+msgstr ""
+
+#. translators: %s: 'WebAuthn authenticators' or 'Passkeys'
+#: wwa-functions.php:312
+#: wwa-functions.php:348
+#: wwa-profile-content.php:54
+msgid "Passkeys"
+msgstr ""
+
+#: wwa-functions.php:341
 msgid "this account"
 msgstr ""
 
-#: wwa-functions.php:350
+#: wwa-functions.php:345
+msgid "Logging in with password has been disabled for %1$s but <strong>this account</strong> haven't register any %2$s on the current site yet. This user may unable to login."
+msgstr ""
+
+#: wwa-functions.php:377
 msgid "Settings"
 msgstr ""
 
-#: wwa-functions.php:358
+#: wwa-functions.php:385
+#: wwa-network-admin-content.php:111
+msgid "Network Settings"
+msgstr ""
+
+#: wwa-functions.php:395
 msgid "GitHub"
 msgstr ""
 
-#: wwa-functions.php:359
+#: wwa-functions.php:396
 msgid "Documentation"
 msgstr ""
 
-#: wwa-profile-content.php:7
+#: wwa-network-admin-content.php:117
+msgid "These settings apply to all sites in the network."
+msgstr ""
+
+#: wwa-profile-content.php:14
 msgid "Initializing..."
 msgstr ""
 
-#: wwa-profile-content.php:8
-#: wwa-shortcodes.php:37
+#: wwa-profile-content.php:15
+#: wwa-shortcodes.php:45
 msgid "Please follow instructions to finish registration..."
 msgstr ""
 
-#: wwa-profile-content.php:9
-#: wwa-shortcodes.php:38
+#: wwa-profile-content.php:16
+#: wwa-shortcodes.php:46
 msgctxt "action"
 msgid "Registered"
 msgstr ""
 
-#: wwa-profile-content.php:10
-#: wwa-shortcodes.php:39
+#: wwa-profile-content.php:17
+#: wwa-shortcodes.php:47
 msgid "Registration failed"
 msgstr ""
 
-#: wwa-profile-content.php:11
-#: wwa-shortcodes.php:40
+#: wwa-profile-content.php:18
+#: wwa-shortcodes.php:48
 msgid "Your browser does not support WebAuthn"
 msgstr ""
 
-#: wwa-profile-content.php:12
-#: wwa-shortcodes.php:41
+#: wwa-profile-content.php:19
+#: wwa-shortcodes.php:49
 msgid "Registrating..."
 msgstr ""
 
-#: wwa-profile-content.php:13
-#: wwa-shortcodes.php:21
+#: wwa-profile-content.php:20
+#: wwa-shortcodes.php:29
 msgid "Please enter the authenticator identifier"
 msgstr ""
 
-#: wwa-profile-content.php:16
-#: wwa-shortcodes.php:34
+#: wwa-profile-content.php:23
+#: wwa-shortcodes.php:42
 msgid "Platform authenticator"
 msgstr ""
 
-#: wwa-profile-content.php:17
-#: wwa-shortcodes.php:35
+#: wwa-profile-content.php:24
+#: wwa-shortcodes.php:43
 msgid "Roaming authenticator"
 msgstr ""
 
-#: wwa-profile-content.php:18
-#: wwa-shortcodes.php:36
+#: wwa-profile-content.php:25
+#: wwa-shortcodes.php:44
 msgid "Remove"
 msgstr ""
 
-#: wwa-profile-content.php:19
-#: wwa-shortcodes.php:22
+#: wwa-profile-content.php:26
+#: wwa-shortcodes.php:30
 msgid "Please follow instructions to finish verification..."
 msgstr ""
 
-#: wwa-profile-content.php:20
-#: wwa-shortcodes.php:23
+#: wwa-profile-content.php:27
+#: wwa-shortcodes.php:31
 msgid "Verifying..."
 msgstr ""
 
-#: wwa-profile-content.php:21
-#: wwa-shortcodes.php:24
+#: wwa-profile-content.php:28
+#: wwa-shortcodes.php:32
 msgid "Verification failed"
 msgstr ""
 
-#: wwa-profile-content.php:22
-#: wwa-shortcodes.php:25
+#: wwa-profile-content.php:29
+#: wwa-shortcodes.php:33
 msgid "Verification passed! You can now log in through WebAuthn"
 msgstr ""
 
-#: wwa-profile-content.php:23
-#: wwa-shortcodes.php:32
-msgid "No registered authenticators"
-msgstr ""
-
-#: wwa-profile-content.php:24
-#: wwa-shortcodes.php:27
-msgid "Confirm removal of authenticator: "
-msgstr ""
-
-#: wwa-profile-content.php:25
-#: wwa-shortcodes.php:28
-msgid "Removing..."
-msgstr ""
-
-#: wwa-profile-content.php:26
-#: wwa-shortcodes.php:29
-msgid "Rename"
-msgstr ""
-
-#: wwa-profile-content.php:27
-#: wwa-shortcodes.php:30
-msgid "Rename the authenticator"
-msgstr ""
-
-#: wwa-profile-content.php:28
-#: wwa-shortcodes.php:31
-msgid "Renaming..."
-msgstr ""
-
 #: wwa-profile-content.php:29
-#: wwa-shortcodes.php:10
-msgid "Ready"
+msgid "Verification passed! You can now log in with this passkey"
 msgstr ""
 
 #: wwa-profile-content.php:30
-#: wwa-shortcodes.php:17
-msgid "No"
+#: wwa-shortcodes.php:40
+msgid "No registered authenticators"
 msgstr ""
 
 #: wwa-profile-content.php:31
-#: wwa-shortcodes.php:18
-msgid " (Unavailable)"
+#: wwa-shortcodes.php:35
+msgid "Confirm removal of authenticator: "
 msgstr ""
 
 #: wwa-profile-content.php:32
-#: wwa-shortcodes.php:19
-msgid "The site administrator has disabled usernameless login feature."
+#: wwa-shortcodes.php:36
+msgid "Removing..."
 msgstr ""
 
 #: wwa-profile-content.php:33
-#: wwa-shortcodes.php:43
-msgid "After removing this authenticator, you will not be able to login with WebAuthn"
+#: wwa-shortcodes.php:37
+msgid "Rename"
 msgstr ""
 
 #: wwa-profile-content.php:34
-#: wwa-shortcodes.php:44
-msgid " (Disabled)"
+#: wwa-shortcodes.php:38
+msgid "Rename the authenticator"
 msgstr ""
 
 #: wwa-profile-content.php:35
-#: wwa-shortcodes.php:45
-msgid "The site administrator only allow platform authenticators currently."
+#: wwa-shortcodes.php:39
+msgid "Renaming..."
 msgstr ""
 
 #: wwa-profile-content.php:36
-#: wwa-shortcodes.php:46
+#: wwa-shortcodes.php:18
+msgid "Ready"
+msgstr ""
+
+#: wwa-profile-content.php:37
+#: wwa-shortcodes.php:25
+msgid "No"
+msgstr ""
+
+#: wwa-profile-content.php:38
+#: wwa-shortcodes.php:26
+msgid " (Unavailable)"
+msgstr ""
+
+#: wwa-profile-content.php:39
+#: wwa-shortcodes.php:27
+msgid "The site administrator has disabled usernameless login feature."
+msgstr ""
+
+#. translators: %s: 'WebAuthn' or 'passkey'
+#: wwa-profile-content.php:41
+msgid "After removing this authenticator, you will not be able to login with %s"
+msgstr ""
+
+#: wwa-profile-content.php:42
+#: wwa-shortcodes.php:52
+msgid " (Disabled)"
+msgstr ""
+
+#: wwa-profile-content.php:43
+#: wwa-shortcodes.php:53
+msgid "The site administrator only allow platform authenticators currently."
+msgstr ""
+
+#: wwa-profile-content.php:44
+#: wwa-shortcodes.php:54
 msgid "The site administrator only allow roaming authenticators currently."
 msgstr ""
 
-#: wwa-profile-content.php:64
-msgid "You've successfully registered! Now you can register your authenticators below."
+#: wwa-profile-content.php:70
+#: wwa-profile-content.php:142
+msgid "authenticators"
 msgstr ""
 
-#: wwa-profile-content.php:76
-msgid "This site is not correctly configured to use WebAuthn. Please contact the site administrator."
+#: wwa-profile-content.php:70
+#: wwa-profile-content.php:142
+msgid "passkeys"
 msgstr ""
 
-#: wwa-profile-content.php:86
-msgid "Disable password login for this account"
+#. translators: %1$s: 'authenticators' or 'passkeys'
+#: wwa-profile-content.php:72
+msgid "You've successfully registered! Now you can register your %1$s below."
 msgstr ""
 
-#: wwa-profile-content.php:88
-msgid "When checked, password login will be completely disabled. Please make sure your browser supports WebAuthn and you have a registered authenticator, otherwise you may unable to login."
+#. translators: %s: 'WebAuthn' or 'passkey'
+#: wwa-profile-content.php:87
+msgid "This site is not correctly configured to use %s. Please contact the site administrator."
 msgstr ""
 
-#: wwa-profile-content.php:88
-msgid "The site administrator has disabled password login for the whole site."
-msgstr ""
-
-#: wwa-profile-content.php:92
-msgid "Registered WebAuthn Authenticators"
-msgstr ""
-
-#: wwa-profile-content.php:97
-#: wwa-profile-content.php:112
-#: wwa-shortcodes.php:175
-#: wwa-shortcodes.php:177
-msgid "Identifier"
+#: wwa-profile-content.php:94
+msgid "Passkey Only"
 msgstr ""
 
 #: wwa-profile-content.php:98
-#: wwa-profile-content.php:113
-#: wwa-shortcodes.php:175
-#: wwa-shortcodes.php:177
+msgid "Disable password login for this account"
+msgstr ""
+
+#: wwa-profile-content.php:100
+msgid "When checked, password login will be completely disabled. Please make sure your browser supports WebAuthn and you have a registered authenticator, otherwise you may unable to login."
+msgstr ""
+
+#: wwa-profile-content.php:100
+msgid "When checked, password login will be completely disabled. Please make sure you have a registered passkey, otherwise you may unable to login."
+msgstr ""
+
+#: wwa-profile-content.php:100
+msgid "This setting applies to your account across all sites in the network."
+msgstr ""
+
+#: wwa-profile-content.php:100
+msgid "The site administrator has disabled password login for the whole site."
+msgstr ""
+
+#: wwa-profile-content.php:104
+msgid "Registered WebAuthn Authenticators"
+msgstr ""
+
+#: wwa-profile-content.php:104
+msgid "Registered Passkeys"
+msgstr ""
+
+#: wwa-profile-content.php:109
+#: wwa-profile-content.php:124
+#: wwa-shortcodes.php:188
+#: wwa-shortcodes.php:190
+msgid "Identifier"
+msgstr ""
+
+#: wwa-profile-content.php:110
+#: wwa-profile-content.php:125
+#: wwa-shortcodes.php:186
 msgid "Type"
 msgstr ""
 
-#: wwa-profile-content.php:99
-#: wwa-profile-content.php:114
-#: wwa-shortcodes.php:175
-#: wwa-shortcodes.php:177
+#: wwa-profile-content.php:111
+#: wwa-profile-content.php:126
+#: wwa-shortcodes.php:188
+#: wwa-shortcodes.php:190
 msgctxt "time"
 msgid "Registered"
 msgstr ""
 
-#: wwa-profile-content.php:100
-#: wwa-profile-content.php:115
-#: wwa-shortcodes.php:175
-#: wwa-shortcodes.php:177
+#: wwa-profile-content.php:112
+#: wwa-profile-content.php:127
+#: wwa-shortcodes.php:188
+#: wwa-shortcodes.php:190
 msgid "Last used"
 msgstr ""
 
-#: wwa-profile-content.php:101
-#: wwa-profile-content.php:116
-#: wwa-shortcodes.php:175
-#: wwa-shortcodes.php:177
+#: wwa-profile-content.php:113
+#: wwa-profile-content.php:128
+#: wwa-shortcodes.php:188
+#: wwa-shortcodes.php:190
 msgid "Usernameless"
 msgstr ""
 
-#: wwa-profile-content.php:102
-#: wwa-profile-content.php:117
-#: wwa-shortcodes.php:175
-#: wwa-shortcodes.php:177
+#: wwa-profile-content.php:114
+#: wwa-profile-content.php:129
+#: wwa-shortcodes.php:188
+#: wwa-shortcodes.php:190
 msgid "Action"
 msgstr ""
 
-#: wwa-profile-content.php:107
-#: wwa-shortcodes.php:176
+#: wwa-profile-content.php:119
+#: wwa-shortcodes.php:189
 msgid "Loading..."
 msgstr ""
 
-#: wwa-profile-content.php:124
-#: wwa-profile-content.php:127
+#: wwa-profile-content.php:136
+#: wwa-profile-content.php:139
 msgid "Register New Authenticator"
 msgstr ""
 
-#: wwa-profile-content.php:124
-#: wwa-profile-content.php:169
+#: wwa-profile-content.php:136
+#: wwa-profile-content.php:139
+msgid "Register New Passkey"
+msgstr ""
+
+#: wwa-profile-content.php:136
+#: wwa-profile-content.php:187
 msgid "Verify Authenticator"
 msgstr ""
 
-#. translators: %s: user login name
-#: wwa-profile-content.php:129
-msgid "You are about to associate an authenticator with the current account <strong>%s</strong>.<br>You can register multiple authenticators for an account."
+#: wwa-profile-content.php:136
+#: wwa-profile-content.php:187
+msgid "Verify Passkey"
 msgstr ""
 
-#: wwa-profile-content.php:132
-#: wwa-shortcodes.php:125
-msgid "Type of authenticator"
+#: wwa-profile-content.php:141
+msgid "an authenticator"
 msgstr ""
 
-#: wwa-profile-content.php:139
-#: wwa-shortcodes.php:128
-msgid "Platform (e.g. built-in fingerprint sensors)"
+#: wwa-profile-content.php:141
+msgid "a passkey"
 msgstr ""
 
-#: wwa-profile-content.php:142
-#: wwa-shortcodes.php:131
-msgid "If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you've registered."
-msgstr ""
-
-#: wwa-profile-content.php:146
-msgid "Authenticator Identifier"
+#: wwa-profile-content.php:145
+msgid "You are about to associate %1$s with the current account <strong>%2$s</strong>.<br>You can register multiple %3$s for an account."
 msgstr ""
 
 #: wwa-profile-content.php:149
-#: wwa-shortcodes.php:134
-msgid "An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway."
+#: wwa-shortcodes.php:133
+msgid "Type of authenticator"
 msgstr ""
 
-#: wwa-profile-content.php:154
-#: wwa-shortcodes.php:135
-msgid "Login without username"
+#: wwa-profile-content.php:156
+#: wwa-shortcodes.php:136
+msgid "Platform (e.g. built-in fingerprint sensors)"
 msgstr ""
 
 #: wwa-profile-content.php:159
-#: wwa-shortcodes.php:135
+#: wwa-shortcodes.php:139
+msgid "If a type is selected, the browser will only prompt for authenticators of selected type. <br> Regardless of the type, you can only log in with the very same authenticators you've registered."
+msgstr ""
+
+#: wwa-profile-content.php:164
+msgid "Authenticator Identifier"
+msgstr ""
+
+#: wwa-profile-content.php:167
+#: wwa-shortcodes.php:144
+msgid "An easily identifiable name for the authenticator. <strong>DOES NOT</strong> affect the authentication process in anyway."
+msgstr ""
+
+#: wwa-profile-content.php:172
+#: wwa-shortcodes.php:145
+msgid "Login without username"
+msgstr ""
+
+#: wwa-profile-content.php:177
+#: wwa-shortcodes.php:145
 msgid "If registered authenticator with this feature, you can login without enter your username.<br>Some authenticators like U2F-only authenticators and some browsers <strong>DO NOT</strong> support this feature.<br>A record will be stored in the authenticator permanently untill you reset it."
 msgstr ""
 
-#: wwa-profile-content.php:165
+#: wwa-profile-content.php:183
 msgid "Start Registration"
 msgstr ""
 
-#: wwa-profile-content.php:170
+#: wwa-profile-content.php:188
 msgid "Click Test Login to verify that the registered authenticators are working."
 msgstr ""
 
-#: wwa-profile-content.php:171
-#: wwa-shortcodes.php:163
+#: wwa-profile-content.php:189
+#: wwa-shortcodes.php:173
 msgid "Test Login"
 msgstr ""
 
-#: wwa-profile-content.php:173
-#: wwa-shortcodes.php:163
+#: wwa-profile-content.php:191
+#: wwa-shortcodes.php:173
 msgid "Test Login (usernameless)"
 msgstr ""
 
-#: wwa-shortcodes.php:20
+#: wwa-shortcodes.php:28
 msgid "Error: The username field is empty."
 msgstr ""
 
-#: wwa-shortcodes.php:91
+#: wwa-shortcodes.php:51
+msgid "After removing this authenticator, you will not be able to login with WebAuthn"
+msgstr ""
+
+#: wwa-shortcodes.php:99
 msgid "Authenticate with password"
 msgstr ""
 
-#: wwa-shortcodes.php:110
-#: wwa-shortcodes.php:152
-#: wwa-shortcodes.php:185
+#: wwa-shortcodes.php:118
+#: wwa-shortcodes.php:162
+#: wwa-shortcodes.php:198
 msgid "You haven't logged in yet."
 msgstr ""
 
-#: wwa-shortcodes.php:132
+#: wwa-shortcodes.php:142
 msgid "Authenticator identifier"
 msgstr ""
 
-#: wwa-shortcodes.php:136
+#: wwa-shortcodes.php:146
 msgid "Start registration"
 msgstr ""

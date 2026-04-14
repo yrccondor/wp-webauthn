@@ -192,6 +192,7 @@ settings_errors('wwa_settings');
 <?php if(is_multisite() && wwa_validate_privileges()){ ?>
     <div class="notice notice-info">
         <p><?php
+        /* translators: %1$s: opening link tag, %2$s: closing link tag */
         echo wp_kses(
             sprintf(
                 __('Some settings are managed at the network level by the super administrator. %1$sConfigure network settings%2$s', 'wp-webauthn'),

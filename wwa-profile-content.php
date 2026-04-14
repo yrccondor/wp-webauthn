@@ -67,8 +67,9 @@ if(isset($_GET['wwa_registered']) && $_GET['wwa_registered'] === 'true'){
 <div id="wp-webauthn-message-container">
     <div class="notice notice-info is-dismissible" role="alert" id="wp-webauthn-message">
         <p><?php
-        /* translators: %s: 'authenticators' or 'passkeys' */
-        echo esc_html(sprintf(__('You\'ve successfully registered! Now you can register your %s below.', 'wp-webauthn'), $wwa_term ? __('authenticators', 'wp-webauthn') : __('passkeys', 'wp-webauthn')));
+        $wwa_term_plural = $wwa_term ? __('authenticators', 'wp-webauthn') : __('passkeys', 'wp-webauthn');
+        /* translators: %1$s: 'authenticators' or 'passkeys' */
+        echo esc_html(sprintf(__('You\'ve successfully registered! Now you can register your %1$s below.', 'wp-webauthn'), $wwa_term_plural));
         ?></p>
     </div>
 </div>
@@ -136,8 +137,12 @@ if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check
 <div id="wwa-new-block" tabindex="-1">
 <button class="button button-small wwa-cancel"><?php esc_html_e('Close');?></button>
 <h2><?php $wwa_term ? esc_html_e('Register New Authenticator', 'wp-webauthn') : esc_html_e('Register New Passkey', 'wp-webauthn'); ?></h2>
-<?php /* translators: %s: 'an authenticator' or 'a passkey', user login name, and 'authenticators' or 'passkeys' */ ?>
-<p class="description"><?php echo wp_kses(sprintf(__('You are about to associate %1$s with the current account <strong>%2$s</strong>.<br>You can register multiple %3$s for an account.', 'wp-webauthn'), esc_html($wwa_term ? __('an authenticator', 'wp-webauthn') : __('a passkey', 'wp-webauthn')), esc_html($user->user_login), esc_html($wwa_term ? __('authenticators', 'wp-webauthn') : __('passkeys', 'wp-webauthn'))), array('strong' => array(), 'br' => array()));?></p>
+<?php
+$wwa_term_singular = esc_html($wwa_term ? __('an authenticator', 'wp-webauthn') : __('a passkey', 'wp-webauthn'));
+$wwa_term_plural = esc_html($wwa_term ? __('authenticators', 'wp-webauthn') : __('passkeys', 'wp-webauthn'));
+/* translators: %1$s: 'an authenticator' or 'a passkey', %2$s: user login name, %3$s: 'authenticators' or 'passkeys' */
+?>
+<p class="description"><?php echo wp_kses(sprintf(__('You are about to associate %1$s with the current account <strong>%2$s</strong>.<br>You can register multiple %3$s for an account.', 'wp-webauthn'), $wwa_term_singular, esc_html($user->user_login), $wwa_term_plural), array('strong' => array(), 'br' => array()));?></p>
 <table class="form-table">
 <?php if(wwa_get_option('show_authenticator_type') !== 'false'){?>
 <tr>
