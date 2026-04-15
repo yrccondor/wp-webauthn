@@ -4,7 +4,7 @@ Donate link: https://flyhigher.top/about
 Tags: webauthn, passkey, login, security, fido, password, faceid
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -24,6 +24,8 @@ WP-WebAuthn also supports usernameless authentication.
 This plugin has 4 built-in shortcodes and 4 built-in Gutenberg blocks, so you can add components like register form to frontend pages.
 
 Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
+
+This plugin currently has *BETA* multisite support, if you find any issue in multisite, feel free to [open an issue](https://github.com/yrccondor/wp-webauthn/issues/new) on GitHub.
 
 **PHP extensions gmp and mbstring are required.**
 
@@ -80,6 +82,9 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Changelog ==
 
+= 1.4.1 =
+Fix: Error when saving settings
+
 = 1.4.0 =
 Add: "Passkey" terminology option
 Add: Multisite support (beta)
@@ -117,5 +122,5 @@ Update: Third party libraries
 
 == Upgrade Notice ==
 
-= 1.4.0 =
+= 1.4.1 =
 New "Passkey" terminology option, multisite support (beta), improved Passkey experience and more

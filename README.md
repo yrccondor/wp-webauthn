@@ -36,6 +36,8 @@ This plugin has 4 built-in shortcodes and 4 built-in Gutenberg blocks, so you ca
 
 Please refer to the [documentation](http://doc.flyhigher.top/wp-webauthn) before using the plugin.
 
+This plugin currently has *BETA* multisite support, if you find any issue in multisite, feel free to [open an issue](https://github.com/yrccondor/wp-webauthn/issues/new) on GitHub.
+
 ## Installation
 
 **PHP extension gmp and mbstring is required.**

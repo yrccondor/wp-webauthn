@@ -4,6 +4,6 @@ if (!defined('ABSPATH')) {
 }
 
 $wwa_version = array(
-    'version' => '1.4.0',
-    'commit' => '31d150f'
+    'version' => '1.4.1',
+    'commit' => 'f5955ea'
 );

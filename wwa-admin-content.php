@@ -51,7 +51,7 @@ if(
     && (isset($_POST['logging']) && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false'))
     && isset($_POST['website_name'])
     && isset($_POST['website_domain'])
-    && (is_multisite() || isset($_POST['ror_origins']))
+    // && (is_multisite() || isset($_POST['ror_origins']))
 ){
     $res_id = wwa_generate_random_string(5);
 
@@ -100,7 +100,7 @@ if(
     }
     wwa_update_option('website_domain', $post_website_domain);
 
-    if(!is_multisite()){
+    if(!is_multisite() && isset($_POST['ror_origins'])){
         $raw_ror = wp_unslash($_POST['ror_origins']);
         $ror_lines = explode("\n", $raw_ror);
         $sanitized_ror = array();
