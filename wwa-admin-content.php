@@ -17,10 +17,6 @@ wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 <div class="wrap"><h1>WP-WebAuthn</h1>
 <?php
 $wwa_not_allowed = false;
-if(!function_exists('gmp_intval')){
-    add_settings_error('wwa_settings', 'gmp_error', __("PHP extension gmp doesn't seem to exist, rendering WP-WebAuthn unable to function.", 'wp-webauthn'));
-    $wwa_not_allowed = true;
-}
 if(!function_exists('mb_substr')){
     add_settings_error('wwa_settings', 'mbstr_error', __("PHP extension mbstring doesn't seem to exist, rendering WP-WebAuthn unable to function.", 'wp-webauthn'));
     $wwa_not_allowed = true;
@@ -58,9 +54,6 @@ if(
     $post_logging = sanitize_text_field(wp_unslash($_POST['logging']));
     if($post_logging === 'true' && wwa_get_option('logging') === 'false'){
         // Initialize log
-        if(!function_exists('gmp_intval')){
-            wwa_add_log($res_id, 'Warning: PHP extension gmp not found', true);
-        }
         if(!function_exists('mb_substr')){
             wwa_add_log($res_id, 'Warning: PHP extension mbstring not found', true);
         }

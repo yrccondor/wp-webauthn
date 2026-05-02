@@ -3,6 +3,28 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once('wp-webauthn-vendor/autoload.php');
+use Webauthn\AuthenticatorAttestationResponseValidator;
+use Webauthn\AuthenticatorAssertionResponseValidator;
+use Webauthn\AttestationStatement\AttestationStatementSupportManager;
+use Webauthn\AttestationStatement\NoneAttestationStatementSupport;
+use Webauthn\AttestationStatement\PackedAttestationStatementSupport;
+use Webauthn\AttestationStatement\FidoU2FAttestationStatementSupport;
+use Webauthn\AttestationStatement\AppleAttestationStatementSupport;
+use Webauthn\AttestationStatement\AndroidKeyAttestationStatementSupport;
+use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
+use Webauthn\Denormalizer\WebauthnSerializerFactory;
+use Cose\Algorithm\Manager as CoseAlgorithmManager;
+use Cose\Algorithm\Signature\ECDSA\ES256;
+use Cose\Algorithm\Signature\ECDSA\ES384;
+use Cose\Algorithm\Signature\ECDSA\ES512;
+use Cose\Algorithm\Signature\EdDSA\Ed25519;
+use Cose\Algorithm\Signature\RSA\RS256;
+use Cose\Algorithm\Signature\RSA\PS256;
+use Cose\Algorithm\Signature\RSA\PS384;
+use Cose\Algorithm\Signature\RSA\PS512;
+use Webauthn\CeremonyStep\CeremonyStepManagerFactory;
+
 // WordPress transient adapter
 function wwa_set_temp_val($name, $value, $client_id){
     return set_transient('wwa_'.$name.$client_id, serialize($value), 90);
@@ -178,7 +200,7 @@ function wwa_login_js(){
     wwa_init_new_options();
 
     $wwa_not_allowed = false;
-    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
     wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
@@ -218,7 +240,7 @@ add_action('login_enqueue_scripts', 'wwa_login_js', 999);
 
 // Disable password login
 function wwa_disable_password($user){
-    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         return $user;
     }
     if(wwa_get_option('first_choice') === 'webauthn'){
@@ -508,3 +530,121 @@ add_action('wp_initialize_site', 'wwa_new_site_init');
 add_filter('query_vars', 'wwa_query_vars');
 add_action('parse_request', 'wwa_handle_ror', 99);
 add_action('init', 'wwa_add_rewrite_rules', 1);
+
+// Normalize credential response JSON from standard base64 to base64url without padding
+function wwa_normalize_credential_response(string $json_string): string {
+    $data = json_decode($json_string, true);
+    if(!is_array($data)){
+        return $json_string;
+    }
+
+    $to_base64url = function($v){
+        return is_string($v) ? rtrim(strtr($v, '+/', '-_'), '=') : $v;
+    };
+
+    if(isset($data['id']) && is_string($data['id'])){
+        $data['id'] = $to_base64url($data['id']);
+    }
+    if(isset($data['rawId']) && is_string($data['rawId'])){
+        $data['rawId'] = $to_base64url($data['rawId']);
+    }
+
+    if(isset($data['response']) && is_array($data['response'])){
+        // Every binary field defined by the WebAuthn JSON spec
+        foreach([
+            'authenticatorData',
+            'clientDataJSON',
+            'attestationObject',
+            'signature',
+            'userHandle',
+            'publicKey',
+        ] as $field){
+            if(isset($data['response'][$field]) && is_string($data['response'][$field])){
+                $data['response'][$field] = $to_base64url($data['response'][$field]);
+            }
+        }
+    }
+
+    $encoded = wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    return $encoded === false ? $json_string : $encoded;
+}
+
+// Build the COSE algorithm manager + attestation statement support manager
+function wwa_get_webauthn_support_managers(){
+    static $managers = null;
+    if($managers !== null){
+        return $managers;
+    }
+
+    $algorithmManager = CoseAlgorithmManager::create()
+        ->add(Ed25519::create())   // -8
+        ->add(ES256::create())     // -7
+        ->add(ES384::create())     // -35
+        ->add(ES512::create())     // -36
+        ->add(PS256::create())     // -37
+        ->add(PS384::create())     // -38
+        ->add(PS512::create())     // -39
+        ->add(RS256::create());    // -257
+
+    $attestationStatementSupportManager = AttestationStatementSupportManager::create();
+    $attestationStatementSupportManager->add(NoneAttestationStatementSupport::create());
+    $attestationStatementSupportManager->add(FidoU2FAttestationStatementSupport::create());
+    $attestationStatementSupportManager->add(AppleAttestationStatementSupport::create());
+    $attestationStatementSupportManager->add(AndroidKeyAttestationStatementSupport::create());
+    $attestationStatementSupportManager->add(PackedAttestationStatementSupport::create($algorithmManager));
+
+    $managers = [
+        'algorithmManager' => $algorithmManager,
+        'attestationStatementSupportManager' => $attestationStatementSupportManager,
+    ];
+    return $managers;
+}
+
+// Process-wide WebAuthn serializer
+function wwa_get_webauthn_serializer(){
+    static $serializer = null;
+    if($serializer === null){
+        $managers = wwa_get_webauthn_support_managers();
+        $serializer = (new WebauthnSerializerFactory($managers['attestationStatementSupportManager']))->create();
+    }
+    return $serializer;
+}
+
+function wwa_get_server_components($current_domain = null){
+    static $cache = [];
+    $key = (string) $current_domain;
+    if(isset($cache[$key])){
+        return $cache[$key];
+    }
+
+    $managers = wwa_get_webauthn_support_managers();
+    $algorithmManager = $managers['algorithmManager'];
+    $attestationStatementSupportManager = $managers['attestationStatementSupportManager'];
+
+    $serializer = wwa_get_webauthn_serializer();
+
+    $ceremonyStepManagerFactory = new CeremonyStepManagerFactory();
+    $ceremonyStepManagerFactory->setAttestationStatementSupportManager($attestationStatementSupportManager);
+    $ceremonyStepManagerFactory->setExtensionOutputCheckerHandler(ExtensionOutputCheckerHandler::create());
+    $ceremonyStepManagerFactory->setAlgorithmManager($algorithmManager);
+
+    // Allow to bypass HTTPS verification when under localhost.
+    if($current_domain === 'localhost' || $current_domain === '127.0.0.1'){
+        $ceremonyStepManagerFactory->setSecuredRelyingPartyId([$current_domain]);
+    }
+
+    $attestationValidator = AuthenticatorAttestationResponseValidator::create(
+        ceremonyStepManager: $ceremonyStepManagerFactory->creationCeremony()
+    );
+
+    $assertionValidator = AuthenticatorAssertionResponseValidator::create(
+        ceremonyStepManager: $ceremonyStepManagerFactory->requestCeremony()
+    );
+
+    $cache[$key] = [
+        'serializer' => $serializer,
+        'attestationValidator' => $attestationValidator,
+        'assertionValidator' => $assertionValidator,
+    ];
+    return $cache[$key];
+}

@@ -77,7 +77,7 @@ if(isset($_GET['wwa_registered']) && $_GET['wwa_registered'] === 'true'){
     }
 }
 $wwa_not_allowed = false;
-if(!function_exists("mb_substr") || !function_exists("gmp_intval") || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+if(!function_exists("mb_substr") || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
     $wwa_not_allowed = true;
 ?>
 <div id="wp-webauthn-error-container">

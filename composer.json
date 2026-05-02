@@ -7,16 +7,21 @@
         }
     ],
     "config": {
-        "vendor-dir": "wp-webauthn-vendor"
+        "vendor-dir": "wp-webauthn-vendor",
+        "platform": {
+            "php": "8.2"
+        }
     },
     "require": {
-        "web-auth/webauthn-lib": "^3.3.8",
-        "nyholm/psr7-server": "^0.4.1",
-        "nyholm/psr7": "^1.2",
-        "web-token/jwt-key-mgmt": "^2.1",
-        "web-token/jwt-signature-algorithm-rsa": "^2.1",
-        "web-token/jwt-signature-algorithm-ecdsa": "^2.1",
-        "web-token/jwt-signature-algorithm-eddsa": "^2.1",
-        "ramsey/uuid": "4.2.3"
+        "php": "^8.2",
+        "web-auth/webauthn-lib": "^4.9",
+        "web-auth/cose-lib": "^4.2",
+        "symfony/serializer": "^6.4",
+        "symfony/property-info": "^6.4",
+        "symfony/property-access": "^6.4",
+        "symfony/string": "^6.4",
+        "symfony/uid": "^6.4",
+        "lcobucci/clock": "^3.0 <3.3",
+        "phpdocumentor/reflection-docblock": "^5.3"
     }
 }

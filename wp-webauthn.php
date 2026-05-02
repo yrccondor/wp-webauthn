@@ -10,6 +10,7 @@ License: GPLv3
 Text Domain: wp-webauthn
 Domain Path: /languages
 Network: true
+Requires PHP: 8.2
 */
 /* Copyright 2020 Axton
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version  of the License, or (at your option) any later version.
@@ -325,6 +326,7 @@ function wwa_update_option($option_name, $option_value){
 
 include('wwa-menus.php');
 include('wwa-functions.php');
+include('wwa-credential-repository.php');
 include('wwa-ajax.php');
 include('wwa-shortcodes.php');
 

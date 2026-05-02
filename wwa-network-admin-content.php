@@ -102,7 +102,7 @@ function wwa_display_network_settings(){
     wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 
     $wwa_not_allowed = false;
-    if(!function_exists('mb_substr') || !function_exists('gmp_intval') || !function_exists('sodium_crypto_sign_detached') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
+    if(!function_exists('mb_substr') || !function_exists('sodium_crypto_sign_detached') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
     ?>
