@@ -191,6 +191,7 @@ function wwa_login_js(){
         'email_login' => (wwa_get_option('email_login') === false ? 'false' : wwa_get_option('email_login')),
         'allow_authenticator_type' => (wwa_get_option('allow_authenticator_type') === false ? "none" : wwa_get_option('allow_authenticator_type')),
         'webauthn_only' => ($first_choice === 'webauthn' && !$wwa_not_allowed) ? 'true' : 'false',
+        'first_choice' => ($first_choice === false ? 'true' : $first_choice),
         'password_reset' => ((wwa_get_option('password_reset') === false || wwa_get_option('password_reset') === 'off') ? 'false' : 'true'),
         'separator' => apply_filters('login_link_separator', ' | '),
         'terminology' => (wwa_get_option('terminology') === false ? 'passkey' : wwa_get_option('terminology')),

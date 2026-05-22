@@ -239,8 +239,20 @@ document.addEventListener('DOMContentLoaded', () => {
         button_toggle.id = 'wp-webauthn';
         button_toggle.type = 'button';
         button_toggle.className = 'button button-large';
-        button_toggle.innerHTML = '<span class="dashicons dashicons-ellipsis password-icon"></span>';
-        button_toggle.title = wwa_login_php_vars.i18n_13;
+        if (wwa_login_php_vars.first_choice === 'false') {
+            // Page starts in password mode: toggle button switches TO passkey mode
+            if (wwa_login_php_vars.terminology === 'passkey') {
+                button_toggle.innerHTML = wwa_passkey_btn_svg;
+                button_toggle.style.lineHeight = '0';
+            } else {
+                button_toggle.innerHTML = '<span class="dashicons dashicons-shield-alt"></span>';
+            }
+            button_toggle.title = wwa_login_php_vars.i18n_14;
+        } else {
+            // Page starts in passkey mode: toggle button switches TO password mode
+            button_toggle.innerHTML = '<span class="dashicons dashicons-ellipsis password-icon"></span>';
+            button_toggle.title = wwa_login_php_vars.i18n_13;
+        }
     }
     let submit = document.getElementById('wp-submit');
     if (submit) {
