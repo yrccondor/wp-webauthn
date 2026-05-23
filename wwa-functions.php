@@ -6,14 +6,26 @@ if (!defined('ABSPATH')) {
 require_once('wp-webauthn-vendor/autoload.php');
 use Webauthn\AuthenticatorAttestationResponseValidator;
 use Webauthn\AuthenticatorAssertionResponseValidator;
+use Webauthn\AuthenticatorAssertionResponse;
 use Webauthn\AttestationStatement\AttestationStatementSupportManager;
 use Webauthn\AttestationStatement\NoneAttestationStatementSupport;
 use Webauthn\AttestationStatement\PackedAttestationStatementSupport;
 use Webauthn\AttestationStatement\FidoU2FAttestationStatementSupport;
 use Webauthn\AttestationStatement\AppleAttestationStatementSupport;
 use Webauthn\AttestationStatement\AndroidKeyAttestationStatementSupport;
+use Webauthn\AttestationStatement\CompoundAttestationStatementSupport;
+use Webauthn\AttestationStatement\TPMAttestationStatementSupport;
 use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
 use Webauthn\Denormalizer\WebauthnSerializerFactory;
+use Webauthn\Exception\AuthenticatorResponseVerificationException;
+use Webauthn\PublicKeyCredential;
+use Webauthn\PublicKeyCredentialDescriptor;
+use Webauthn\PublicKeyCredentialRequestOptions;
+use Webauthn\PublicKeyCredentialRpEntity;
+use Webauthn\PublicKeyCredentialUserEntity;
+use Webauthn\Signal\CurrentUserDetails;
+use Webauthn\Signal\UnknownCredential;
+use Webauthn\CeremonyStep\TopOriginValidator;
 use Cose\Algorithm\Manager as CoseAlgorithmManager;
 use Cose\Algorithm\Signature\ECDSA\ES256;
 use Cose\Algorithm\Signature\ECDSA\ES384;
@@ -24,6 +36,7 @@ use Cose\Algorithm\Signature\RSA\PS256;
 use Cose\Algorithm\Signature\RSA\PS384;
 use Cose\Algorithm\Signature\RSA\PS512;
 use Webauthn\CeremonyStep\CeremonyStepManagerFactory;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 // WordPress transient adapter
 function wwa_set_temp_val($name, $value, $client_id){
@@ -32,7 +45,15 @@ function wwa_set_temp_val($name, $value, $client_id){
 
 function wwa_get_temp_val($name, $client_id){
     $val = get_transient('wwa_'.$name.$client_id);
-    return $val === false ? false : maybe_unserialize($val);
+    if($val === false || !is_string($val)){
+        return $val;
+    }
+
+    $unserialized = @unserialize($val, array('allowed_classes' => false));
+    if($unserialized !== false || $val === serialize(false)){
+        return $unserialized;
+    }
+    return $val;
 }
 
 function wwa_delete_temp_val($name, $client_id){
@@ -44,9 +65,12 @@ function wwa_destroy_temp_val($client_id){
     wwa_delete_temp_val('user_name_auth', $client_id);
     wwa_delete_temp_val('user_auth', $client_id);
     wwa_delete_temp_val('pkcco', $client_id);
+    wwa_delete_temp_val('pkcco_conditional', $client_id);
     wwa_delete_temp_val('bind_config', $client_id);
+    wwa_delete_temp_val('bind_config_conditional', $client_id);
     wwa_delete_temp_val('pkcco_auth', $client_id);
     wwa_delete_temp_val('usernameless_auth', $client_id);
+    wwa_delete_temp_val('user_exist', $client_id);
     wwa_delete_temp_val('auth_type', $client_id);
 }
 
@@ -58,6 +82,32 @@ function wwa_wp_die($message = '', $client_id = false){
     wp_die(esc_html($message));
 }
 
+function wwa_auth_json_success($client_id = false, array $data = array(), int $status_code = 200){
+    if($client_id !== false){
+        wwa_destroy_temp_val($client_id);
+    }
+    wp_send_json(array_merge(array('success' => true), $data), $status_code);
+}
+
+function wwa_auth_json_failure($message = '', $client_id = false, array $data = array(), int $status_code = 400){
+    if($client_id !== false){
+        wwa_destroy_temp_val($client_id);
+    }
+    wp_send_json(array_merge(array(
+        'success' => false,
+        'message' => $message,
+    ), $data), $status_code);
+}
+
+function wwa_normalize_login_redirect($redirect_to = '', string $fallback = ''): string {
+    $fallback = $fallback === '' ? admin_url() : wp_validate_redirect($fallback, admin_url());
+    $redirect_to = is_string($redirect_to) ? trim($redirect_to) : '';
+    if($redirect_to === ''){
+        return $fallback;
+    }
+    return wp_validate_redirect($redirect_to, $fallback);
+}
+
 // Init data for new options
 function wwa_init_new_options(){
     if(wwa_get_option('allow_authenticator_type') === false){
@@ -66,6 +116,9 @@ function wwa_init_new_options(){
     // Existing installs default to 'true' to preserve previous behaviour
     if(wwa_get_option('show_authenticator_type') === false){
         wwa_update_option('show_authenticator_type', 'true');
+    }
+    if(wwa_get_option('allow_profile_test') === false){
+        wwa_update_option('allow_profile_test', 'true');
     }
     if(wwa_get_option('remember_me') === false){
         wwa_update_option('remember_me', 'false');
@@ -88,6 +141,348 @@ function wwa_init_new_options(){
     if(wwa_get_option('ror_origins') === false){
         wwa_update_option('ror_origins', '');
     }
+    if(wwa_get_option('ror_origins_normalized') === false){
+        wwa_update_option('ror_origins_normalized', wwa_sanitize_ror_origins(wwa_get_option('ror_origins')));
+    }
+    if(wwa_get_option('conditional_create') === false){
+        wwa_update_option('conditional_create', 'off');
+    }
+}
+
+function wwa_get_conditional_create_modes(): array {
+    return array('no-credentials', 'unregistered-device', 'off');
+}
+
+function wwa_normalize_conditional_create_mode($mode): string {
+    $mode = is_string($mode) ? sanitize_text_field($mode) : '';
+    return in_array($mode, wwa_get_conditional_create_modes(), true) ? $mode : 'off';
+}
+
+function wwa_get_conditional_create_mode(): string {
+    return wwa_normalize_conditional_create_mode(wwa_get_option('conditional_create'));
+}
+
+function wwa_is_conditional_create_enabled(?string $mode = null): bool {
+    return ($mode ?? wwa_get_conditional_create_mode()) !== 'off';
+}
+
+function wwa_get_effective_conditional_create_mode_for_user(int $user_id): string {
+    $mode = wwa_get_conditional_create_mode();
+    if($mode === 'off' || $user_id <= 0){
+        return 'off';
+    }
+    if($mode === 'no-credentials'){
+        $credentialRecordRepository = new CredentialRecordRepository();
+        return $credentialRecordRepository->userHasCredentials($user_id) ? 'off' : $mode;
+    }
+    return $mode;
+}
+
+function wwa_base64url_encode(string $data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+function wwa_decode_base64_or_base64url(string $data): string {
+    $data = trim($data);
+    if($data === ''){
+        return '';
+    }
+    $data = strtr($data, '-_', '+/');
+    $pad = strlen($data) % 4;
+    if($pad !== 0){
+        if($pad === 1){
+            return '';
+        }
+        $data .= str_repeat('=', 4 - $pad);
+    }
+    $decoded = base64_decode($data, true);
+    return is_string($decoded) ? $decoded : '';
+}
+
+function wwa_base64url_decode(string $data): string {
+    return wwa_decode_base64_or_base64url($data);
+}
+
+function wwa_credential_hash(string $raw_credential_id): string {
+    return hash('sha256', $raw_credential_id);
+}
+
+function wwa_credential_hash_from_encoded_id(string $encoded_credential_id): string {
+    $raw_credential_id = wwa_decode_base64_or_base64url($encoded_credential_id);
+    return $raw_credential_id === '' ? '' : wwa_credential_hash($raw_credential_id);
+}
+
+function wwa_credential_storage_id(string $raw_credential_id): string {
+    return base64_encode($raw_credential_id);
+}
+
+function wwa_credential_storage_id_to_urlsafe(string $stored_credential_id): string {
+    $raw_credential_id = wwa_decode_base64_or_base64url($stored_credential_id);
+    return $raw_credential_id === '' ? '' : wwa_base64url_encode($raw_credential_id);
+}
+
+function wwa_decode_client_credential_payload($encoded_payload): ?array {
+    if(!is_string($encoded_payload)){
+        return null;
+    }
+
+    $encoded_payload = sanitize_text_field(wp_unslash($encoded_payload));
+    if($encoded_payload === ''){
+        return null;
+    }
+
+    $json = base64_decode($encoded_payload, true);
+    if(!is_string($json) || $json === ''){
+        return null;
+    }
+
+    $data = json_decode($json, true);
+    if(!is_array($data) || empty($data['rawId']) || !is_string($data['rawId'])){
+        return null;
+    }
+
+    $raw_id = wwa_decode_base64_or_base64url($data['rawId']);
+    if($raw_id === ''){
+        return null;
+    }
+
+    return array(
+        'json' => $json,
+        'data' => $data,
+        'raw_id' => $raw_id,
+    );
+}
+
+function wwa_is_loopback_host(string $host): bool {
+    $host = strtolower($host);
+    return $host === 'localhost' || $host === '127.0.0.1';
+}
+
+function wwa_get_public_suffixes(): array {
+    $suffixes = array_fill_keys(array(
+        'ac.uk', 'co.uk', 'gov.uk', 'ltd.uk', 'me.uk', 'net.uk', 'nhs.uk', 'org.uk', 'plc.uk', 'police.uk', 'sch.uk',
+        'com.au', 'net.au', 'org.au', 'edu.au', 'gov.au', 'asn.au', 'id.au',
+        'ac.jp', 'ad.jp', 'co.jp', 'ed.jp', 'go.jp', 'gr.jp', 'lg.jp', 'ne.jp', 'or.jp',
+        'com.cn', 'net.cn', 'org.cn', 'gov.cn', 'edu.cn', 'ac.cn',
+        'com.hk', 'net.hk', 'org.hk', 'edu.hk', 'gov.hk', 'idv.hk',
+        'com.tw', 'net.tw', 'org.tw', 'edu.tw', 'gov.tw', 'idv.tw',
+        'com.br', 'net.br', 'org.br', 'gov.br', 'edu.br',
+        'com.mx', 'org.mx', 'gob.mx', 'edu.mx', 'net.mx',
+        'com.tr', 'net.tr', 'org.tr', 'gov.tr', 'edu.tr',
+        'co.nz', 'net.nz', 'org.nz', 'ac.nz', 'govt.nz', 'school.nz',
+        'co.kr', 'ne.kr', 'or.kr', 'go.kr', 'ac.kr', 're.kr',
+        'co.in', 'firm.in', 'net.in', 'org.in', 'gen.in', 'ind.in',
+        'co.za', 'net.za', 'org.za', 'gov.za', 'ac.za',
+        'co.com', 'github.io', 'pages.dev', 'workers.dev', 'cloudflarepages.com', 'vercel.app', 'netlify.app',
+        'herokuapp.com', 'appspot.com', 'firebaseapp.com', 'web.app', 'azurewebsites.net', 'cloudapp.net',
+        'cloudfront.net', 's3.amazonaws.com'
+    ), true);
+
+    $filtered = apply_filters('wwa_public_suffixes', $suffixes);
+    if(!is_array($filtered)){
+        return $suffixes;
+    }
+
+    $normalized = array();
+    foreach($filtered as $key => $value){
+        $suffix = is_string($key) ? $key : $value;
+        if(is_string($suffix)){
+            $suffix = trim(strtolower($suffix), '.');
+            if($suffix !== ''){
+                $normalized[$suffix] = true;
+            }
+        }
+    }
+    return $normalized;
+}
+
+function wwa_is_public_suffix_host(string $host): bool {
+    $host = trim(strtolower($host), '.');
+    if($host === '' || wwa_is_loopback_host($host) || filter_var($host, FILTER_VALIDATE_IP)){
+        return false;
+    }
+
+    $labels = explode('.', $host);
+    if(count($labels) < 2){
+        return true;
+    }
+
+    $suffixes = wwa_get_public_suffixes();
+    if(isset($suffixes[$host])){
+        return true;
+    }
+
+    $common_country_code_second_level_labels = array_fill_keys(array(
+        'ac', 'co', 'com', 'edu', 'gov', 'gob', 'go', 'mil', 'ne', 'net', 'nom', 'or', 'org', 'sch'
+    ), true);
+    if(count($labels) === 2 && strlen($labels[1]) === 2 && isset($common_country_code_second_level_labels[$labels[0]])){
+        return true;
+    }
+
+    return false;
+}
+
+function wwa_normalize_rp_id($value): string {
+    $value = trim(strtolower(sanitize_text_field((string) $value)));
+    if($value === ''){
+        return '';
+    }
+
+    if(strpos($value, '://') !== false){
+        $parsed = wp_parse_url($value);
+    }else{
+        $parsed = wp_parse_url('https://'.$value);
+    }
+
+    if(!is_array($parsed) || empty($parsed['host'])){
+        return '';
+    }
+    if(isset($parsed['path']) && $parsed['path'] !== '' && $parsed['path'] !== '/'){
+        return '';
+    }
+    if(isset($parsed['query']) || isset($parsed['fragment']) || isset($parsed['user']) || isset($parsed['pass'])){
+        return '';
+    }
+
+    $host = trim(strtolower($parsed['host']), '.');
+    if($host === '' || strpos($host, '*') !== false || preg_match('/\s/', $host)){
+        return '';
+    }
+    if(wwa_is_loopback_host($host)){
+        return $host;
+    }
+    if(filter_var($host, FILTER_VALIDATE_IP)){
+        return '';
+    }
+    if(filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false || strpos($host, '.') === false || wwa_is_public_suffix_host($host)){
+        return '';
+    }
+    return $host;
+}
+
+function wwa_normalize_origin($value): string {
+    $value = trim(sanitize_text_field((string) $value));
+    if($value === ''){
+        return '';
+    }
+
+    $parsed = wp_parse_url($value);
+    if(!is_array($parsed) || empty($parsed['scheme']) || empty($parsed['host'])){
+        return '';
+    }
+    if(isset($parsed['path']) && $parsed['path'] !== '' && $parsed['path'] !== '/'){
+        return '';
+    }
+    if(isset($parsed['query']) || isset($parsed['fragment']) || isset($parsed['user']) || isset($parsed['pass'])){
+        return '';
+    }
+
+    $scheme = strtolower($parsed['scheme']);
+    $host = trim(strtolower($parsed['host']), '.');
+    if($host === '' || strpos($host, '*') !== false || preg_match('/\s/', $host)){
+        return '';
+    }
+    if($scheme !== 'https' && !($scheme === 'http' && wwa_is_loopback_host($host))){
+        return '';
+    }
+    if(!wwa_is_loopback_host($host) && !filter_var($host, FILTER_VALIDATE_IP) && (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false || strpos($host, '.') === false || wwa_is_public_suffix_host($host))){
+        return '';
+    }
+
+    $origin = $scheme.'://'.$host;
+    if(isset($parsed['port'])){
+        $port = intval($parsed['port']);
+        if($port <= 0 || $port > 65535){
+            return '';
+        }
+        if(!(($scheme === 'https' && $port === 443) || ($scheme === 'http' && $port === 80))){
+            $origin .= ':'.$port;
+        }
+    }
+    return $origin;
+}
+
+function wwa_sanitize_ror_origins($raw): array {
+    $lines = is_array($raw) ? $raw : explode("\n", (string) $raw);
+    $origins = array();
+    foreach($lines as $line){
+        $origin = wwa_normalize_origin($line);
+        if($origin !== ''){
+            $origins[$origin] = true;
+        }
+    }
+    return array_keys($origins);
+}
+
+function wwa_get_current_site_origin(): string {
+    $parsed = wp_parse_url(site_url());
+    if(!is_array($parsed) || empty($parsed['scheme']) || empty($parsed['host'])){
+        return '';
+    }
+    $scheme = strtolower($parsed['scheme']);
+    $origin = $scheme.'://'.strtolower($parsed['host']);
+    if(isset($parsed['port'])){
+        $port = intval($parsed['port']);
+        if(!(($scheme === 'https' && $port === 443) || ($scheme === 'http' && $port === 80))){
+            $origin .= ':'.$port;
+        }
+    }
+    return wwa_normalize_origin($origin);
+}
+
+function wwa_get_current_site_host(): string {
+    $parsed = wp_parse_url(site_url());
+    if(is_array($parsed) && !empty($parsed['host'])){
+        return strtolower($parsed['host']);
+    }
+    return wwa_get_rp_id();
+}
+
+function wwa_get_rp_id(): string {
+    return wwa_normalize_rp_id(wwa_get_option('website_domain'));
+}
+
+function wwa_get_rp_entity(?string $rp_id = null): PublicKeyCredentialRpEntity {
+    return PublicKeyCredentialRpEntity::create('', $rp_id ?? wwa_get_rp_id());
+}
+
+function wwa_get_or_create_user_handle($user_info, ?string $res_id = null): string {
+    $user_key = get_user_meta($user_info->ID, 'wwa_user_handle', true);
+    if($user_key){
+        return $user_key;
+    }
+
+    $user_id_map = wwa_get_option('user_id');
+    if(is_array($user_id_map) && isset($user_id_map[$user_info->user_login])){
+        $user_key = $user_id_map[$user_info->user_login];
+        update_user_meta($user_info->ID, 'wwa_user_handle', $user_key);
+        return $user_key;
+    }
+
+    if($res_id !== null){
+        wwa_add_log($res_id, 'User not initialized, initialize');
+    }
+    $user_key = hash('sha256', $user_info->user_login.'-'.$user_info->display_name.'-'.wwa_generate_random_string(10));
+    update_user_meta($user_info->ID, 'wwa_user_handle', $user_key);
+    return $user_key;
+}
+
+function wwa_get_user_entity($user_info, ?string $user_key = null): PublicKeyCredentialUserEntity {
+    return PublicKeyCredentialUserEntity::create(
+        $user_info->user_login,
+        $user_key ?? wwa_get_or_create_user_handle($user_info),
+        $user_info->display_name
+    );
+}
+
+function wwa_get_public_key_hints(string $authenticator_type): array {
+    if($authenticator_type === 'platform'){
+        return array('client-device');
+    }
+    if($authenticator_type === 'cross-platform'){
+        return array('security-key', 'hybrid');
+    }
+    return array();
 }
 
 // Create random strings for user ID
@@ -107,16 +502,39 @@ function wwa_generate_random_string($length = 10){
     }
 }
 
+function wwa_get_log_limit(): int {
+    return 1000;
+}
+
+function wwa_normalize_log_entries($log): array {
+    if(!is_array($log)){
+        return array();
+    }
+
+    $limit = wwa_get_log_limit();
+    if(count($log) > $limit){
+        return array_slice($log, -$limit);
+    }
+    return $log;
+}
+
+function wwa_get_log_entries(bool $persist_trim = false): array {
+    $raw_log = get_option('wwa_log');
+    $log = wwa_normalize_log_entries($raw_log);
+    if($persist_trim && $raw_log !== false && $raw_log !== $log){
+        update_option('wwa_log', $log);
+    }
+    return $log;
+}
+
 // Add log
 function wwa_add_log($id, $content = '', $init = false){
     if(wwa_get_option('logging') !== 'true' && !$init){
         return;
     }
-    $log = get_option('wwa_log');
-    if($log === false){
-        $log = array();
-    }
+    $log = wwa_get_log_entries();
     $log[] = '['.current_time('mysql').']['.$id.'] '.wp_strip_all_tags($content);
+    $log = wwa_normalize_log_entries($log);
     update_option('wwa_log', $log);
 }
 
@@ -197,13 +615,12 @@ add_action('remove_user_from_blog', 'wwa_remove_user_from_blog', 10, 2);
 
 // Add CSS and JS in login page
 function wwa_login_js(){
-    wwa_init_new_options();
-
     $wwa_not_allowed = false;
     if(!function_exists('mb_substr') || !wwa_check_ssl() && (wp_parse_url(site_url(), PHP_URL_HOST) !== 'localhost' && wp_parse_url(site_url(), PHP_URL_HOST) !== '127.0.0.1')){
         $wwa_not_allowed = true;
     }
-    wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array(), get_option('wwa_version')['version'], true);
+    wp_enqueue_script('wwa_webauthn_helpers', plugins_url('js/webauthn-helpers.js', __FILE__), array(), get_option('wwa_version')['version'], true);
+    wp_enqueue_script('wwa_login', plugins_url('js/login.js', __FILE__), array('wwa_webauthn_helpers'), get_option('wwa_version')['version'], true);
     $first_choice = wwa_get_option('first_choice');
     wp_localize_script('wwa_login', 'wwa_login_php_vars', array(
         'ajax_url' => admin_url('admin-ajax.php'),
@@ -445,27 +862,69 @@ function wwa_validate_privileges(){
 
 // Get Related Origins Request list
 function wwa_get_ror_list(){
-    $raw = wwa_get_option('ror_origins');
-    if($raw === false || $raw === ''){
-        return array();
+    $normalized = wwa_get_option('ror_origins_normalized');
+    if(is_array($normalized)){
+        return array_values(array_filter($normalized, function($origin){
+            return is_string($origin) && $origin !== '';
+        }));
     }
+
+    $normalized = wwa_sanitize_ror_origins(wwa_get_option('ror_origins'));
+    wwa_update_option('ror_origins_normalized', $normalized);
+    return $normalized;
+}
+
+function wwa_get_allowed_origins(): array {
     $origins = array();
-    $lines = explode("\n", $raw);
-    foreach($lines as $line){
-        $line = trim($line);
-        if($line === ''){
-            continue;
+    $current_origin = wwa_get_current_site_origin();
+    if($current_origin !== ''){
+        $origins[$current_origin] = true;
+    }
+
+    foreach(wwa_get_ror_list() as $origin){
+        $origins[$origin] = true;
+    }
+
+    $parsed = wp_parse_url(site_url());
+    if(is_array($parsed) && !empty($parsed['host']) && wwa_is_loopback_host($parsed['host'])){
+        $loopback = 'http://'.strtolower($parsed['host']);
+        if(isset($parsed['port']) && intval($parsed['port']) > 0 && intval($parsed['port']) !== 80){
+            $loopback .= ':'.intval($parsed['port']);
         }
-        $parsed = wp_parse_url($line);
-        if(isset($parsed['scheme']) && isset($parsed['host'])){
-            $origin = $parsed['scheme'] . '://' . $parsed['host'];
-            if(isset($parsed['port'])){
-                $origin .= ':' . $parsed['port'];
-            }
-            $origins[] = $origin;
+        $origins[$loopback] = true;
+    }
+
+    return array_keys($origins);
+}
+
+function wwa_is_trusted_origin(string $origin): bool {
+    $origin = wwa_normalize_origin($origin);
+    return $origin !== '' && in_array($origin, wwa_get_allowed_origins(), true);
+}
+
+function wwa_assert_authentication_response_public_checks(PublicKeyCredential $publicKeyCredential, PublicKeyCredentialRequestOptions $publicKeyCredentialRequestOptions): void {
+    if(!$publicKeyCredential->response instanceof AuthenticatorAssertionResponse){
+        throw AuthenticatorResponseVerificationException::create('Invalid response type.');
+    }
+
+    if($publicKeyCredential->response->clientDataJSON->type !== 'webauthn.get'){
+        throw AuthenticatorResponseVerificationException::create('Invalid client data type.');
+    }
+
+    if($publicKeyCredentialRequestOptions->challenge === '' || !hash_equals($publicKeyCredentialRequestOptions->challenge, $publicKeyCredential->response->clientDataJSON->challenge)){
+        throw AuthenticatorResponseVerificationException::create('Invalid challenge.');
+    }
+
+    if(!wwa_is_trusted_origin($publicKeyCredential->response->clientDataJSON->origin)){
+        throw AuthenticatorResponseVerificationException::create('Invalid origin.');
+    }
+
+    $top_origin = $publicKeyCredential->response->clientDataJSON->topOrigin;
+    if($top_origin !== null){
+        if($publicKeyCredential->response->clientDataJSON->crossOrigin !== true || !wwa_is_trusted_origin($top_origin)){
+            throw AuthenticatorResponseVerificationException::create('Invalid top origin.');
         }
     }
-    return $origins;
 }
 
 // Get user by username or email
@@ -591,7 +1050,9 @@ function wwa_get_webauthn_support_managers(){
     $attestationStatementSupportManager->add(FidoU2FAttestationStatementSupport::create());
     $attestationStatementSupportManager->add(AppleAttestationStatementSupport::create());
     $attestationStatementSupportManager->add(AndroidKeyAttestationStatementSupport::create());
+    $attestationStatementSupportManager->add(TPMAttestationStatementSupport::create());
     $attestationStatementSupportManager->add(PackedAttestationStatementSupport::create($algorithmManager));
+    $attestationStatementSupportManager->add(CompoundAttestationStatementSupport::create());
 
     $managers = [
         'algorithmManager' => $algorithmManager,
@@ -612,7 +1073,8 @@ function wwa_get_webauthn_serializer(){
 
 function wwa_get_server_components($current_domain = null){
     static $cache = [];
-    $key = (string) $current_domain;
+    $allowed_origins = wwa_get_allowed_origins();
+    $key = md5(wp_json_encode($allowed_origins).'|'.wwa_get_current_site_host().'|'.(string) $current_domain);
     if(isset($cache[$key])){
         return $cache[$key];
     }
@@ -627,11 +1089,22 @@ function wwa_get_server_components($current_domain = null){
     $ceremonyStepManagerFactory->setAttestationStatementSupportManager($attestationStatementSupportManager);
     $ceremonyStepManagerFactory->setExtensionOutputCheckerHandler(ExtensionOutputCheckerHandler::create());
     $ceremonyStepManagerFactory->setAlgorithmManager($algorithmManager);
+    $ceremonyStepManagerFactory->setAllowedOrigins($allowed_origins, false);
 
-    // Allow to bypass HTTPS verification when under localhost.
-    if($current_domain === 'localhost' || $current_domain === '127.0.0.1'){
-        $ceremonyStepManagerFactory->setSecuredRelyingPartyId([$current_domain]);
-    }
+    $ceremonyStepManagerFactory->enableTopOriginValidator(new class($allowed_origins) implements TopOriginValidator {
+        private array $allowedOrigins;
+
+        public function __construct(array $allowedOrigins) {
+            $this->allowedOrigins = $allowedOrigins;
+        }
+
+        public function validate(string $topOrigin): void {
+            $topOrigin = wwa_normalize_origin($topOrigin);
+            if($topOrigin === '' || !in_array($topOrigin, $this->allowedOrigins, true)){
+                throw AuthenticatorResponseVerificationException::create('Invalid top origin.');
+            }
+        }
+    });
 
     $attestationValidator = AuthenticatorAttestationResponseValidator::create(
         ceremonyStepManager: $ceremonyStepManagerFactory->creationCeremony()
@@ -641,10 +1114,50 @@ function wwa_get_server_components($current_domain = null){
         ceremonyStepManager: $ceremonyStepManagerFactory->requestCeremony()
     );
 
+    $conditionalAttestationValidator = AuthenticatorAttestationResponseValidator::create(
+        ceremonyStepManager: $ceremonyStepManagerFactory->conditionalCreateCeremony()
+    );
+
     $cache[$key] = [
         'serializer' => $serializer,
         'attestationValidator' => $attestationValidator,
+        'conditionalAttestationValidator' => $conditionalAttestationValidator,
         'assertionValidator' => $assertionValidator,
     ];
     return $cache[$key];
+}
+
+function wwa_get_unknown_credential_signal_payload(string $credential_id): array {
+    $signal = new UnknownCredential(
+        wwa_get_rp_entity(),
+        PublicKeyCredentialDescriptor::create(PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY, $credential_id)
+    );
+
+    $json = wwa_get_webauthn_serializer()->serialize($signal, 'json', [
+        AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+        'json_encode_options' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+    ]);
+    $payload = json_decode($json, true);
+    return is_array($payload) ? $payload : array();
+}
+
+function wwa_get_current_user_details_signal_payload($user_info = null): array {
+    if($user_info === null){
+        $user_info = wp_get_current_user();
+    }
+    if(!$user_info || empty($user_info->ID)){
+        return array();
+    }
+
+    $signal = new CurrentUserDetails(
+        wwa_get_rp_entity(),
+        wwa_get_user_entity($user_info)
+    );
+
+    $json = wwa_get_webauthn_serializer()->serialize($signal, 'json', [
+        AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+        'json_encode_options' => JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+    ]);
+    $payload = json_decode($json, true);
+    return is_array($payload) ? $payload : array();
 }

@@ -2,9 +2,9 @@
 Contributors: axton
 Donate link: https://flyhigher.top/about
 Tags: webauthn, passkey, login, security, fido, password, faceid
-Requires at least: 5.0
-Tested up to: 6.9
-Stable tag: 1.4.1
+Requires at least: 6.0
+Tested up to: 7.0
+Stable tag: 2.0.0
 Requires PHP: 8.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -82,6 +82,15 @@ To use FaceID or TouchID, you need to use iOS/iPadOS 14+.
 
 == Changelog ==
 
+= 2.0.0 =
+Add: Signal API support
+Add: Conditional create
+Add: ROR support
+Fix: Issue fixes
+Update: Minimum PHP version raised to 8.2
+Update: Translations
+Update: Third party libraries
+
 = 1.4.1 =
 Fix: Error when saving settings
 
@@ -122,5 +131,5 @@ Update: Third party libraries
 
 == Upgrade Notice ==
 
-= 1.4.1 =
-New "Passkey" terminology option, multisite support (beta), improved Passkey experience and more
+= 2.0.0 =
+Signal API support, conditional create and more new features. Now requires PHP 8.2+.

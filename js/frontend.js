@@ -1,5 +1,7 @@
 'use strict';
 
+let wwaConditionalCreateStarted = false;
+
 // Send an AJAX request and get the response
 const wwa_ajax = function () {
     let xmlHttpReq = new XMLHttpRequest();
@@ -12,14 +14,12 @@ const wwa_ajax = function () {
          */
         get: (url, data = '', callback = () => { }) => {
             xmlHttpReq.open('GET', url + data, true);
-            xmlHttpReq.send();
             xmlHttpReq.onreadystatechange = () => {
-                if (xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200) {
-                    callback(xmlHttpReq.responseText.trim(), true);
-                } else if (xmlHttpReq.readyState === 4) {
-                    callback('Network Error.', false);
+                if (xmlHttpReq.readyState === 4) {
+                    callback(xmlHttpReq.responseText.trim(), xmlHttpReq.status >= 200 && xmlHttpReq.status < 300, xmlHttpReq.status);
                 }
             }
+            xmlHttpReq.send();
         },
         /** Send an AJAX POST request and get the response
          *
@@ -30,14 +30,12 @@ const wwa_ajax = function () {
         post: (url, data = '', callback = () => { }) => {
             xmlHttpReq.open('POST', url, true);
             xmlHttpReq.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xmlHttpReq.send(data);
             xmlHttpReq.onreadystatechange = () => {
-                if (xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200) {
-                    callback(xmlHttpReq.responseText.trim(), true);
-                } else if (xmlHttpReq.readyState === 4) {
-                    callback('Network Error.', false);
+                if (xmlHttpReq.readyState === 4) {
+                    callback(xmlHttpReq.responseText.trim(), xmlHttpReq.status >= 200 && xmlHttpReq.status < 300, xmlHttpReq.status);
                 }
             }
+            xmlHttpReq.send(data);
         }
     }
 };
@@ -69,30 +67,6 @@ const wwa_dom = (selector, callback = () => { }, method = 'query') => {
     return;
 }
 
-/** Code Base64URL into Base64
- *
- * @param {string} input Base64URL coded string
- */
-function base64url2base64(input) {
-    input = input.replace(/=/g, '').replace(/-/g, '+').replace(/_/g, '/');
-    const pad = input.length % 4;
-    if (pad) {
-        if (pad === 1) {
-            throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
-        }
-        input += new Array(5 - pad).join('=');
-    }
-    return input;
-}
-
-/** Code Uint8Array into Base64 string
- *
- * @param {Uint8Array} a The Uint8Array needed to be coded into Base64 string
- */
-function arrayToBase64String(a) {
-    return btoa(String.fromCharCode(...a));
-}
-
 // Disable all WP-Webauthn buttons
 function wwa_disable_buttons() {
     wwa_dom('wwa-test-submit', (dom) => { dom.disabled = true }, 'class');
@@ -109,6 +83,107 @@ function wwa_enable_buttons() {
     wwa_dom('wwa-bind-submit', (dom) => { dom.disabled = false }, 'class');
     wwa_dom('wwa-login-submit', (dom) => { dom.disabled = false }, 'class');
     wwa_dom('wp-submit', (dom) => { dom.disabled = false }, 'id');
+}
+
+function wwa_maybe_start_conditional_create() {
+    if (wwaConditionalCreateStarted || !wwa_php_vars.conditional_create || wwa_php_vars.conditional_create === 'off' || wwa_php_vars.logged_in !== 'true' || !window.isSecureContext) {
+        return;
+    }
+    if (document.getElementsByClassName('wwa-bind-submit').length === 0 && document.getElementsByClassName('wwa-authenticator-list').length === 0) {
+        return;
+    }
+    wwaConditionalCreateStarted = true;
+
+    WWAWebAuthn.supportsConditionalCreate().then((supported) => {
+        if (!supported) {
+            return;
+        }
+        const controller = new AbortController();
+        WWAWebAuthn.setConditionalCreateAbort(controller);
+        let request = wwa_ajax();
+        request.get(wwa_php_vars.ajax_url, `?action=wwa_conditional_create_start&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (rawData, status) => {
+            if (!status) {
+                return;
+            }
+            let data;
+            try {
+                data = JSON.parse(rawData);
+            } catch (error) {
+                return;
+            }
+            const clientID = data.clientID;
+            const publicKey = WWAWebAuthn.parseCreationOptions(data);
+            navigator.credentials.create({ publicKey, signal: controller.signal, mediation: 'conditional' })
+                .then(WWAWebAuthn.credentialToJSON)
+                .then(JSON.stringify)
+                .then((AuthenticatorAttestationResponse) => {
+                    let response = wwa_ajax();
+                    response.post(`${wwa_php_vars.ajax_url}?action=wwa_conditional_create_response`, `data=${encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))}&clientid=${clientID}&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (serverData, serverStatus) => {
+                        if (!serverStatus) {
+                            return;
+                        }
+                        const parsed = WWAWebAuthn.parseAjaxResponse(serverData);
+                        if (parsed.success) {
+                            if (parsed.signal && parsed.signal.type === 'currentUserDetails') {
+                                WWAWebAuthn.signalCurrentUserDetails(parsed.signal.payload);
+                            }
+                            updateList();
+                        }
+                    });
+                })
+                .catch(() => { });
+        });
+    }).catch(() => { });
+}
+
+function wwa_signal_current_user_details() {
+    if (wwa_php_vars.logged_in !== 'true') {
+        return;
+    }
+    WWAWebAuthn.signalCurrentUserDetailsFromEndpoint(wwa_php_vars.ajax_url, wwa_php_vars._ajax_nonce);
+}
+
+function wwa_get_login_redirect_intent(button_dom) {
+    const form = button_dom.closest('.wwa-login-form');
+    const traditionalRedirect = form ? form.querySelector('p.login-submit input[name="redirect_to"]') : null;
+    const shortcodeRedirect = form ? form.querySelector('.wwa-redirect-to') : null;
+    if (traditionalRedirect) {
+        return traditionalRedirect.value;
+    }
+    if (shortcodeRedirect) {
+        return shortcodeRedirect.value;
+    }
+    return window.location.href;
+}
+
+function wwa_get_login_success_redirect(parsed) {
+    return parsed.redirect || parsed.redirect_to || '';
+}
+
+function wwa_maybe_signal_unknown_credential(parsed) {
+    if (parsed.signal && parsed.signal.type === 'unknownCredential') {
+        WWAWebAuthn.signalUnknownCredential(parsed.signal.payload);
+    }
+}
+
+function wwa_get_error_message(error) {
+    if (typeof error === 'string') {
+        return error;
+    }
+    if (error && error.responseJSON && typeof error.responseJSON.message === 'string') {
+        return error.responseJSON.message;
+    }
+    if (error && typeof error.responseText === 'string' && error.responseText.trim() !== '') {
+        const parsed = WWAWebAuthn.parseAjaxResponse(error.responseText);
+        return parsed.message || parsed.raw || error.responseText.trim();
+    }
+    if (error && typeof error.statusText === 'string' && error.statusText !== '') {
+        return error.statusText;
+    }
+    if (error && typeof error.message === 'string') {
+        return error.message;
+    }
+    return String(error || '');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -146,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     wwa_dom('wwa-test-submit', (dom) => { dom.addEventListener('click', wwa_verify, false) }, 'class');
     wwa_dom('wwa-test-usernameless-submit', (dom) => { dom.addEventListener('click', wwa_verify, false) }, 'class');
     updateList();
+    wwa_maybe_start_conditional_create();
 });
 
 // Toggle form
@@ -182,6 +258,7 @@ function wwa_auth() {
         alert(wwa_php_vars.i18n_11);
         return;
     }
+    WWAWebAuthn.abortConditionalCreate();
     wwa_dom('wwa-user-name', (dom) => { dom.readOnly = true }, 'class');
     wwa_disable_buttons();
     let button_dom = this;
@@ -204,58 +281,31 @@ function wwa_auth() {
                 wwa_dom('wwa-user-name', (dom) => { dom.readOnly = false }, 'class');
                 return;
             }
-            data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), (c) => c.charCodeAt(0));
-
-            if (data.allowCredentials) {
-                data.allowCredentials = data.allowCredentials.map((item) => {
-                    item.id = Uint8Array.from(window.atob(base64url2base64(item.id)), (c) => c.charCodeAt(0));
-                    return item;
-                });
-            }
-
-            // Save client ID
             const clientID = data.clientID;
-            delete data.clientID;
+            data.allowCredentials = WWAWebAuthn.applyAuthenticatorTypeTransports(data.allowCredentials, wwa_php_vars.allow_authenticator_type);
+            const publicKey = WWAWebAuthn.parseRequestOptions(data);
 
-            navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
+            navigator.credentials.get({ 'publicKey': publicKey }).then((credentialInfo) => {
                 button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_5;
                 return credentialInfo;
-            }).then((data) => {
-                const publicKeyCredential = {
-                    id: data.id,
-                    type: data.type,
-                    rawId: arrayToBase64String(new Uint8Array(data.rawId)),
-                    response: {
-                        authenticatorData: arrayToBase64String(new Uint8Array(data.response.authenticatorData)),
-                        clientDataJSON: arrayToBase64String(new Uint8Array(data.response.clientDataJSON)),
-                        signature: arrayToBase64String(new Uint8Array(data.response.signature)),
-                        userHandle: data.response.userHandle ? arrayToBase64String(new Uint8Array(data.response.userHandle)) : null
-                    }
-                };
-                return publicKeyCredential;
-            }).then(JSON.stringify).then((AuthenticatorResponse) => {
+            }).then(WWAWebAuthn.credentialToJSON).then(JSON.stringify).then((AuthenticatorResponse) => {
                 let response = wwa_ajax();
-                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&clientid=${clientID}&user=${encodeURIComponent(wwa_username)}&remember=${wwa_php_vars.remember_me === 'false' ? 'false' : (document.getElementById('wwa-rememberme') ? (document.getElementById('wwa-rememberme').checked ? 'true' : 'false') : 'false')}`, (data, status) => {
+                response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=auth&clientid=${clientID}&user=${encodeURIComponent(wwa_username)}&remember=${wwa_php_vars.remember_me === 'false' ? 'false' : (document.getElementById('wwa-rememberme') ? (document.getElementById('wwa-rememberme').checked ? 'true' : 'false') : 'false')}&redirect_to=${encodeURIComponent(wwa_get_login_redirect_intent(button_dom))}`, (data, status) => {
+                    const parsed = WWAWebAuthn.parseAjaxResponse(data);
+                    wwa_maybe_signal_unknown_credential(parsed);
                     if (status) {
-                        if (data === 'true') {
+                        if (parsed.success) {
                             wwa_enable_buttons();
                             wwa_dom('wwa-user-name', (dom) => { dom.readOnly = false }, 'class');
                             button_dom.parentNode.previousElementSibling.innerHTML = wwa_php_vars.i18n_6;
-                            if (document.querySelectorAll('p.login-submit input[name="redirect_to"]').length > 0) {
-                                setTimeout(() => {
-                                    window.location.href = document.querySelectorAll('p.login-submit input[name="redirect_to"]')[0].value;
-                                }, 200);
-                            } else {
-                                if (document.getElementsByClassName('wwa-redirect-to').length > 0) {
-                                    setTimeout(() => {
-                                        window.location.href = document.getElementsByClassName('wwa-redirect-to')[0].value;
-                                    }, 200);
+                            const redirectTo = wwa_get_login_success_redirect(parsed);
+                            setTimeout(() => {
+                                if (redirectTo) {
+                                    window.location.href = redirectTo;
                                 } else {
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 200);
+                                    window.location.reload();
                                 }
-                            }
+                            }, 200);
                         } else {
                             wwa_enable_buttons();
                             if (wwa_php_vars.usernameless === 'true' && wwa_username === '') {
@@ -305,6 +355,7 @@ function wwa_bind() {
         alert(wwa_php_vars.i18n_12);
         return;
     }
+    WWAWebAuthn.abortConditionalCreate();
     const wwa_type_el = this.parentNode.parentNode.getElementsByClassName('wwa-authenticator-type')[0];
     let wwa_type = wwa_type_el ? wwa_type_el.value : (wwa_php_vars.allow_authenticator_type !== 'none' ? wwa_php_vars.allow_authenticator_type : 'none');
     let wwa_usernameless = this.parentNode.parentNode.querySelectorAll('.wwa-authenticator-usernameless:checked')[0] ? this.parentNode.parentNode.querySelectorAll('.wwa-authenticator-usernameless:checked')[0].value : 'false';
@@ -331,66 +382,25 @@ function wwa_bind() {
                 updateList();
                 return;
             }
-            let challenge = new Uint8Array(32);
-            let user_id = new Uint8Array(32);
-            challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), (c) => c.charCodeAt(0));
-            user_id = Uint8Array.from(window.atob(base64url2base64(data.user.id)), (c) => c.charCodeAt(0));
-
-            let public_key = {
-                challenge: challenge,
-                rp: {
-                    id: data.rp.id,
-                    name: data.rp.name
-                },
-                user: {
-                    id: user_id,
-                    name: data.user.name,
-                    displayName: data.user.displayName
-                },
-                pubKeyCredParams: data.pubKeyCredParams,
-                authenticatorSelection: data.authenticatorSelection,
-                timeout: data.timeout
-            }
-
-            // If some authenticators are already registered, exclude
-            if (data.excludeCredentials) {
-                public_key.excludeCredentials = data.excludeCredentials.map((item) => {
-                    item.id = Uint8Array.from(window.atob(base64url2base64(item.id)), (c) => c.charCodeAt(0));
-                    return item;
-                })
-            }
-
-            // Save client ID
             const clientID = data.clientID;
-            delete data.clientID;
+            const public_key = WWAWebAuthn.parseCreationOptions(data);
 
-            // Create, a pop-up window should appear
             navigator.credentials.create({ 'publicKey': public_key }).then((newCredentialInfo) => {
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_32;
                 return newCredentialInfo;
-            }).then((data) => {
-                // Code Uint8Array into string for transmission
-                const publicKeyCredential = {
-                    id: data.id,
-                    type: data.type,
-                    rawId: arrayToBase64String(new Uint8Array(data.rawId)),
-                    response: {
-                        clientDataJSON: arrayToBase64String(new Uint8Array(data.response.clientDataJSON)),
-                        attestationObject: arrayToBase64String(new Uint8Array(data.response.attestationObject))
-                    }
-                };
-                return publicKeyCredential;
-            }).then(JSON.stringify).then((AuthenticatorAttestationResponse) => {
+            }).then(WWAWebAuthn.credentialToJSON).then(JSON.stringify).then((AuthenticatorAttestationResponse) => {
                 let response = wwa_ajax();
                 response.post(`${wwa_php_vars.ajax_url}?action=wwa_create_response`, `data=${encodeURIComponent(window.btoa(AuthenticatorAttestationResponse))}&name=${encodeURIComponent(wwa_name)}&type=${encodeURIComponent(wwa_type)}&usernameless=${wwa_usernameless}&clientid=${clientID}&_ajax_nonce=${wwa_php_vars._ajax_nonce}`, (rawData, status) => {
                     if (status) {
-                        if (rawData === 'true') {
+                        const parsed = WWAWebAuthn.parseAjaxResponse(rawData);
+                        if (parsed.success) {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_29;
                             wwa_enable_buttons();
                             wwa_dom('wwa-authenticator-name', (dom) => { dom.readOnly = false; dom.value = '' }, 'class');
                             wwa_dom('wwa-authenticator-type', (dom) => { dom.disabled = false }, 'class');
                             wwa_dom('wwa-authenticator-usernameless', (dom) => { dom.disabled = false }, 'class');
                             updateList();
+                            wwa_signal_current_user_details();
                         } else {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_30;
                             wwa_enable_buttons();
@@ -431,6 +441,7 @@ function wwa_bind() {
 // Verify
 function wwa_verify() {
     let button_dom = this;
+    WWAWebAuthn.abortConditionalCreate();
     button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_3;
     let usernameless = this.className.indexOf('wwa-test-usernameless-submit') === -1 ? false : true;
     wwa_disable_buttons();
@@ -452,51 +463,23 @@ function wwa_verify() {
                 wwa_enable_buttons();
                 return;
             }
-            data.challenge = Uint8Array.from(window.atob(base64url2base64(data.challenge)), (c) => c.charCodeAt(0));
-
-            if (data.allowCredentials) {
-                data.allowCredentials = data.allowCredentials.map((item) => {
-                    item.id = Uint8Array.from(window.atob(base64url2base64(item.id)), (c) => c.charCodeAt(0));
-                    return item;
-                });
-            }
-
-            if (data.allowCredentials && wwa_php_vars.allow_authenticator_type && wwa_php_vars.allow_authenticator_type !== 'none') {
-                for (let credential of data.allowCredentials) {
-                    if (wwa_php_vars.allow_authenticator_type === 'cross-platform') {
-                        credential.transports = ['usb', 'nfc', 'ble'];
-                    } else if (wwa_php_vars.allow_authenticator_type === 'platform') {
-                        credential.transports = ['internal'];
-                    }
-                }
-            }
-
-            // Save client ID
             const clientID = data.clientID;
-            delete data.clientID;
+            data.allowCredentials = WWAWebAuthn.applyAuthenticatorTypeTransports(data.allowCredentials, wwa_php_vars.allow_authenticator_type);
+            const publicKey = WWAWebAuthn.parseRequestOptions(data);
 
-            navigator.credentials.get({ 'publicKey': data }).then((credentialInfo) => {
+            navigator.credentials.get({ 'publicKey': publicKey }).then((credentialInfo) => {
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_13;
                 return credentialInfo;
             }).then((data) => {
                 button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_14;
-                const publicKeyCredential = {
-                    id: data.id,
-                    type: data.type,
-                    rawId: arrayToBase64String(new Uint8Array(data.rawId)),
-                    response: {
-                        authenticatorData: arrayToBase64String(new Uint8Array(data.response.authenticatorData)),
-                        clientDataJSON: arrayToBase64String(new Uint8Array(data.response.clientDataJSON)),
-                        signature: arrayToBase64String(new Uint8Array(data.response.signature)),
-                        userHandle: data.response.userHandle ? arrayToBase64String(new Uint8Array(data.response.userHandle)) : null
-                    }
-                };
-                return publicKeyCredential;
+                return WWAWebAuthn.credentialToJSON(data);
             }).then(JSON.stringify).then((AuthenticatorResponse) => {
                 let response = wwa_ajax();
                 response.post(`${wwa_php_vars.ajax_url}?action=wwa_auth`, `data=${encodeURIComponent(window.btoa(AuthenticatorResponse))}&type=test&remember=false&clientid=${clientID}`, (rawData, status) => {
+                    const parsed = WWAWebAuthn.parseAjaxResponse(rawData);
+                    wwa_maybe_signal_unknown_credential(parsed);
                     if (status) {
-                        if (rawData === 'true') {
+                        if (parsed.success) {
                             button_dom.nextElementSibling.innerHTML = wwa_php_vars.i18n_16;
                             wwa_enable_buttons();
                             updateList();
@@ -536,6 +519,71 @@ function getFrontendColspan() {
     return cols;
 }
 
+function setFrontendAuthenticatorListMessage(message) {
+    wwa_dom('wwa-authenticator-list', (dom) => {
+        dom.textContent = '';
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = getFrontendColspan();
+        cell.textContent = message;
+        row.appendChild(cell);
+        dom.appendChild(row);
+    }, 'class');
+}
+
+function getFrontendAuthenticatorTypeLabel(item, item_type_disabled) {
+    const typeLabel = item.type === 'none' ? wwa_php_vars.i18n_24 : (item.type === 'platform' ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26);
+    return item_type_disabled ? typeLabel + wwa_php_vars.i18n_35 : typeLabel;
+}
+
+function createFrontendAuthenticatorAction(label, handler) {
+    const link = document.createElement('a');
+    link.href = '#';
+    link.textContent = label;
+    link.addEventListener('click', (event) => {
+        event.preventDefault();
+        handler();
+    });
+    return link;
+}
+
+function buildFrontendAuthenticatorRow(item, item_type_disabled) {
+    const row = document.createElement('tr');
+
+    const nameCell = document.createElement('td');
+    nameCell.textContent = item.name;
+    row.appendChild(nameCell);
+
+    if (wwa_php_vars.show_authenticator_type === 'true') {
+        const typeCell = document.createElement('td');
+        typeCell.className = 'wwa-type-td';
+        typeCell.textContent = getFrontendAuthenticatorTypeLabel(item, item_type_disabled);
+        row.appendChild(typeCell);
+    }
+
+    const addedCell = document.createElement('td');
+    addedCell.textContent = item.added;
+    row.appendChild(addedCell);
+
+    const lastUsedCell = document.createElement('td');
+    lastUsedCell.textContent = item.last_used;
+    row.appendChild(lastUsedCell);
+
+    const usernamelessCell = document.createElement('td');
+    usernamelessCell.className = 'wwa-usernameless-td';
+    usernamelessCell.textContent = item.usernameless ? wwa_php_vars.i18n_1 + (wwa_php_vars.usernameless === 'true' ? '' : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8;
+    row.appendChild(usernamelessCell);
+
+    const actionCell = document.createElement('td');
+    actionCell.className = `wwa-key-${item.key}`;
+    actionCell.appendChild(createFrontendAuthenticatorAction(wwa_php_vars.i18n_20, () => renameAuthenticator(item.key, item.name)));
+    actionCell.appendChild(document.createTextNode(' | '));
+    actionCell.appendChild(createFrontendAuthenticatorAction(wwa_php_vars.i18n_27, () => removeAuthenticator(item.key, item.name)));
+    row.appendChild(actionCell);
+
+    return row;
+}
+
 function updateList() {
     if (document.getElementsByClassName('wwa-authenticator-list').length === 0) {
         return;
@@ -548,7 +596,7 @@ function updateList() {
                 data = JSON.parse(rawData);
             } catch (e) {
                 console.warn(rawData);
-                wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${getFrontendColspan()}">${wwa_php_vars.i18n_17}</td></tr>` }, 'class');
+                setFrontendAuthenticatorListMessage(wwa_php_vars.i18n_17);
                 return;
             }
             if (data.length === 0) {
@@ -557,15 +605,16 @@ function updateList() {
                 } else {
                     wwa_dom('.wwa-usernameless-th, .wwa-usernameless-td', (dom) => { dom.style.display = 'none' });
                 }
-                wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${getFrontendColspan()}">${wwa_php_vars.i18n_23}</td></tr>` }, 'class');
+                setFrontendAuthenticatorListMessage(wwa_php_vars.i18n_23);
                 wwa_dom('wwa-authenticator-list-usernameless-tip', (dom) => { dom.innerText = '' }, 'class');
                 wwa_dom('wwa-authenticator-list-type-tip', (dom) => { dom.innerText = '' }, 'class');
+                wwa_signal_current_user_details();
                 return;
             }
-            let htmlStr = '';
             let has_usernameless = false;
             let has_disabled_type = false;
-            for (let item of data) {
+            const rowItems = [];
+            for (const item of data) {
                 let item_type_disabled = false;
                 if (item.usernameless) {
                     has_usernameless = true;
@@ -576,9 +625,14 @@ function updateList() {
                         item_type_disabled = true;
                     }
                 }
-                htmlStr += `<tr><td>${item.name}</td>${wwa_php_vars.show_authenticator_type === 'true' ? `<td class="wwa-type-td">${item.type === 'none' ? wwa_php_vars.i18n_24 : (item.type === 'platform' ? wwa_php_vars.i18n_25 : wwa_php_vars.i18n_26)}${item_type_disabled ? wwa_php_vars.i18n_35 : ''}</td>` : ''}<td>${item.added}</td><td>${item.last_used}</td><td class="wwa-usernameless-td">${item.usernameless ? wwa_php_vars.i18n_1 + (wwa_php_vars.usernameless === 'true' ? '' : wwa_php_vars.i18n_9) : wwa_php_vars.i18n_8}</td><td class="wwa-key-${item.key}"><a href="javascript:renameAuthenticator('${item.key}', '${item.name.replaceAll('\'', '\\\'').replaceAll('&#039;', '\\&#039;').replaceAll('"', '\\"')}')">${wwa_php_vars.i18n_20}</a> | <a href="javascript:removeAuthenticator('${item.key}', '${item.name.replaceAll('\'', '\\\'').replaceAll('&#039;', '\\&#039;').replaceAll('"', '\\"')}')">${wwa_php_vars.i18n_27}</a></td></tr>`;
+                rowItems.push({ item, item_type_disabled });
             }
-            wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = htmlStr }, 'class');
+            wwa_dom('wwa-authenticator-list', (dom) => {
+                dom.textContent = '';
+                for (const rowItem of rowItems) {
+                    dom.appendChild(buildFrontendAuthenticatorRow(rowItem.item, rowItem.item_type_disabled));
+                }
+            }, 'class');
             if (has_usernameless || wwa_php_vars.usernameless === 'true') {
                 wwa_dom('.wwa-usernameless-th, .wwa-usernameless-td', (dom) => { dom.style.display = 'table-cell' });
             } else {
@@ -600,8 +654,9 @@ function updateList() {
             } else {
                 wwa_dom('wwa-authenticator-list-type-tip', (dom) => { dom.innerText = ''; dom.style.display = 'none' }, 'class');
             }
+            wwa_signal_current_user_details();
         } else {
-            wwa_dom('wwa-authenticator-list', (dom) => { dom.innerHTML = `<tr><td colspan="${getFrontendColspan()}">${wwa_php_vars.i18n_17}</td></tr>` }, 'class');
+            setFrontendAuthenticatorListMessage(wwa_php_vars.i18n_17);
         }
     })
 }
@@ -622,7 +677,7 @@ function renameAuthenticator(id, name) {
             if (status) {
                 updateList();
             } else {
-                alert(`Error: ${data}`);
+                alert(`Error: ${wwa_get_error_message(data)}`);
                 updateList();
             }
         })
@@ -642,7 +697,7 @@ function removeAuthenticator(id, name) {
             if (status) {
                 updateList();
             } else {
-                alert(`Error: ${data}`);
+                alert(`Error: ${wwa_get_error_message(data)}`);
                 updateList();
             }
         })

@@ -6,15 +6,19 @@ if (!defined('ABSPATH')) {
 $wwa_term = wwa_get_option('terminology') === 'webauthn';
 
 // Insert CSS and JS
-wp_enqueue_script('wwa_profile', plugins_url('js/profile.js', __FILE__), array(), get_option('wwa_version')['version']);
+wp_enqueue_script('wwa_webauthn_helpers', plugins_url('js/webauthn-helpers.js', __FILE__), array(), get_option('wwa_version')['version']);
+wp_enqueue_script('wwa_profile', plugins_url('js/profile.js', __FILE__), array('wwa_webauthn_helpers'), get_option('wwa_version')['version']);
 wp_localize_script('wwa_profile', 'php_vars', array(
     'ajax_url' => admin_url('admin-ajax.php'),
     '_ajax_nonce' => wp_create_nonce('wwa_ajax'),
     'user_id' => $user->ID,
+    'current_user_id' => get_current_user_id(),
+    'logged_in' => current_user_can('read') ? 'true' : 'false',
     'i18n_1' => __('Initializing...', 'wp-webauthn'),
     'i18n_2' => __('Please follow instructions to finish registration...', 'wp-webauthn'),
     'i18n_3' => '<span class="wwa-success">'._x('Registered', 'action', 'wp-webauthn').'</span>',
     'i18n_4' => '<span class="wwa-failed">'.__('Registration failed', 'wp-webauthn').'</span>',
+    'i18n_4_text' => __('Registration failed', 'wp-webauthn'),
     'i18n_5' => __('Your browser does not support WebAuthn', 'wp-webauthn'),
     'i18n_6' => __('Registrating...', 'wp-webauthn'),
     'i18n_7' => __('Please enter the authenticator identifier', 'wp-webauthn'),
@@ -26,6 +30,7 @@ wp_localize_script('wwa_profile', 'php_vars', array(
     'i18n_13' => __('Please follow instructions to finish verification...', 'wp-webauthn'),
     'i18n_14' => __('Verifying...', 'wp-webauthn'),
     'i18n_15' => '<span class="wwa-failed">'.__('Verification failed', 'wp-webauthn').'</span>',
+    'i18n_15_text' => __('Verification failed', 'wp-webauthn'),
     'i18n_16' => '<span class="wwa-success">'.(wwa_get_option('terminology') === 'webauthn' ? __('Verification passed! You can now log in through WebAuthn', 'wp-webauthn') : __('Verification passed! You can now log in with this passkey', 'wp-webauthn')).'</span>',
     'i18n_17' => __('No registered authenticators', 'wp-webauthn'),
     'i18n_18' => __('Confirm removal of authenticator: ', 'wp-webauthn'),
@@ -88,8 +93,9 @@ if(!function_exists("mb_substr") || !wwa_check_ssl() && (wp_parse_url(site_url()
         ?></p>
     </div>
 </div>
-<?php } ?>
-<table class="form-table">
+	<?php } ?>
+	<?php $wwa_allow_profile_test = wwa_get_option('allow_profile_test') === 'true'; ?>
+	<table class="form-table">
 <tr class="user-rich-editing-wrap">
     <th scope="row"><?php $wwa_term ? esc_html_e('WebAuthn Only', 'wp-webauthn') : esc_html_e('Passkey Only', 'wp-webauthn'); ?></th>
         <td>
@@ -133,7 +139,7 @@ if(!function_exists("mb_substr") || !wwa_check_ssl() && (wp_parse_url(site_url()
 </div>
 <p id="wwa_usernameless_tip"></p>
 <p id="wwa_type_tip"></p>
-<button id="wwa-add-new-btn" class="button" title="<?php $wwa_term ? esc_attr_e('Register New Authenticator', 'wp-webauthn') : esc_attr_e('Register New Passkey', 'wp-webauthn'); ?>"<?php if($wwa_not_allowed){echo ' disabled';}?>><?php $wwa_term ? esc_html_e('Register New Authenticator', 'wp-webauthn') : esc_html_e('Register New Passkey', 'wp-webauthn'); ?></button>&nbsp;&nbsp;<button id="wwa-verify-btn" class="button" title="<?php $wwa_term ? esc_attr_e('Verify Authenticator', 'wp-webauthn') : esc_attr_e('Verify Passkey', 'wp-webauthn'); ?>"><?php $wwa_term ? esc_html_e('Verify Authenticator', 'wp-webauthn') : esc_html_e('Verify Passkey', 'wp-webauthn'); ?></button>
+	<button id="wwa-add-new-btn" class="button" title="<?php $wwa_term ? esc_attr_e('Register New Authenticator', 'wp-webauthn') : esc_attr_e('Register New Passkey', 'wp-webauthn'); ?>"<?php if($wwa_not_allowed){echo ' disabled';}?>><?php $wwa_term ? esc_html_e('Register New Authenticator', 'wp-webauthn') : esc_html_e('Register New Passkey', 'wp-webauthn'); ?></button><?php if($wwa_allow_profile_test){ ?>&nbsp;&nbsp;<button id="wwa-verify-btn" class="button" title="<?php $wwa_term ? esc_attr_e('Verify Authenticator', 'wp-webauthn') : esc_attr_e('Verify Passkey', 'wp-webauthn'); ?>"><?php $wwa_term ? esc_html_e('Verify Authenticator', 'wp-webauthn') : esc_html_e('Verify Passkey', 'wp-webauthn'); ?></button><?php } ?>
 <div id="wwa-new-block" tabindex="-1">
 <button class="button button-small wwa-cancel"><?php esc_html_e('Close');?></button>
 <h2><?php $wwa_term ? esc_html_e('Register New Authenticator', 'wp-webauthn') : esc_html_e('Register New Passkey', 'wp-webauthn'); ?></h2>
@@ -182,12 +188,14 @@ $allowed_type = wwa_get_option('allow_authenticator_type') === false ? 'none' : 
 </table>
 <button id="wwa-bind" class="button"><?php esc_html_e('Start Registration', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="wwa-show-progress"></span>
 </div>
-<div id="wwa-verify-block" tabindex="-1">
-<button class="button button-small wwa-cancel"><?php esc_html_e('Close');?></button>
-<h2><?php $wwa_term ? esc_html_e('Verify Authenticator', 'wp-webauthn') : esc_html_e('Verify Passkey', 'wp-webauthn'); ?></h2>
-<p class="description"><?php esc_html_e('Click Test Login to verify that the registered authenticators are working.', 'wp-webauthn');?></p>
-<button id="wwa-test" class="button"><?php esc_html_e('Test Login', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="wwa-show-test"></span>
+<?php if($wwa_allow_profile_test){ ?>
+    <div id="wwa-verify-block" tabindex="-1">
+        <button class="button button-small wwa-cancel"><?php esc_html_e('Close');?></button>
+        <h2><?php $wwa_term ? esc_html_e('Verify Authenticator', 'wp-webauthn') : esc_html_e('Verify Passkey', 'wp-webauthn'); ?></h2>
+        <p class="description"><?php esc_html_e('Click Test Login to verify that the registered authenticators are working.', 'wp-webauthn');?></p>
+        <button id="wwa-test" class="button"><?php esc_html_e('Test Login', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="wwa-show-test"></span>
 <?php if(wwa_get_option('usernameless_login') === "true"){?>
 <br><br><button id="wwa-test_usernameless" class="button"><?php esc_html_e('Test Login (usernameless)', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="wwa-show-test-usernameless"></span>
 <?php }?>
-</div>
+    </div>
+<?php } ?>

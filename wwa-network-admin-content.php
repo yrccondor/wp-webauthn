@@ -58,23 +58,22 @@ function wwa_handle_network_options_save(){
     }
     wwa_update_option('show_authenticator_type', $post_show_type);
 
-    $raw_ror = wp_unslash($_POST['ror_origins'] ?? '');
-    $ror_lines = explode("\n", $raw_ror);
-    $sanitized_ror = array();
-    foreach($ror_lines as $line){
-        $line = trim($line);
-        if($line === ''){
-            continue;
-        }
-        $parsed = wp_parse_url($line);
-        if(isset($parsed['scheme']) && isset($parsed['host'])){
-            $origin = $parsed['scheme'] . '://' . $parsed['host'];
-            if(isset($parsed['port'])){
-                $origin .= ':' . $parsed['port'];
-            }
-            $sanitized_ror[] = $origin;
-        }
+    $post_allow_profile_test = sanitize_text_field(wp_unslash($_POST['allow_profile_test'] ?? 'false'));
+    if(!in_array($post_allow_profile_test, array('true', 'false'), true)){
+        $post_allow_profile_test = 'false';
     }
+    if($post_allow_profile_test !== wwa_get_option('allow_profile_test')){
+        wwa_add_log($res_id, 'network allow_profile_test: "'.wwa_get_option('allow_profile_test').'"->"'.$post_allow_profile_test.'"');
+    }
+    wwa_update_option('allow_profile_test', $post_allow_profile_test);
+
+    $post_conditional_create = wwa_normalize_conditional_create_mode(wp_unslash($_POST['conditional_create'] ?? 'off'));
+    if($post_conditional_create !== wwa_get_option('conditional_create')){
+        wwa_add_log($res_id, 'network conditional_create: "'.wwa_get_option('conditional_create').'"->"'.$post_conditional_create.'"');
+    }
+    wwa_update_option('conditional_create', $post_conditional_create);
+
+    $sanitized_ror = wwa_sanitize_ror_origins(wp_unslash($_POST['ror_origins'] ?? ''));
     $post_ror_origins = implode("\n", $sanitized_ror);
     if($post_ror_origins !== wwa_get_option('ror_origins')){
         wwa_add_log($res_id, 'network ror_origins: "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"->"'.str_replace("\n", ', ', $post_ror_origins).'"');
@@ -97,7 +96,8 @@ function wwa_display_network_settings(){
         '_ajax_nonce' => wp_create_nonce('wwa_admin_ajax'),
         'i18n_1' => __('User verification is disabled by default because some mobile devices do not support it (especially on Android devices). But we <strong>recommend you to enable it</strong> if possible to further secure your login.', 'wp-webauthn'),
         'i18n_2' => __('Log count: ', 'wp-webauthn'),
-        'i18n_3' => __('Loading failed, maybe try refreshing?', 'wp-webauthn')
+        'i18n_3' => __('Loading failed, maybe try refreshing?', 'wp-webauthn'),
+        'i18n_4' => __('Note that this browser-assisted creation option may not follow the authenticator type restriction option.', 'wp-webauthn')
     ));
     wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 
@@ -180,16 +180,39 @@ function wwa_display_network_settings(){
     </td>
     </tr>
     <tr>
+    <th scope="row"><label for="allow_profile_test"><?php esc_html_e('Allow users to test authenticators', 'wp-webauthn');?></label></th>
+    <td>
+    <?php $wwa_v_allow_profile_test=wwa_get_option('allow_profile_test');?>
+        <fieldset>
+            <label><input type="radio" name="allow_profile_test" value="true" <?php if($wwa_v_allow_profile_test === 'true'){?>checked="checked"<?php }?>> <?php esc_html_e("Enable", "wp-webauthn");?></label><br>
+            <label><input type="radio" name="allow_profile_test" value="false" <?php if($wwa_v_allow_profile_test === 'false' || $wwa_v_allow_profile_test === false){?>checked="checked"<?php }?>> <?php esc_html_e("Disable", "wp-webauthn");?></label><br>
+            <p class="description"><?php esc_html_e('Allow users to test authenticators on their profile pages.', 'wp-webauthn');?></p>
+        </fieldset>
+    </td>
+    </tr>
+    <tr>
     <th scope="row"></th>
     </tr>
-    <!-- Feature not fully ready <tr>
+    <tr>
     <th scope="row"><label for="ror_origins"><?php esc_html_e('Related origins', 'wp-webauthn');?></label></th>
     <td>
     <?php $wwa_v_ror = wwa_get_option('ror_origins');?>
         <textarea name="ror_origins" id="ror_origins" rows="4" cols="50" class="large-text code"><?php echo esc_textarea($wwa_v_ror ? $wwa_v_ror : '');?></textarea>
         <p class="description"><?php echo wp_kses(__('Allow cross-site passkey usages (<a href="https://passkeys.dev/docs/advanced/related-origins/" target="_blank">Related Origin Requests</a>). May be useful for multi-site networks.<br> Enter one origin per line (e.g. <code>https://example.com</code>). Leave empty to disable.', 'wp-webauthn'), array('a' => array('href' => array(), 'target' => array()), 'br' => array(), 'code' => array()));?></p>
     </td>
-    </tr>-->
+    </tr>
+    <tr>
+    <th scope="row"><label for="conditional_create"><?php esc_html_e('Automatic passkey creation', 'wp-webauthn');?></label></th>
+    <td>
+    <?php $wwa_v_cc=wwa_get_conditional_create_mode();?>
+        <select name="conditional_create" id="conditional_create">
+            <option value="no-credentials" <?php if($wwa_v_cc === 'no-credentials'){?>selected="selected"<?php }?>><?php esc_html_e('When the user has no registered authenticators', 'wp-webauthn');?></option>
+            <option value="unregistered-device" <?php if($wwa_v_cc === 'unregistered-device'){?>selected="selected"<?php }?>><?php esc_html_e('When the current device is not registered', 'wp-webauthn');?></option>
+            <option value="off" <?php if($wwa_v_cc === 'off'){?>selected="selected"<?php }?>><?php esc_html_e('Off', 'wp-webauthn');?></option>
+        </select>
+        <p class="description" id="wwa-conditional-create-description"><?php esc_html_e('Allow supported browsers to offer seamless automatic passkey creation after the user signed in.', 'wp-webauthn');?></p>
+    </td>
+    </tr>
         </table>
         <?php submit_button(); ?>
     </form>

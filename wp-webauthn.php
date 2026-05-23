@@ -3,7 +3,7 @@
 Plugin Name: WP-WebAuthn
 Plugin URI: https://flyhigher.top
 Description: WP-WebAuthn allows you to safely login to your WordPress site without password.
-Version: 1.4.1
+Version: 2.0.0
 Author: Axton
 Author URI: https://axton.cc
 License: GPLv3
@@ -30,144 +30,6 @@ function wwa_register_table() {
 wwa_register_table();
 add_action('plugins_loaded', 'wwa_register_table', 0);
 
-function wwa_create_table() {
-    global $wpdb;
-    $table = $wpdb->wwa_credentials;
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table (
-        credential_id varchar(512) NOT NULL,
-        user_id bigint(20) unsigned NOT NULL,
-        registered_blog_id bigint(20) unsigned NOT NULL DEFAULT 1,
-        credential_source longtext NOT NULL,
-        user_handle varchar(255) NOT NULL,
-        human_name text NOT NULL,
-        authenticator_type varchar(50) NOT NULL,
-        usernameless tinyint(1) NOT NULL DEFAULT 0,
-        added datetime NOT NULL,
-        last_used varchar(50) NOT NULL DEFAULT '-',
-        PRIMARY KEY  (credential_id),
-        KEY idx_user_id (user_id),
-        KEY idx_user_handle (user_handle),
-        KEY idx_blog_user (registered_blog_id, user_id)
-    ) $charset_collate;";
-
-    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    dbDelta($sql);
-}
-
-function wwa_migrate_credentials_for_site(){
-    if(get_option('wwa_credentials_migrated')){
-        return;
-    }
-
-    global $wpdb;
-    $options = get_option('wwa_options');
-    if(!is_array($options)){
-        update_option('wwa_credentials_migrated', true);
-        return;
-    }
-
-    $user_id_map = isset($options['user_id']) && is_array($options['user_id']) ? $options['user_id'] : array();
-    $raw_creds = isset($options['user_credentials']) ? $options['user_credentials'] : '{}';
-    $raw_meta = isset($options['user_credentials_meta']) ? $options['user_credentials_meta'] : '{}';
-
-    $credentials = json_decode($raw_creds, true);
-    $credentials_meta = json_decode($raw_meta, true);
-
-    if(!is_array($credentials) || !is_array($credentials_meta)){
-        update_option('wwa_credentials_migrated', true);
-        return;
-    }
-
-    foreach($user_id_map as $user_login => $user_handle){
-        $wp_user = get_user_by('login', $user_login);
-        if($wp_user === false){
-            continue;
-        }
-        $existing = get_user_meta($wp_user->ID, 'wwa_user_handle', true);
-        if(!$existing){
-            update_user_meta($wp_user->ID, 'wwa_user_handle', $user_handle);
-        }
-    }
-
-    $handle_to_login = array();
-    foreach($user_id_map as $user_login => $user_handle){
-        $handle_to_login[$user_handle] = $user_login;
-    }
-
-    $blog_id = get_current_blog_id();
-    foreach($credentials_meta as $cred_id => $meta){
-        if(!isset($meta['user']) || !isset($credentials[$cred_id])){
-            continue;
-        }
-
-        $handle = $meta['user'];
-        if(!isset($handle_to_login[$handle])){
-            continue;
-        }
-        $wp_user = get_user_by('login', $handle_to_login[$handle]);
-        if($wp_user === false){
-            continue;
-        }
-
-        $wpdb->query($wpdb->prepare(
-            "INSERT IGNORE INTO {$wpdb->wwa_credentials}
-            (credential_id, user_id, registered_blog_id, credential_source, user_handle, human_name, authenticator_type, usernameless, added, last_used)
-            VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %s)",
-            $cred_id,
-            $wp_user->ID,
-            $blog_id,
-            wp_json_encode($credentials[$cred_id]),
-            $handle,
-            isset($meta['human_name']) ? $meta['human_name'] : '',
-            isset($meta['authenticator_type']) ? $meta['authenticator_type'] : 'none',
-            !empty($meta['usernameless']) ? 1 : 0,
-            isset($meta['added']) ? $meta['added'] : current_time('mysql'),
-            isset($meta['last_used']) ? $meta['last_used'] : '-'
-        ));
-    }
-
-    $site_users = get_users(array('blog_id' => $blog_id, 'fields' => 'ID'));
-    foreach($site_users as $uid){
-        if(get_user_option('webauthn_only', $uid) === 'true'){
-            update_user_meta($uid, 'wwa_webauthn_only', 'true');
-        }
-    }
-
-    update_option('wwa_credentials_migrated', true);
-}
-
-function wwa_migrate_network_options(){
-    if(!is_multisite() || get_site_option('wwa_network_options') !== false){
-        return;
-    }
-
-    $main_site_id = get_main_site_id();
-    switch_to_blog($main_site_id);
-    $options = get_option('wwa_options');
-    restore_current_blog();
-
-    $network_defaults = array(
-        'first_choice' => 'true',
-        'ror_origins' => '',
-        'user_verification' => 'false',
-        'usernameless_login' => 'false',
-        'allow_authenticator_type' => 'none',
-        'show_authenticator_type' => 'false'
-    );
-    $network_options = array();
-    foreach($network_defaults as $key => $default){
-        if(is_array($options) && isset($options[$key])){
-            $network_options[$key] = $options[$key];
-        }else{
-            $network_options[$key] = $default;
-        }
-    }
-
-    update_site_option('wwa_network_options', $network_options);
-}
-
 register_activation_hook(__FILE__, 'wwa_init');
 register_uninstall_hook(__FILE__, 'wwa_uninstall');
 
@@ -176,7 +38,6 @@ function wwa_init(){
         deactivate_plugins(basename(__FILE__));
         return;
     }
-    wwa_create_table();
     if(is_multisite()){
         $sites = get_sites(array('fields' => 'ids', 'number' => 0));
         foreach($sites as $blog_id){
@@ -201,9 +62,12 @@ function wwa_uninstall(){
             restore_current_blog();
         }
         delete_site_option('wwa_network_options');
-        delete_site_option('wwa_all_sites_migrated');
+        delete_site_option(wwa_credentials_schema_option_name());
+        delete_site_option(wwa_credentials_schema_warning_option_name());
     }else{
         wwa_uninstall_site();
+        delete_option(wwa_credentials_schema_option_name());
+        delete_option(wwa_credentials_schema_warning_option_name());
     }
 
     $wpdb->query("DROP TABLE IF EXISTS {$wpdb->wwa_credentials}");
@@ -222,12 +86,12 @@ function wwa_uninstall_site(){
 add_action('plugins_loaded', 'wwa_init_data');
 
 function wwa_init_data(){
-    if(!get_option('wwa_init')){
+    $is_new_install = !get_option('wwa_init');
+    if($is_new_install){
         // Init
         wwa_create_table();
         $site_domain = wp_parse_url(site_url(), PHP_URL_HOST);
         $wwa_init_options = array(
-            'website_name' => get_bloginfo('name'),
             'website_domain' => $site_domain === NULL ? "" : $site_domain,
             'remember_me' => 'false',
             'email_login' => 'false',
@@ -235,6 +99,7 @@ function wwa_init_data(){
             'after_user_registration' => 'none',
             'logging' => 'false',
             'terminology' => 'passkey',
+            'allow_profile_test' => 'false',
         );
         if(!is_multisite()){
             $wwa_init_options['first_choice'] = 'true';
@@ -243,6 +108,8 @@ function wwa_init_data(){
             $wwa_init_options['allow_authenticator_type'] = 'none';
             $wwa_init_options['show_authenticator_type'] = 'false';
             $wwa_init_options['ror_origins'] = '';
+            $wwa_init_options['ror_origins_normalized'] = array();
+            $wwa_init_options['conditional_create'] = 'off';
         }
         update_option('wwa_options', $wwa_init_options);
         include('wwa-version.php');
@@ -253,40 +120,26 @@ function wwa_init_data(){
     }else{
         include('wwa-version.php');
         if(!get_option('wwa_version') || get_option('wwa_version')['version'] != $wwa_version['version']){
-            wwa_create_table();
-            wwa_migrate_credentials_for_site();
-
-            if(is_multisite() && !get_site_option('wwa_all_sites_migrated')){
-                $all_sites = get_sites(array('fields' => 'ids', 'number' => 0));
-                foreach($all_sites as $site_id){
-                    if(intval($site_id) === get_current_blog_id()){
-                        continue;
-                    }
-                    switch_to_blog($site_id);
-                    if(get_option('wwa_init')){
-                        wwa_migrate_credentials_for_site();
-                        update_option('wwa_version', $wwa_version);
-                    }
-                    restore_current_blog();
-                }
-                update_site_option('wwa_all_sites_migrated', true);
-            }
-
             update_option('wwa_version', $wwa_version);
             add_action('wp_loaded', 'wwa_apply_rewrite_rules');
         }
     }
 
+    wwa_maybe_upgrade_credentials_schema();
     if(is_multisite()){
-        wwa_migrate_network_options();
+        wwa_migrate_network_options($is_new_install);
+    }else{
+        wwa_migrate_credentials_for_site();
     }
+    wwa_init_new_options();
 }
 
 // Wrap WP-WebAuthn settings
 function wwa_get_option($option_name){
     $network_options = array(
-        'first_choice', 'ror_origins', 'user_verification',
-        'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type'
+        'first_choice', 'ror_origins', 'ror_origins_normalized', 'user_verification',
+        'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type',
+        'allow_profile_test', 'conditional_create'
     );
 
     if(is_multisite() && in_array($option_name, $network_options, true)){
@@ -307,28 +160,55 @@ function wwa_get_option($option_name){
 
 function wwa_update_option($option_name, $option_value){
     $network_options = array(
-        'first_choice', 'ror_origins', 'user_verification',
-        'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type'
+        'first_choice', 'ror_origins', 'ror_origins_normalized', 'user_verification',
+        'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type',
+        'allow_profile_test', 'conditional_create'
     );
 
     if(is_multisite() && in_array($option_name, $network_options, true)){
         $options = get_site_option('wwa_network_options', array());
         $options[$option_name] = $option_value;
+        if($option_name === 'ror_origins'){
+            $options['ror_origins_normalized'] = wwa_sanitize_ror_origins($option_value);
+        }
         update_site_option('wwa_network_options', $options);
         return true;
     }
 
     $options = get_option('wwa_options');
     $options[$option_name] = $option_value;
+    if($option_name === 'ror_origins'){
+        $options['ror_origins_normalized'] = wwa_sanitize_ror_origins($option_value);
+    }
     update_option('wwa_options',$options);
     return true;
 }
 
 include('wwa-menus.php');
 include('wwa-functions.php');
+include('wwa-migrations.php');
 include('wwa-credential-repository.php');
 include('wwa-ajax.php');
 include('wwa-shortcodes.php');
+
+function wwa_admin_enqueue_conditional_create(){
+    if(!current_user_can('read')){
+        return;
+    }
+    $conditional_create_mode = wwa_get_effective_conditional_create_mode_for_user(get_current_user_id());
+    if($conditional_create_mode === 'off'){
+        return;
+    }
+    $version = get_option('wwa_version')['version'];
+    wp_enqueue_script('wwa_webauthn_helpers', plugins_url('js/webauthn-helpers.js', __FILE__), array(), $version, true);
+    wp_enqueue_script('wwa_admin_conditional_create', plugins_url('js/admin-conditional-create.js', __FILE__), array('wwa_webauthn_helpers'), $version, true);
+    wp_localize_script('wwa_admin_conditional_create', 'wwa_conditional_create_vars', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        '_ajax_nonce' => wp_create_nonce('wwa_ajax'),
+        'conditional_create' => $conditional_create_mode
+    ));
+}
+add_action('admin_enqueue_scripts', 'wwa_admin_enqueue_conditional_create');
 
 register_activation_hook(__FILE__, 'wwa_apply_rewrite_rules');
 register_deactivation_hook(__FILE__, 'wwa_deactivate');

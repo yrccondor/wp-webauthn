@@ -10,7 +10,8 @@ wp_localize_script('wwa_admin', 'php_vars', array(
     '_ajax_nonce' => wp_create_nonce('wwa_admin_ajax'),
     'i18n_1' => __('User verification is disabled by default because some mobile devices do not support it (especially on Android devices). But we <strong>recommend you to enable it</strong> if possible to further secure your login.', 'wp-webauthn'),
     'i18n_2' => __('Log count: ', 'wp-webauthn'),
-    'i18n_3' => __('Loading failed, maybe try refreshing?', 'wp-webauthn')
+    'i18n_3' => __('Loading failed, maybe try refreshing?', 'wp-webauthn'),
+    'i18n_4' => __('Note that this browser-assisted creation option may not follow the authenticator type restriction option.', 'wp-webauthn')
 ));
 wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 ?>
@@ -41,13 +42,14 @@ if(
     && (is_multisite() || (isset($_POST['usernameless_login']) && ($_POST['usernameless_login'] === 'true' || $_POST['usernameless_login'] === 'false')))
     && (is_multisite() || (isset($_POST['allow_authenticator_type']) && ($_POST['allow_authenticator_type'] === 'none' || $_POST['allow_authenticator_type'] === 'platform' || $_POST['allow_authenticator_type'] === 'cross-platform')))
     && (is_multisite() || (isset($_POST['show_authenticator_type']) && ($_POST['show_authenticator_type'] === 'true' || $_POST['show_authenticator_type'] === 'false')))
+    && (is_multisite() || (isset($_POST['allow_profile_test']) && ($_POST['allow_profile_test'] === 'true' || $_POST['allow_profile_test'] === 'false')))
     && (isset($_POST['password_reset']) && ($_POST['password_reset'] === 'off' || $_POST['password_reset'] === 'admin' || $_POST['password_reset'] === 'all'))
     && (isset($_POST['after_user_registration']) && ($_POST['after_user_registration'] === 'none' || $_POST['after_user_registration'] === 'login' || $_POST['after_user_registration'] === 'mail'))
     && (isset($_POST['terminology']) && ($_POST['terminology'] === 'webauthn' || $_POST['terminology'] === 'passkey'))
     && (isset($_POST['logging']) && ($_POST['logging'] === 'true' || $_POST['logging'] === 'false'))
-    && isset($_POST['website_name'])
     && isset($_POST['website_domain'])
-    // && (is_multisite() || isset($_POST['ror_origins']))
+    && wwa_normalize_rp_id(wp_unslash($_POST['website_domain'])) !== ''
+    && (is_multisite() || isset($_POST['ror_origins']))
 ){
     $res_id = wwa_generate_random_string(5);
 
@@ -64,7 +66,7 @@ if(
             wwa_add_log($res_id, 'Warning: Not in security context', true);
         }
         wwa_add_log($res_id, 'PHP Version => '.phpversion().', WordPress Version => '.get_bloginfo('version').', WP-WebAuthn Version => '.get_option('wwa_version')['version'], true);
-        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_name => "'.wwa_get_option('website_name').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", email_login => "'.wwa_get_option('email_login').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", show_authenticator_type => "'.wwa_get_option('show_authenticator_type').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", terminology => "'.wwa_get_option('terminology').'", ror_origins => "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"', true);
+        wwa_add_log($res_id, 'Current config: first_choice => "'.wwa_get_option('first_choice').'", website_domain => "'.wwa_get_option('website_domain').'", remember_me => "'.wwa_get_option('remember_me').'", email_login => "'.wwa_get_option('email_login').'", user_verification => "'.wwa_get_option('user_verification').'", allow_authenticator_type => "'.wwa_get_option('allow_authenticator_type').'", show_authenticator_type => "'.wwa_get_option('show_authenticator_type').'", allow_profile_test => "'.wwa_get_option('allow_profile_test').'", usernameless_login => "'.wwa_get_option('usernameless_login').'", password_reset => "'.wwa_get_option('password_reset').'", after_user_registration => "'.wwa_get_option('after_user_registration').'", terminology => "'.wwa_get_option('terminology').'", ror_origins => "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'", conditional_create => "'.wwa_get_option('conditional_create').'"', true);
         $extra_logger_info = apply_filters('wwa_logger_init', array());
         foreach($extra_logger_info as $info){
             wwa_add_log($res_id, $info, true);
@@ -81,41 +83,25 @@ if(
         wwa_update_option('first_choice', $post_first_choice);
     }
 
-    $post_website_name = sanitize_text_field(wp_unslash($_POST['website_name']));
-    if($post_website_name !== wwa_get_option('website_name')){
-        wwa_add_log($res_id, 'website_name: "'.wwa_get_option('website_name').'"->"'.$post_website_name.'"');
-    }
-    wwa_update_option('website_name', $post_website_name);
-
-    $post_website_domain = str_replace('https:', '', str_replace('/', '', sanitize_text_field(wp_unslash($_POST['website_domain']))));
+    $post_website_domain = wwa_normalize_rp_id(wp_unslash($_POST['website_domain']));
     if($post_website_domain !== wwa_get_option('website_domain')){
         wwa_add_log($res_id, 'website_domain: "'.wwa_get_option('website_domain').'"->"'.$post_website_domain.'"');
     }
     wwa_update_option('website_domain', $post_website_domain);
 
     if(!is_multisite() && isset($_POST['ror_origins'])){
-        $raw_ror = wp_unslash($_POST['ror_origins']);
-        $ror_lines = explode("\n", $raw_ror);
-        $sanitized_ror = array();
-        foreach($ror_lines as $line){
-            $line = trim($line);
-            if($line === ''){
-                continue;
-            }
-            $parsed = wp_parse_url($line);
-            if(isset($parsed['scheme']) && isset($parsed['host'])){
-                $origin = $parsed['scheme'] . '://' . $parsed['host'];
-                if(isset($parsed['port'])){
-                    $origin .= ':' . $parsed['port'];
-                }
-                $sanitized_ror[] = $origin;
-            }
-        }
+        $sanitized_ror = wwa_sanitize_ror_origins(wp_unslash($_POST['ror_origins']));
         $post_ror_origins = implode("\n", $sanitized_ror);
         if($post_ror_origins !== wwa_get_option('ror_origins')){
             wwa_add_log($res_id, 'ror_origins: "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"->"'.str_replace("\n", ', ', $post_ror_origins).'"');
         }
         wwa_update_option('ror_origins', $post_ror_origins);
+
+        $post_conditional_create = wwa_normalize_conditional_create_mode(wp_unslash($_POST['conditional_create'] ?? 'off'));
+        if($post_conditional_create !== wwa_get_option('conditional_create')){
+            wwa_add_log($res_id, 'conditional_create: "'.wwa_get_option('conditional_create').'"->"'.$post_conditional_create.'"');
+        }
+        wwa_update_option('conditional_create', $post_conditional_create);
     }
 
     $post_remember_me = sanitize_text_field(wp_unslash($_POST['remember_me']));
@@ -148,6 +134,12 @@ if(
             wwa_add_log($res_id, 'show_authenticator_type: "'.wwa_get_option('show_authenticator_type').'"->"'.$post_show_authenticator_type.'"');
         }
         wwa_update_option('show_authenticator_type', $post_show_authenticator_type);
+
+        $post_allow_profile_test = sanitize_text_field(wp_unslash($_POST['allow_profile_test']));
+        if($post_allow_profile_test !== wwa_get_option('allow_profile_test')){
+            wwa_add_log($res_id, 'allow_profile_test: "'.wwa_get_option('allow_profile_test').'"->"'.$post_allow_profile_test.'"');
+        }
+        wwa_update_option('allow_profile_test', $post_allow_profile_test);
 
         $post_usernameless_login = sanitize_text_field(wp_unslash($_POST['usernameless_login']));
         if($post_usernameless_login !== wwa_get_option('usernameless_login')){
@@ -240,21 +232,14 @@ if($wwa_v_t === false){
 <th scope="row"></th>
 </tr>
 <tr>
-<th scope="row"><label for="website_name"><?php esc_html_e('Website identifier', 'wp-webauthn');?></label></th>
-<td>
-    <input required name="website_name" type="text" id="website_name" value="<?php echo esc_attr(wwa_get_option('website_name'));?>" class="regular-text">
-    <p class="description"><?php echo wp_kses(__('This identifier is for identification purpose only and <strong>DOES NOT</strong> affect the authentication process in anyway.', 'wp-webauthn'), array('strong' => array()));?></p>
-</td>
-</tr>
-<tr>
 <th scope="row"><label for="website_domain"><?php esc_html_e('Website domain', 'wp-webauthn');?></label></th>
 <td>
     <input required name="website_domain" type="text" id="website_domain" value="<?php echo esc_attr(wwa_get_option('website_domain'));?>" class="regular-text">
-    <p class="description"><?php echo wp_kses(__('This field <strong>MUST</strong> be exactly the same with the current domain or parent domain.', 'wp-webauthn'), array('strong' => array()));?></p>
+    <p class="description"><?php echo wp_kses(__('Use the current domain or a parent registrable domain you control. Do not use a public suffix such as <code>co.uk</code>.', 'wp-webauthn'), array('code' => array()));?></p>
 </td>
 </tr>
 <?php if(!is_multisite()){ ?>
-<!-- Feature not fully ready <tr>
+<tr>
 <th scope="row"><label for="ror_origins"><?php esc_html_e('Related origins', 'wp-webauthn');?></label></th>
 <td>
 <?php $wwa_v_ror = wwa_get_option('ror_origins');
@@ -266,7 +251,19 @@ if($wwa_v_ror === false){
     <textarea name="ror_origins" id="ror_origins" rows="4" cols="50" class="large-text code"><?php echo esc_textarea($wwa_v_ror);?></textarea>
     <p class="description"><?php echo wp_kses(__('Allow cross-site passkey usages (<a href="https://passkeys.dev/docs/advanced/related-origins/" target="_blank">Related Origin Requests</a>). May be useful for multi-site networks.<br> Enter one origin per line (e.g. <code>https://example.com</code>). Leave empty to disable.', 'wp-webauthn'), array('a' => array('href' => array(), 'target' => array()), 'br' => array(), 'code' => array()));?></p>
 </td>
-</tr> -->
+</tr>
+<tr>
+<th scope="row"><label for="conditional_create"><?php esc_html_e('Automatic passkey creation', 'wp-webauthn');?></label></th>
+<td>
+<?php $wwa_v_cc = wwa_get_conditional_create_mode();?>
+    <select name="conditional_create" id="conditional_create">
+        <option value="no-credentials" <?php if($wwa_v_cc === 'no-credentials'){?>selected="selected"<?php }?>><?php esc_html_e('When the user has no registered authenticators', 'wp-webauthn');?></option>
+        <option value="unregistered-device" <?php if($wwa_v_cc === 'unregistered-device'){?>selected="selected"<?php }?>><?php esc_html_e('When the current device is not registered', 'wp-webauthn');?></option>
+        <option value="off" <?php if($wwa_v_cc === 'off'){?>selected="selected"<?php }?>><?php esc_html_e('Off', 'wp-webauthn');?></option>
+    </select>
+    <p class="description" id="wwa-conditional-create-description"><?php esc_html_e('Allow supported browsers to offer seamless automatic passkey creation after the user signed in.', 'wp-webauthn');?></p>
+</td>
+</tr>
 <?php } ?>
 <tr>
 <th scope="row"></th>
@@ -364,6 +361,22 @@ if($wwa_v_sat === false){
     </fieldset>
 </td>
 </tr>
+<tr>
+<th scope="row"><label for="allow_profile_test"><?php esc_html_e('Allow users to test authenticators', 'wp-webauthn');?></label></th>
+<td>
+<?php $wwa_v_allow_profile_test=wwa_get_option('allow_profile_test');
+if($wwa_v_allow_profile_test === false){
+    wwa_update_option('allow_profile_test', 'true');
+    $wwa_v_allow_profile_test = 'true';
+}
+?>
+    <fieldset>
+        <label><input type="radio" name="allow_profile_test" value="true" <?php if($wwa_v_allow_profile_test === 'true'){?>checked="checked"<?php }?>> <?php esc_html_e("Enable", "wp-webauthn");?></label><br>
+        <label><input type="radio" name="allow_profile_test" value="false" <?php if($wwa_v_allow_profile_test === 'false'){?>checked="checked"<?php }?>> <?php esc_html_e("Disable", "wp-webauthn");?></label><br>
+        <p class="description"><?php esc_html_e('Allow users to test authenticators on their profile pages.', 'wp-webauthn');?></p>
+    </fieldset>
+</td>
+</tr>
 <?php } ?>
 <tr>
 <th scope="row"></th>
@@ -436,7 +449,7 @@ if($wwa_v_log === false){
         <label><input type="radio" name="logging" value="true" <?php if($wwa_v_log === 'true'){?>checked="checked"<?php }?>> <?php esc_html_e("Enable", "wp-webauthn");?></label><br>
         <label><input type="radio" name="logging" value="false" <?php if($wwa_v_log === 'false'){?>checked="checked"<?php }?>> <?php esc_html_e("Disable", "wp-webauthn");?></label><br>
         <p>
-            <button id="clear_log" class="button" <?php $log = get_option('wwa_log');if($log === false || ($log !== false && count($log) === 0)){?> disabled<?php }?>><?php esc_html_e('Clear log', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="log-count"><?php echo esc_html(__('Log count: ', 'wp-webauthn') . ($log === false ? '0' : strval(count($log))));?></span>
+            <button id="clear_log" class="button" <?php $log = wwa_get_log_entries(true);if(count($log) === 0){?> disabled<?php }?>><?php esc_html_e('Clear log', 'wp-webauthn');?></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="log-count"><?php echo esc_html(__('Log count: ', 'wp-webauthn') . strval(count($log)));?></span>
         </p>
         <p class="description"><?php echo wp_kses(__('For debugging only. Enable only when needed.<br><strong>Note: Logs may contain sensitive information.</strong>', 'wp-webauthn'), array('br' => array(), 'strong' => array()));?></p>
     </fieldset>
@@ -444,11 +457,11 @@ if($wwa_v_log === false){
 </tr>
 </table><?php submit_button(); ?></form>
 <?php
-    if(wwa_get_option('logging') === 'true' || ($log !== false && count($log) > 0)){
+    if(wwa_get_option('logging') === 'true' || count($log) > 0){
 ?>
 <div<?php if(wwa_get_option('logging') !== 'true'){?> id="wwa-remove-log"<?php }?>>
 <h2><?php esc_html_e('Log', 'wp-webauthn');?></h2>
-<textarea name="wwa_log" id="wwa_log" rows="20" cols="108" readonly><?php echo get_option("wwa_log") === false ? "" : esc_textarea(implode("\n", get_option("wwa_log")));?></textarea>
+<textarea name="wwa_log" id="wwa_log" rows="20" cols="108" readonly><?php echo esc_textarea(implode("\n", $log));?></textarea>
 <p class="description"><?php esc_html_e('Automatic update every 5 seconds.', 'wp-webauthn');?></p>
 <br>
 </div>

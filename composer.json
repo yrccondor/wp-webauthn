@@ -14,14 +14,13 @@
     },
     "require": {
         "php": "^8.2",
-        "web-auth/webauthn-lib": "^4.9",
-        "web-auth/cose-lib": "^4.2",
+        "web-auth/webauthn-lib": "^5.3",
         "symfony/serializer": "^6.4",
         "symfony/property-info": "^6.4",
         "symfony/property-access": "^6.4",
         "symfony/string": "^6.4",
         "symfony/uid": "^6.4",
-        "lcobucci/clock": "^3.0 <3.3",
+        "symfony/clock": "^6.4",
         "phpdocumentor/reflection-docblock": "^5.3"
     }
 }

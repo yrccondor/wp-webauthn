@@ -22,6 +22,31 @@ jQuery(() => {
             jQuery('#wwa-uv-field').after(`<div class="notice notice-warning" role="alert" id="wp-webauthn-uv-warning"><p>${php_vars.i18n_1}</p></div>`);
         }
     }, 0);
+
+    const updateConditionalCreateTypeWarning = () => {
+        const authenticatorType = jQuery('#allow_authenticator_type').val();
+        const conditionalCreate = jQuery('#conditional_create').val();
+        const shouldShow = authenticatorType && authenticatorType !== 'none' && conditionalCreate && conditionalCreate !== 'off';
+        const warningId = 'wp-webauthn-conditional-create-type-warning';
+
+        if (!shouldShow) {
+            jQuery(`#${warningId}`).remove();
+            return;
+        }
+        if (jQuery(`#${warningId}`).length !== 0) {
+            return;
+        }
+
+        const warning = jQuery(`<p class="description" id="${warningId}"></p>`).text(php_vars.i18n_4);
+        const description = jQuery('#wwa-conditional-create-description');
+        if (description.length !== 0) {
+            description.after(warning);
+        } else {
+            jQuery('#conditional_create').after(warning);
+        }
+    };
+    jQuery('#allow_authenticator_type, #conditional_create').on('change', updateConditionalCreateTypeWarning);
+    updateConditionalCreateTypeWarning();
 })
 
 // Update log
