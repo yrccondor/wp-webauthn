@@ -1,9 +1,10 @@
 #wp-webauthn {
     margin-right: 5px;
     width: 56px;
+    line-height: 1;
 }
 #wp-webauthn span {
-    line-height: 30px;
+    line-height: 1;
 }
 #wp-webauthn-check {
     display: none!important;
@@ -66,14 +67,4 @@
     position: relative;
     left: 3px;
     bottom: 10%;
-}
-@media(max-width: 782px){
-    #wp-webauthn span {
-        line-height: 38px;
-    }
-}
-@media(max-width: 782px){
-    .interim-login #wp-webauthn span {
-        line-height: 30px;
-    }
 }
