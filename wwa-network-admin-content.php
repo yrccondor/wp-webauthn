@@ -67,18 +67,24 @@ function wwa_handle_network_options_save(){
     }
     wwa_update_option('allow_profile_test', $post_allow_profile_test);
 
+    $post_credential_scope = wwa_normalize_credential_scope(wp_unslash($_POST['credential_scope'] ?? 'network_accessible'));
+    if($post_credential_scope !== wwa_get_option('credential_scope')){
+        wwa_add_log($res_id, 'network credential_scope: "'.wwa_get_option('credential_scope').'"->"'.$post_credential_scope.'"');
+    }
+    wwa_update_option('credential_scope', $post_credential_scope);
+
     $post_conditional_create = wwa_normalize_conditional_create_mode(wp_unslash($_POST['conditional_create'] ?? 'off'));
     if($post_conditional_create !== wwa_get_option('conditional_create')){
         wwa_add_log($res_id, 'network conditional_create: "'.wwa_get_option('conditional_create').'"->"'.$post_conditional_create.'"');
     }
     wwa_update_option('conditional_create', $post_conditional_create);
 
-    $sanitized_ror = wwa_sanitize_ror_origins(wp_unslash($_POST['ror_origins'] ?? ''));
-    $post_ror_origins = implode("\n", $sanitized_ror);
-    if($post_ror_origins !== wwa_get_option('ror_origins')){
-        wwa_add_log($res_id, 'network ror_origins: "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"->"'.str_replace("\n", ', ', $post_ror_origins).'"');
+    $old_ror_origins = wwa_get_option('ror_origins');
+    wwa_update_option('ror_origins', wp_unslash($_POST['ror_origins'] ?? ''));
+    $post_ror_origins = wwa_get_option('ror_origins');
+    if($post_ror_origins !== $old_ror_origins){
+        wwa_add_log($res_id, 'network ror_origins: "'.str_replace("\n", ', ', $old_ror_origins).'"->"'.str_replace("\n", ', ', $post_ror_origins).'"');
     }
-    wwa_update_option('ror_origins', $post_ror_origins);
 
     wp_safe_redirect(add_query_arg('updated', 'true', network_admin_url('settings.php?page=wwa_network_admin')));
     exit;
@@ -97,7 +103,7 @@ function wwa_display_network_settings(){
         'i18n_1' => __('User verification is disabled by default because some mobile devices do not support it (especially on Android devices). But we <strong>recommend you to enable it</strong> if possible to further secure your login.', 'wp-webauthn'),
         'i18n_2' => __('Log count: ', 'wp-webauthn'),
         'i18n_3' => __('Loading failed, maybe try refreshing?', 'wp-webauthn'),
-        'i18n_4' => __('Note that this browser-assisted creation option may not follow the authenticator type restriction option.', 'wp-webauthn')
+        'i18n_4' => __('Conditional Create is unavailable while a specific authenticator type is required. The authenticator type restriction takes precedence.', 'wp-webauthn')
     ));
     wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 
@@ -187,6 +193,20 @@ function wwa_display_network_settings(){
             <label><input type="radio" name="allow_profile_test" value="true" <?php if($wwa_v_allow_profile_test === 'true'){?>checked="checked"<?php }?>> <?php esc_html_e("Enable", "wp-webauthn");?></label><br>
             <label><input type="radio" name="allow_profile_test" value="false" <?php if($wwa_v_allow_profile_test === 'false' || $wwa_v_allow_profile_test === false){?>checked="checked"<?php }?>> <?php esc_html_e("Disable", "wp-webauthn");?></label><br>
             <p class="description"><?php esc_html_e('Allow users to test authenticators on their profile pages.', 'wp-webauthn');?></p>
+        </fieldset>
+    </td>
+    </tr>
+    <tr>
+    <th scope="row"></th>
+    </tr>
+    <tr>
+    <th scope="row"><label for="credential_scope_network"><?php esc_html_e('Credential scope', 'wp-webauthn');?></label></th>
+    <td>
+    <?php $wwa_v_credential_scope=wwa_get_credential_scope();?>
+        <fieldset>
+            <label><input type="radio" id="credential_scope_network" name="credential_scope" value="network_accessible" <?php if($wwa_v_credential_scope === 'network_accessible'){?>checked="checked"<?php }?>> <?php esc_html_e('Share across accessible sites', 'wp-webauthn');?></label><br>
+            <label><input type="radio" name="credential_scope" value="site" <?php if($wwa_v_credential_scope === 'site'){?>checked="checked"<?php }?>> <?php esc_html_e('Use per-site credentials', 'wp-webauthn');?></label><br>
+            <p class="description"><?php esc_html_e('Shared credentials can be used only on sites the user can currently access. Per-site mode only allows credentials registered on the current site.', 'wp-webauthn');?></p>
         </fieldset>
     </td>
     </tr>

@@ -60,18 +60,124 @@ function wwa_delete_temp_val($name, $client_id){
     return delete_transient('wwa_'.$name.$client_id);
 }
 
+function wwa_get_auth_browser_binding(bool $issue = false): string {
+    $secure = wwa_check_ssl();
+    $cookie_hash = defined('COOKIEHASH') ? COOKIEHASH : md5(site_url());
+    $cookie_name = ($secure ? '__Host-' : '').'wwa_auth_binding_'.$cookie_hash;
+    $token = isset($_COOKIE[$cookie_name]) && is_string($_COOKIE[$cookie_name])
+        ? wp_unslash($_COOKIE[$cookie_name])
+        : '';
+
+    if(!preg_match('/^[a-f0-9]{64}$/', $token)){
+        if(!$issue){
+            return '';
+        }
+        $token = bin2hex(random_bytes(32));
+    }
+
+    if($issue){
+        $cookie_set = setcookie($cookie_name, $token, array(
+            'expires' => 0,
+            'path' => '/',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Strict',
+        ));
+        if(!$cookie_set){
+            return '';
+        }
+        $_COOKIE[$cookie_name] = $token;
+    }
+
+    return hash_hmac('sha256', $token, wp_salt('auth'));
+}
+
+function wwa_auth_request_is_same_origin(): bool {
+    if(isset($_SERVER['HTTP_ORIGIN'])){
+        $request_origin = is_string($_SERVER['HTTP_ORIGIN'])
+            ? wwa_normalize_origin(wp_unslash($_SERVER['HTTP_ORIGIN']))
+            : '';
+        $current_origin = wwa_get_current_site_origin();
+        if($request_origin === '' || $current_origin === '' || !hash_equals($current_origin, $request_origin)){
+            return false;
+        }
+    }
+
+    return !isset($_SERVER['HTTP_SEC_FETCH_SITE'])
+        || (is_string($_SERVER['HTTP_SEC_FETCH_SITE'])
+            && strtolower(trim($_SERVER['HTTP_SEC_FETCH_SITE'])) === 'same-origin');
+}
+
+function wwa_auth_state_matches_current_request($state): bool {
+    if(!is_array($state)){
+        return false;
+    }
+
+    foreach(array(
+        'pkcco_auth', 'auth_type', 'user_exist', 'user_name_auth',
+        'usernameless_auth', 'user_auth', 'browser_binding', 'blog_id', 'expires_at'
+    ) as $key){
+        if(!array_key_exists($key, $state)){
+            return false;
+        }
+    }
+
+    if(!is_string($state['pkcco_auth']) || $state['pkcco_auth'] === ''
+        || !is_string($state['auth_type'])
+        || !is_bool($state['user_exist'])
+        || !is_bool($state['usernameless_auth'])
+        || (!is_string($state['user_name_auth']) && $state['user_name_auth'] !== null)
+        || (!is_string($state['user_auth']) && $state['user_auth'] !== null)
+        || !is_string($state['browser_binding'])
+        || intval($state['blog_id']) !== get_current_blog_id()
+        || intval($state['expires_at']) < time()
+    ){
+        return false;
+    }
+
+    $current_binding = wwa_get_auth_browser_binding();
+    return $current_binding !== '' && hash_equals($state['browser_binding'], $current_binding);
+}
+
+function wwa_consume_auth_state(string $client_id) {
+    global $wpdb;
+
+    $lock_name = 'wwa_auth_consume_lock_'.$client_id;
+    $lock_acquired = $wpdb->query($wpdb->prepare(
+        "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, '1', 'no')",
+        $lock_name
+    ));
+    if($lock_acquired !== 1){
+        return false;
+    }
+
+    $release_lock = true;
+    try{
+        $state = wwa_get_temp_val('auth', $client_id);
+        if(!wwa_auth_state_matches_current_request($state)){
+            return false;
+        }
+        if(!wwa_delete_temp_val('auth', $client_id)){
+            // Fail closed if the state could not be removed atomically under
+            // the lock. Keeping the lock prevents a later replay attempt.
+            $release_lock = false;
+            return false;
+        }
+        return $state;
+    }finally{
+        if($release_lock){
+            $wpdb->delete($wpdb->options, array('option_name' => $lock_name), array('%s'));
+        }
+    }
+}
+
 // Destroy all transients
 function wwa_destroy_temp_val($client_id){
-    wwa_delete_temp_val('user_name_auth', $client_id);
-    wwa_delete_temp_val('user_auth', $client_id);
     wwa_delete_temp_val('pkcco', $client_id);
     wwa_delete_temp_val('pkcco_conditional', $client_id);
     wwa_delete_temp_val('bind_config', $client_id);
     wwa_delete_temp_val('bind_config_conditional', $client_id);
-    wwa_delete_temp_val('pkcco_auth', $client_id);
-    wwa_delete_temp_val('usernameless_auth', $client_id);
-    wwa_delete_temp_val('user_exist', $client_id);
-    wwa_delete_temp_val('auth_type', $client_id);
+    wwa_delete_temp_val('auth', $client_id);
 }
 
 // Destroy all transients before wp_die
@@ -84,14 +190,14 @@ function wwa_wp_die($message = '', $client_id = false){
 
 function wwa_auth_json_success($client_id = false, array $data = array(), int $status_code = 200){
     if($client_id !== false){
-        wwa_destroy_temp_val($client_id);
+        wwa_delete_temp_val('auth', $client_id);
     }
     wp_send_json(array_merge(array('success' => true), $data), $status_code);
 }
 
 function wwa_auth_json_failure($message = '', $client_id = false, array $data = array(), int $status_code = 400){
     if($client_id !== false){
-        wwa_destroy_temp_val($client_id);
+        wwa_delete_temp_val('auth', $client_id);
     }
     wp_send_json(array_merge(array(
         'success' => false,
@@ -147,15 +253,14 @@ function wwa_init_new_options(){
     if(wwa_get_option('conditional_create') === false){
         wwa_update_option('conditional_create', 'off');
     }
-}
-
-function wwa_get_conditional_create_modes(): array {
-    return array('no-credentials', 'unregistered-device', 'off');
+    if(is_multisite() && wwa_get_option('credential_scope') === false){
+        wwa_update_option('credential_scope', 'network_accessible');
+    }
 }
 
 function wwa_normalize_conditional_create_mode($mode): string {
     $mode = is_string($mode) ? sanitize_text_field($mode) : '';
-    return in_array($mode, wwa_get_conditional_create_modes(), true) ? $mode : 'off';
+    return in_array($mode, array('no-credentials', 'unregistered-device', 'off'), true) ? $mode : 'off';
 }
 
 function wwa_get_conditional_create_mode(): string {
@@ -163,19 +268,136 @@ function wwa_get_conditional_create_mode(): string {
 }
 
 function wwa_is_conditional_create_enabled(?string $mode = null): bool {
-    return ($mode ?? wwa_get_conditional_create_mode()) !== 'off';
+    if(($mode ?? wwa_get_conditional_create_mode()) === 'off'){
+        return false;
+    }
+    $allowed_type = wwa_get_option('allow_authenticator_type');
+    return $allowed_type === false || $allowed_type === 'none';
+}
+
+function wwa_normalize_credential_scope($scope): string {
+    $scope = is_string($scope) ? sanitize_text_field($scope) : '';
+    return in_array($scope, array('network_accessible', 'site'), true) ? $scope : 'network_accessible';
+}
+
+function wwa_get_credential_scope(): string {
+    if(!is_multisite()){
+        return 'site';
+    }
+    return wwa_normalize_credential_scope(wwa_get_option('credential_scope'));
+}
+
+function wwa_normalize_blog_id_list($blog_ids): array {
+    if(!is_array($blog_ids)){
+        return array();
+    }
+
+    $normalized = array();
+    foreach($blog_ids as $blog_id){
+        $blog_id = intval($blog_id);
+        if($blog_id > 0){
+            $normalized[$blog_id] = $blog_id;
+        }
+    }
+    return array_values($normalized);
+}
+
+function wwa_blog_is_active(int $blog_id): bool {
+    if($blog_id <= 0){
+        return false;
+    }
+    if(!is_multisite()){
+        return $blog_id === get_current_blog_id();
+    }
+
+    $site = get_site($blog_id);
+    if(!$site){
+        return false;
+    }
+
+    return empty($site->deleted) && empty($site->spam) && empty($site->archived);
+}
+
+function wwa_user_can_access_blog(int $user_id, ?int $blog_id = null): bool {
+    $blog_id = $blog_id === null ? get_current_blog_id() : $blog_id;
+    if($user_id <= 0 || !wwa_blog_is_active($blog_id)){
+        return false;
+    }
+    if(!is_multisite()){
+        return $blog_id === get_current_blog_id() && get_userdata($user_id) !== false;
+    }
+    if(is_super_admin($user_id)){
+        return true;
+    }
+    return is_user_member_of_blog($user_id, $blog_id);
+}
+
+function wwa_get_credential_scope_blog_ids_for_user(int $user_id): array {
+    global $wpdb;
+
+    if(!wwa_user_can_access_blog($user_id, get_current_blog_id())){
+        return array();
+    }
+
+    if(wwa_get_credential_scope() === 'site'){
+        return array(get_current_blog_id());
+    }
+
+    $credential_blog_ids = $wpdb->get_col($wpdb->prepare(
+        "SELECT DISTINCT registered_blog_id FROM {$wpdb->wwa_credentials} WHERE user_id = %d",
+        $user_id
+    ));
+    $candidate_ids = wwa_normalize_blog_id_list(array_merge(
+        array(get_current_blog_id()),
+        is_array($credential_blog_ids) ? $credential_blog_ids : array()
+    ));
+
+    if(is_super_admin($user_id)){
+        return wwa_normalize_blog_id_list(get_sites(array(
+            'fields' => 'ids',
+            'number' => 0,
+            'site__in' => $candidate_ids,
+            'deleted' => 0,
+            'spam' => 0,
+            'archived' => 0,
+        )));
+    }
+
+    $accessible_ids = array();
+    foreach($candidate_ids as $candidate_id){
+        if($candidate_id === get_current_blog_id() || wwa_user_can_access_blog($user_id, $candidate_id)){
+            $accessible_ids[] = $candidate_id;
+        }
+    }
+    return $accessible_ids;
 }
 
 function wwa_get_effective_conditional_create_mode_for_user(int $user_id): string {
     $mode = wwa_get_conditional_create_mode();
-    if($mode === 'off' || $user_id <= 0){
+    if(!wwa_is_conditional_create_enabled($mode) || $user_id <= 0
+        || !wwa_user_can_access_blog($user_id, get_current_blog_id())
+    ){
         return 'off';
     }
     if($mode === 'no-credentials'){
+        $blog_ids = wwa_get_credential_scope_blog_ids_for_user($user_id);
+        if(count($blog_ids) === 0){
+            return 'off';
+        }
         $credentialRecordRepository = new CredentialRecordRepository();
-        return $credentialRecordRepository->userHasCredentials($user_id) ? 'off' : $mode;
+        return $credentialRecordRepository->userHasCredentials($user_id, $blog_ids) ? 'off' : $mode;
     }
     return $mode;
+}
+
+function wwa_user_has_usable_credentials(int $user_id): bool {
+    $blog_ids = wwa_get_credential_scope_blog_ids_for_user($user_id);
+    if(count($blog_ids) === 0){
+        return false;
+    }
+
+    $credentialRecordRepository = new CredentialRecordRepository();
+    return $credentialRecordRepository->userHasCredentials($user_id, $blog_ids);
 }
 
 function wwa_base64url_encode(string $data): string {
@@ -197,10 +419,6 @@ function wwa_decode_base64_or_base64url(string $data): string {
     }
     $decoded = base64_decode($data, true);
     return is_string($decoded) ? $decoded : '';
-}
-
-function wwa_base64url_decode(string $data): string {
-    return wwa_decode_base64_or_base64url($data);
 }
 
 function wwa_credential_hash(string $raw_credential_id): string {
@@ -566,6 +784,24 @@ function wwa_cleanup_blog_credentials($user_id, $blog_id){
     ));
 }
 
+function wwa_cleanup_site_credentials($site){
+    if(!is_multisite()){
+        return;
+    }
+
+    if(is_object($site)){
+        $blog_id = isset($site->blog_id) ? intval($site->blog_id) : intval($site->id ?? 0);
+    }else{
+        $blog_id = intval($site);
+    }
+    if($blog_id <= 0){
+        return;
+    }
+
+    global $wpdb;
+    $wpdb->delete($wpdb->wwa_credentials, array('registered_blog_id' => $blog_id), array('%d'));
+}
+
 function wwa_cleanup_all_user_credentials($user_id){
     global $wpdb;
     $wpdb->delete($wpdb->wwa_credentials, array('user_id' => $user_id));
@@ -612,6 +848,8 @@ function wwa_remove_user_from_blog($user_id, $blog_id){
     wwa_cleanup_blog_credentials($user_id, $blog_id);
 }
 add_action('remove_user_from_blog', 'wwa_remove_user_from_blog', 10, 2);
+add_action('wp_uninitialize_site', 'wwa_cleanup_site_credentials', 10, 1);
+add_action('delete_blog', 'wwa_cleanup_site_credentials', 10, 1);
 
 // Add CSS and JS in login page
 function wwa_login_js(){
@@ -733,13 +971,7 @@ function wwa_no_authenticator_warning(){
     }
 
     if($check_self){
-        global $wpdb;
-        $count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->wwa_credentials}
-             WHERE user_id = %d AND registered_blog_id = %d",
-            $user_info->ID, get_current_blog_id()
-        ));
-        if(intval($count) === 0){ ?>
+        if(!wwa_user_has_usable_credentials(intval($user_info->ID))){ ?>
             <div class="notice notice-warning">
                 <?php
                 $wwa_scope_label = esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('your account', 'wp-webauthn'));
@@ -747,7 +979,7 @@ function wwa_no_authenticator_warning(){
                 /* translators: %1$s: 'the site' or 'your account', %2$s: 'WebAuthn authenticator' or 'passkey', %3$s: admin profile url */
                 ?>
                 <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but you haven\'t register any %2$s on the current site yet. You may unable to login again once you log out. <a href="%3$s#wwa-webauthn-start">Register</a>', 'wp-webauthn'), $wwa_scope_label, $wwa_cred_label, esc_url(admin_url('profile.php'))), array('a' => array('href' => array())));?></p>
-                <?php if(is_multisite() && !is_subdomain_install()){
+                <?php if(is_multisite() && !is_subdomain_install() && wwa_get_credential_scope() === 'network_accessible'){
                     /* translators: %s: 'WebAuthn authenticators' or 'Passkeys' */ ?>
                 <p><?php echo esc_html(sprintf(__('%s registered on other sites within this network may also be used to log in.', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticators', 'wp-webauthn') : __('Passkeys', 'wp-webauthn'))); ?></p>
                 <?php } ?>
@@ -769,13 +1001,7 @@ function wwa_no_authenticator_warning(){
             return;
         }
 
-        global $wpdb;
-        $count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->wwa_credentials}
-             WHERE user_id = %d AND registered_blog_id = %d",
-            $other_user->ID, get_current_blog_id()
-        ));
-        if(intval($count) === 0){ ?>
+        if(!wwa_user_has_usable_credentials(intval($other_user->ID))){ ?>
             <div class="notice notice-warning">
                 <?php
                 $wwa_scope_label = esc_html($first_choice === 'webauthn' ? __('the site', 'wp-webauthn') : __('this account', 'wp-webauthn'));
@@ -783,7 +1009,7 @@ function wwa_no_authenticator_warning(){
                 /* translators: %1$s: 'the site' or 'this account', %2$s: 'WebAuthn authenticator' or 'passkey' */
                 ?>
                 <p><?php echo wp_kses(sprintf(__('Logging in with password has been disabled for %1$s but <strong>this account</strong> haven\'t register any %2$s on the current site yet. This user may unable to login.', 'wp-webauthn'), $wwa_scope_label, $wwa_cred_label), array('strong' => array()));?></p>
-                <?php if(is_multisite() && !is_subdomain_install()){
+                <?php if(is_multisite() && !is_subdomain_install() && wwa_get_credential_scope() === 'network_accessible'){
                     /* translators: %s: 'WebAuthn authenticators' or 'Passkeys' */ ?>
                 <p><?php echo esc_html(sprintf(__('%s registered on other sites within this network may also be used to log in.', 'wp-webauthn'), wwa_get_option('terminology') === 'webauthn' ? __('WebAuthn authenticators', 'wp-webauthn') : __('Passkeys', 'wp-webauthn'))); ?></p>
                 <?php } ?>
@@ -979,7 +1205,11 @@ function wwa_handle_ror($wp) {
 function wwa_new_site_init($new_site){
     $network_active = get_site_option('active_sitewide_plugins');
     if(isset($network_active['wp-webauthn/wp-webauthn.php'])){
-        switch_to_blog($new_site->id);
+        $blog_id = is_object($new_site) && isset($new_site->blog_id) ? intval($new_site->blog_id) : intval($new_site->id ?? 0);
+        if($blog_id <= 0){
+            return;
+        }
+        switch_to_blog($blog_id);
         wwa_init_data();
         wwa_apply_rewrite_rules();
         restore_current_blog();
@@ -1140,6 +1370,19 @@ function wwa_get_unknown_credential_signal_payload(string $credential_id): array
     ]);
     $payload = json_decode($json, true);
     return is_array($payload) ? $payload : array();
+}
+
+function wwa_get_unknown_credential_signal_response_data(string $credential_id): array {
+    if(is_multisite()){
+        return array();
+    }
+
+    return array(
+        'signal' => array(
+            'type' => 'unknownCredential',
+            'payload' => wwa_get_unknown_credential_signal_payload($credential_id),
+        ),
+    );
 }
 
 function wwa_get_current_user_details_signal_payload($user_info = null): array {

@@ -28,11 +28,17 @@ window.WWAWebAuthn = (() => {
         return copied;
     };
 
-    const ensureRpName = (publicKey) => {
-        if (publicKey.rp) {
-            const rpName = publicKey.rp.id || publicKey.rp.name || '';
-            publicKey.rp = Object.assign({}, publicKey.rp, {
-                name: rpName
+    const withRpNameFallback = (publicKey) => {
+        if (
+            publicKey.rp
+            && !publicKey.rp.name
+            && typeof publicKey.rp.id === 'string'
+            && publicKey.rp.id !== ''
+        ) {
+            return Object.assign({}, publicKey, {
+                rp: Object.assign({}, publicKey.rp, {
+                    name: publicKey.rp.id
+                })
             });
         }
         return publicKey;
@@ -40,28 +46,35 @@ window.WWAWebAuthn = (() => {
 
     const parseCreationOptions = (options) => {
         const publicKey = copyOptions(options);
-        ensureRpName(publicKey);
         if (window.PublicKeyCredential && typeof PublicKeyCredential.parseCreationOptionsFromJSON === 'function') {
-            return ensureRpName(PublicKeyCredential.parseCreationOptionsFromJSON(publicKey));
+            try {
+                return PublicKeyCredential.parseCreationOptionsFromJSON(publicKey);
+            } catch (error) {
+                const fallbackPublicKey = withRpNameFallback(publicKey);
+                if (fallbackPublicKey !== publicKey) {
+                    return PublicKeyCredential.parseCreationOptionsFromJSON(fallbackPublicKey);
+                }
+                throw error;
+            }
         }
 
-        publicKey.challenge = bytesFromBase64url(publicKey.challenge);
-        publicKey.user = Object.assign({}, publicKey.user, {
-            id: bytesFromBase64url(publicKey.user.id)
+        const legacyPublicKey = withRpNameFallback(publicKey);
+        legacyPublicKey.challenge = bytesFromBase64url(legacyPublicKey.challenge);
+        legacyPublicKey.user = Object.assign({}, legacyPublicKey.user, {
+            id: bytesFromBase64url(legacyPublicKey.user.id)
         });
-        if (publicKey.excludeCredentials) {
-            publicKey.excludeCredentials = publicKey.excludeCredentials.map((item) => Object.assign({}, item, {
+        if (legacyPublicKey.excludeCredentials) {
+            legacyPublicKey.excludeCredentials = legacyPublicKey.excludeCredentials.map((item) => Object.assign({}, item, {
                 id: bytesFromBase64url(item.id)
             }));
         }
-        return publicKey;
+        return legacyPublicKey;
     };
 
     const parseRequestOptions = (options) => {
         const publicKey = copyOptions(options);
-        ensureRpName(publicKey);
         if (window.PublicKeyCredential && typeof PublicKeyCredential.parseRequestOptionsFromJSON === 'function') {
-            return ensureRpName(PublicKeyCredential.parseRequestOptionsFromJSON(publicKey));
+            return PublicKeyCredential.parseRequestOptionsFromJSON(publicKey);
         }
 
         publicKey.challenge = bytesFromBase64url(publicKey.challenge);

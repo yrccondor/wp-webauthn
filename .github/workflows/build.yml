@@ -18,7 +18,7 @@ jobs:
     - name: Setup PHP version
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1'
+        php-version: '8.2'
       env:
         update: true
 
@@ -34,8 +34,16 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
 
+    - name: Validate Composer configuration
+      run: composer validate --strict --no-check-publish
+
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --ignore-platform-reqs --no-dev --optimize-autoloader
+      run: composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
+
+    - name: Validate PHP sources and platform requirements
+      run: |
+        composer check-platform-reqs
+        find . -path './wp-webauthn-vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
 
     - name: Add vendor
       run: |

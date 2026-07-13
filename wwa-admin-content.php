@@ -11,7 +11,7 @@ wp_localize_script('wwa_admin', 'php_vars', array(
     'i18n_1' => __('User verification is disabled by default because some mobile devices do not support it (especially on Android devices). But we <strong>recommend you to enable it</strong> if possible to further secure your login.', 'wp-webauthn'),
     'i18n_2' => __('Log count: ', 'wp-webauthn'),
     'i18n_3' => __('Loading failed, maybe try refreshing?', 'wp-webauthn'),
-    'i18n_4' => __('Note that this browser-assisted creation option may not follow the authenticator type restriction option.', 'wp-webauthn')
+    'i18n_4' => __('Conditional Create is unavailable while a specific authenticator type is required. The authenticator type restriction takes precedence.', 'wp-webauthn')
 ));
 wp_enqueue_style('wwa_admin', plugins_url('css/admin.css', __FILE__));
 ?>
@@ -90,12 +90,12 @@ if(
     wwa_update_option('website_domain', $post_website_domain);
 
     if(!is_multisite() && isset($_POST['ror_origins'])){
-        $sanitized_ror = wwa_sanitize_ror_origins(wp_unslash($_POST['ror_origins']));
-        $post_ror_origins = implode("\n", $sanitized_ror);
-        if($post_ror_origins !== wwa_get_option('ror_origins')){
-            wwa_add_log($res_id, 'ror_origins: "'.str_replace("\n", ', ', wwa_get_option('ror_origins')).'"->"'.str_replace("\n", ', ', $post_ror_origins).'"');
+        $old_ror_origins = wwa_get_option('ror_origins');
+        wwa_update_option('ror_origins', wp_unslash($_POST['ror_origins']));
+        $post_ror_origins = wwa_get_option('ror_origins');
+        if($post_ror_origins !== $old_ror_origins){
+            wwa_add_log($res_id, 'ror_origins: "'.str_replace("\n", ', ', $old_ror_origins).'"->"'.str_replace("\n", ', ', $post_ror_origins).'"');
         }
-        wwa_update_option('ror_origins', $post_ror_origins);
 
         $post_conditional_create = wwa_normalize_conditional_create_mode(wp_unslash($_POST['conditional_create'] ?? 'off'));
         if($post_conditional_create !== wwa_get_option('conditional_create')){

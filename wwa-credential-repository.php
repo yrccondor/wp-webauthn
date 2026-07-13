@@ -7,7 +7,6 @@ require_once('wp-webauthn-vendor/autoload.php');
 use Symfony\Component\Uid\Uuid;
 use Webauthn\CredentialRecord;
 use Webauthn\PublicKeyCredentialDescriptor;
-use Webauthn\PublicKeyCredentialUserEntity;
 
 class CredentialRecordRepository {
     private $registration_context = null;
@@ -57,10 +56,8 @@ class CredentialRecordRepository {
                     throw $primary;
                 }
                 $legacy_record = $this->serializer()->deserialize($legacy_raw, CredentialRecord::class, 'json');
-                wwa_add_log(wwa_generate_random_string(5), 'Warning: Used legacy credential record JSON normalization fallback', true);
                 return $this->normalizeRecord($legacy_record);
-            } catch(\Throwable $fallback) {
-                wwa_add_log(wwa_generate_random_string(5), 'Warning: Failed to deserialize credential record: '.$primary->getMessage().' / '.$fallback->getMessage(), true);
+            } catch(\Throwable) {
                 return null;
             }
         }
@@ -78,8 +75,8 @@ class CredentialRecordRepository {
             try{
                 Uuid::fromString($data['aaguid']);
             }catch(\Throwable){
-                $aaguid = $this->decodeLegacyBinaryAaguid($data['aaguid']);
-                if($aaguid !== null){
+                $aaguid = wwa_decode_base64_or_base64url($data['aaguid']);
+                if(strlen($aaguid) === 16){
                     $data['aaguid'] = Uuid::fromBinary($aaguid)->toRfc4122();
                     $changed = true;
                 }
@@ -97,25 +94,6 @@ class CredentialRecordRepository {
 
         $normalized = wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         return is_string($normalized) ? $normalized : null;
-    }
-
-    private function decodeLegacyBinaryAaguid(string $aaguid): ?string {
-        $decoded = base64_decode($aaguid, true);
-        if(is_string($decoded) && strlen($decoded) === 16){
-            return $decoded;
-        }
-
-        $base64 = strtr($aaguid, '-_', '+/');
-        $pad = strlen($base64) % 4;
-        if($pad !== 0){
-            $base64 .= str_repeat('=', 4 - $pad);
-        }
-        $decoded = base64_decode($base64, true);
-        if(is_string($decoded) && strlen($decoded) === 16){
-            return $decoded;
-        }
-
-        return null;
     }
 
     private function serializeRecord(CredentialRecord $record): string {
@@ -157,20 +135,83 @@ class CredentialRecordRepository {
         return PublicKeyCredentialDescriptor::create($type, $credential_id, $transports);
     }
 
-    public function findOneByCredentialId(string $publicKeyCredentialId): ?CredentialRecord {
+    private function normalizeBlogIds(?array $blog_ids): ?array {
+        if($blog_ids === null){
+            return null;
+        }
+        return wwa_normalize_blog_id_list($blog_ids);
+    }
+
+    private function buildBlogScopeClause(?array $blog_ids, array &$params): ?string {
+        $blog_ids = $this->normalizeBlogIds($blog_ids);
+        if($blog_ids === null){
+            return '';
+        }
+        if(count($blog_ids) === 0){
+            return null;
+        }
+
+        $params = array_merge($params, $blog_ids);
+        return ' AND registered_blog_id IN ('.implode(', ', array_fill(0, count($blog_ids), '%d')).')';
+    }
+
+    private function blogScopeAllowsCurrentSite(?array $blog_ids): bool {
+        if($blog_ids === null){
+            return true;
+        }
+        return in_array(get_current_blog_id(), $this->normalizeBlogIds($blog_ids), true);
+    }
+
+    private function legacyCredentialMetaMatchesUser($meta, ?int $wp_user_id): bool {
+        if($wp_user_id === null || $wp_user_id <= 0){
+            return true;
+        }
+        if(!is_array($meta) || !isset($meta['user']) || !is_string($meta['user'])){
+            return false;
+        }
+
+        $legacy_handle = $meta['user'];
+        $stored_handle = get_user_meta($wp_user_id, 'wwa_user_handle', true);
+        if(is_string($stored_handle) && $stored_handle !== '' && hash_equals($stored_handle, $legacy_handle)){
+            return true;
+        }
+
+        $wp_user = get_user_by('id', $wp_user_id);
+        $user_id_map = wwa_get_option('user_id');
+        return $wp_user !== false
+            && is_array($user_id_map)
+            && isset($user_id_map[$wp_user->user_login])
+            && is_string($user_id_map[$wp_user->user_login])
+            && hash_equals($user_id_map[$wp_user->user_login], $legacy_handle);
+    }
+
+    public function findOneByCredentialId(string $publicKeyCredentialId, ?array $blog_ids = null, ?int $wp_user_id = null): ?CredentialRecord {
         global $wpdb;
         $key = wwa_credential_storage_id($publicKeyCredentialId);
         $hash = wwa_credential_hash($publicKeyCredentialId);
+        $params = array($hash);
+        $user_sql = '';
+        if($wp_user_id !== null && $wp_user_id > 0){
+            $user_sql = ' AND user_id = %d';
+            $params[] = $wp_user_id;
+        }
+        $blog_sql = $this->buildBlogScopeClause($blog_ids, $params);
+        if($blog_sql === null){
+            return null;
+        }
 
         $row = $wpdb->get_row($wpdb->prepare(
-            "SELECT credential_source FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s ORDER BY id ASC LIMIT 1",
-            $hash
+            "SELECT credential_source FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s{$user_sql}{$blog_sql} ORDER BY id ASC LIMIT 1",
+            $params
         ));
         if($row !== null){
             return $this->deserializeRecord($row->credential_source);
         }
 
-        if(!is_multisite() && !get_option('wwa_credentials_migrated')){
+        if(!is_multisite() && !get_option('wwa_credentials_migrated') && $this->blogScopeAllowsCurrentSite($blog_ids)){
+            if($wp_user_id !== null && $wp_user_id > 0 && $this->findOneMetaByCredentialId($publicKeyCredentialId, $blog_ids, $wp_user_id) === null){
+                return null;
+            }
             $old = get_option('wwa_options');
             if(isset($old['user_credentials'])){
                 $data = json_decode($old['user_credentials'], true);
@@ -183,32 +224,49 @@ class CredentialRecordRepository {
         return null;
     }
 
-    public function findOneMetaByCredentialId(string $publicKeyCredentialId): ?array {
+    public function findOneMetaByCredentialId(string $publicKeyCredentialId, ?array $blog_ids = null, ?int $wp_user_id = null): ?array {
         global $wpdb;
         $key = wwa_credential_storage_id($publicKeyCredentialId);
         $hash = wwa_credential_hash($publicKeyCredentialId);
+        $params = array($hash);
+        $user_sql = '';
+        if($wp_user_id !== null && $wp_user_id > 0){
+            $user_sql = ' AND user_id = %d';
+            $params[] = $wp_user_id;
+        }
+        $blog_sql = $this->buildBlogScopeClause($blog_ids, $params);
+        if($blog_sql === null){
+            return null;
+        }
 
         $row = $wpdb->get_row($wpdb->prepare(
-            "SELECT user_handle, human_name, authenticator_type, usernameless, added, last_used
-             FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s ORDER BY id ASC LIMIT 1",
-            $hash
+            "SELECT id, user_id, registered_blog_id, user_handle, human_name, authenticator_type, usernameless, added, last_used
+             FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s{$user_sql}{$blog_sql} ORDER BY id ASC LIMIT 1",
+            $params
         ));
         if($row !== null){
             return array(
+                'id' => intval($row->id),
+                'user_id' => intval($row->user_id),
+                'registered_blog_id' => intval($row->registered_blog_id),
                 'human_name' => $row->human_name,
                 'added' => $row->added,
                 'authenticator_type' => $row->authenticator_type,
                 'user' => $row->user_handle,
+                'user_handle' => $row->user_handle,
                 'usernameless' => (bool) $row->usernameless,
                 'last_used' => $row->last_used,
             );
         }
 
-        if(!is_multisite() && !get_option('wwa_credentials_migrated')){
+        if(!is_multisite() && !get_option('wwa_credentials_migrated') && $this->blogScopeAllowsCurrentSite($blog_ids)){
             $old = get_option('wwa_options');
             if(isset($old['user_credentials_meta'])){
                 $meta = json_decode($old['user_credentials_meta'], true);
                 if(is_array($meta) && isset($meta[$key])){
+                    if(!$this->legacyCredentialMetaMatchesUser($meta[$key], $wp_user_id)){
+                        return null;
+                    }
                     return $meta[$key];
                 }
             }
@@ -217,79 +275,24 @@ class CredentialRecordRepository {
         return null;
     }
 
-    public function findAllForUserEntityByUserId(int $wp_user_id): array {
+    public function findCredentialDescriptorsForUserId(int $wp_user_id, ?string $credentialType = null, ?array $blog_ids = null): array {
         global $wpdb;
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT credential_source FROM {$wpdb->wwa_credentials} WHERE user_id = %d",
-            $wp_user_id
-        ));
-        $sources = [];
-        foreach($rows as $row){
-            $source = $this->deserializeRecord($row->credential_source);
-            if($source !== null){
-                $sources[] = $source;
-            }
+        $params = array($wp_user_id);
+        $type_sql = '';
+        if($credentialType !== null && $credentialType !== 'none'){
+            $type_sql = ' AND authenticator_type = %s';
+            $params[] = $credentialType;
         }
-        return $sources;
-    }
-
-    public function findAllForUserEntity(PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity): array {
-        global $wpdb;
-        $handle = $publicKeyCredentialUserEntity->id;
-
-        $wp_user_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = 'wwa_user_handle' AND meta_value = %s LIMIT 1",
-            $handle
-        ));
-        if($wp_user_id !== null){
-            return $this->findAllForUserEntityByUserId(intval($wp_user_id));
+        $blog_sql = $this->buildBlogScopeClause($blog_ids, $params);
+        if($blog_sql === null){
+            return array();
         }
 
         $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT credential_source FROM {$wpdb->wwa_credentials} WHERE user_handle = %s",
-            $handle
+            "SELECT credential_id, credential_source FROM {$wpdb->wwa_credentials}
+             WHERE user_id = %d{$type_sql}{$blog_sql}",
+            $params
         ));
-        $sources = [];
-        foreach($rows as $row){
-            $source = $this->deserializeRecord($row->credential_source);
-            if($source !== null){
-                $sources[] = $source;
-            }
-        }
-        return $sources;
-    }
-
-    public function findCredentialsForUserEntityByType(int $wp_user_id, string $credentialType): array {
-        global $wpdb;
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT credential_source FROM {$wpdb->wwa_credentials}
-             WHERE user_id = %d AND authenticator_type = %s",
-            $wp_user_id, $credentialType
-        ));
-        $sources = [];
-        foreach($rows as $row){
-            $source = $this->deserializeRecord($row->credential_source);
-            if($source !== null){
-                $sources[] = $source;
-            }
-        }
-        return $sources;
-    }
-
-    public function findCredentialDescriptorsForUserId(int $wp_user_id, ?string $credentialType = null): array {
-        global $wpdb;
-        if($credentialType === null || $credentialType === 'none'){
-            $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT credential_id, credential_source FROM {$wpdb->wwa_credentials} WHERE user_id = %d",
-                $wp_user_id
-            ));
-        }else{
-            $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT credential_id, credential_source FROM {$wpdb->wwa_credentials}
-                 WHERE user_id = %d AND authenticator_type = %s",
-                $wp_user_id, $credentialType
-            ));
-        }
 
         $descriptors = array();
         foreach($rows as $row){
@@ -301,11 +304,16 @@ class CredentialRecordRepository {
         return $descriptors;
     }
 
-    public function userHasCredentials(int $wp_user_id): bool {
+    public function userHasCredentials(int $wp_user_id, ?array $blog_ids = null): bool {
         global $wpdb;
+        $params = array($wp_user_id);
+        $blog_sql = $this->buildBlogScopeClause($blog_ids, $params);
+        if($blog_sql === null){
+            return false;
+        }
         $exists = $wpdb->get_var($wpdb->prepare(
-            "SELECT 1 FROM {$wpdb->wwa_credentials} WHERE user_id = %d LIMIT 1",
-            $wp_user_id
+            "SELECT 1 FROM {$wpdb->wwa_credentials} WHERE user_id = %d{$blog_sql} LIMIT 1",
+            $params
         ));
         return $exists !== null;
     }
@@ -328,6 +336,10 @@ class CredentialRecordRepository {
         $serialized = $this->serializeRecord($credentialRecord);
 
         if($existing_id !== null){
+            if($this->registration_context !== null){
+                $this->registration_context = null;
+                throw new \RuntimeException('Credential ID already registered');
+            }
             $updated = $wpdb->update(
                 $wpdb->wwa_credentials,
                 array('credential_source' => $serialized),
@@ -364,20 +376,25 @@ class CredentialRecordRepository {
         $this->registration_context = null;
     }
 
-    public function updateCredentialLastUsed(string $publicKeyCredentialId): void {
+    public function updateCredentialLastUsed(string $publicKeyCredentialId, ?array $blog_ids = null, ?int $wp_user_id = null): void {
         global $wpdb;
-        $credential_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s ORDER BY id ASC LIMIT 1",
-            wwa_credential_hash($publicKeyCredentialId)
-        ));
-        if($credential_id === null){
+        $params = array(current_time('mysql'), wwa_credential_hash($publicKeyCredentialId));
+        $user_sql = '';
+        if($wp_user_id !== null && $wp_user_id > 0){
+            $user_sql = ' AND user_id = %d';
+            $params[] = $wp_user_id;
+        }
+        $blog_sql = $this->buildBlogScopeClause($blog_ids, $params);
+        if($blog_sql === null){
             return;
         }
-        $wpdb->update(
-            $wpdb->wwa_credentials,
-            array('last_used' => current_time('mysql')),
-            array('id' => intval($credential_id))
-        );
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->wwa_credentials}
+             SET last_used = %s
+             WHERE credential_hash = %s{$user_sql}{$blog_sql}
+             ORDER BY id ASC LIMIT 1",
+            $params
+        ));
     }
 
     public function getShowListByUserId(int $wp_user_id): array {
@@ -405,16 +422,37 @@ class CredentialRecordRepository {
     public function renameCredential(string $credential_id_urlsafe, int $wp_user_id, string $new_name, string $res_id): bool {
         global $wpdb;
         $credential_hash = wwa_credential_hash_from_encoded_id($credential_id_urlsafe);
-        if($credential_hash === ''){
+        $new_name = sanitize_text_field($new_name);
+        if($credential_hash === '' || $new_name === ''){
             return false;
         }
         wwa_add_log($res_id, "ajax_modify_authenticator: Rename credential");
+        $where = array(
+            'credential_hash' => $credential_hash,
+            'user_id' => $wp_user_id,
+            'registered_blog_id' => get_current_blog_id(),
+        );
         $affected = $wpdb->update(
             $wpdb->wwa_credentials,
-            array('human_name' => base64_encode(sanitize_text_field($new_name))),
-            array('credential_hash' => $credential_hash, 'user_id' => $wp_user_id, 'registered_blog_id' => get_current_blog_id())
+            array('human_name' => base64_encode($new_name)),
+            $where
         );
-        return $affected !== false;
+        if($affected === false){
+            return false;
+        }
+        if($affected > 0){
+            return true;
+        }
+
+        $exists = $wpdb->get_var($wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->wwa_credentials}
+             WHERE credential_hash = %s AND user_id = %d AND registered_blog_id = %d
+             LIMIT 1",
+            $credential_hash,
+            $wp_user_id,
+            get_current_blog_id()
+        ));
+        return $exists !== null;
     }
 
     public function removeCredential(string $credential_id_urlsafe, int $wp_user_id, string $res_id): bool {

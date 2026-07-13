@@ -122,7 +122,7 @@ if(!function_exists("mb_substr") || !wwa_check_ssl() && (wp_parse_url(site_url()
     </thead>
     <tbody id="wwa-authenticator-list">
         <tr>
-            <td colspan="<?php echo esc_attr(wwa_get_option('show_authenticator_type') !== 'false' ? '5' : '4'); ?>"><?php esc_html_e('Loading...', 'wp-webauthn');?></td>
+            <td colspan="<?php echo esc_attr(wwa_get_option('show_authenticator_type') !== 'false' ? '6' : '5'); ?>"><?php esc_html_e('Loading...', 'wp-webauthn');?></td>
         </tr>
     </tbody>
     <tfoot>

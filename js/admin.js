@@ -37,7 +37,8 @@ jQuery(() => {
             return;
         }
 
-        const warning = jQuery(`<p class="description" id="${warningId}"></p>`).text(php_vars.i18n_4);
+        const warning = jQuery(`<div class="notice notice-warning inline" role="alert" id="${warningId}"><p></p></div>`);
+        warning.find('p').text(php_vars.i18n_4);
         const description = jQuery('#wwa-conditional-create-description');
         if (description.length !== 0) {
             description.after(warning);

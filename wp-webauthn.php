@@ -23,6 +23,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+const WWA_NETWORK_OPTION_NAMES = array(
+    'first_choice', 'ror_origins', 'ror_origins_normalized', 'user_verification',
+    'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type',
+    'allow_profile_test', 'conditional_create', 'credential_scope'
+);
+
 function wwa_register_table() {
     global $wpdb;
     $wpdb->wwa_credentials = $wpdb->base_prefix . 'wwa_credentials';
@@ -63,11 +69,9 @@ function wwa_uninstall(){
         }
         delete_site_option('wwa_network_options');
         delete_site_option(wwa_credentials_schema_option_name());
-        delete_site_option(wwa_credentials_schema_warning_option_name());
     }else{
         wwa_uninstall_site();
         delete_option(wwa_credentials_schema_option_name());
-        delete_option(wwa_credentials_schema_warning_option_name());
     }
 
     $wpdb->query("DROP TABLE IF EXISTS {$wpdb->wwa_credentials}");
@@ -136,13 +140,7 @@ function wwa_init_data(){
 
 // Wrap WP-WebAuthn settings
 function wwa_get_option($option_name){
-    $network_options = array(
-        'first_choice', 'ror_origins', 'ror_origins_normalized', 'user_verification',
-        'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type',
-        'allow_profile_test', 'conditional_create'
-    );
-
-    if(is_multisite() && in_array($option_name, $network_options, true)){
+    if(is_multisite() && in_array($option_name, WWA_NETWORK_OPTION_NAMES, true)){
         $val = get_site_option('wwa_network_options');
         if(is_array($val) && isset($val[$option_name])){
             return $val[$option_name];
@@ -159,17 +157,17 @@ function wwa_get_option($option_name){
 }
 
 function wwa_update_option($option_name, $option_value){
-    $network_options = array(
-        'first_choice', 'ror_origins', 'ror_origins_normalized', 'user_verification',
-        'usernameless_login', 'allow_authenticator_type', 'show_authenticator_type',
-        'allow_profile_test', 'conditional_create'
-    );
+    $normalized_ror = null;
+    if($option_name === 'ror_origins'){
+        $normalized_ror = wwa_sanitize_ror_origins($option_value);
+        $option_value = implode("\n", $normalized_ror);
+    }
 
-    if(is_multisite() && in_array($option_name, $network_options, true)){
+    if(is_multisite() && in_array($option_name, WWA_NETWORK_OPTION_NAMES, true)){
         $options = get_site_option('wwa_network_options', array());
         $options[$option_name] = $option_value;
         if($option_name === 'ror_origins'){
-            $options['ror_origins_normalized'] = wwa_sanitize_ror_origins($option_value);
+            $options['ror_origins_normalized'] = $normalized_ror;
         }
         update_site_option('wwa_network_options', $options);
         return true;
@@ -178,7 +176,7 @@ function wwa_update_option($option_name, $option_value){
     $options = get_option('wwa_options');
     $options[$option_name] = $option_value;
     if($option_name === 'ror_origins'){
-        $options['ror_origins_normalized'] = wwa_sanitize_ror_origins($option_value);
+        $options['ror_origins_normalized'] = $normalized_ror;
     }
     update_option('wwa_options',$options);
     return true;

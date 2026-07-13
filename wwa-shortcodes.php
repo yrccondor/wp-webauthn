@@ -4,7 +4,6 @@ if (!defined('ABSPATH')) {
 }
 
 function wwa_localize_frontend(){
-    wwa_init_new_options();
     $conditional_create_mode = current_user_can('read')
         ? wwa_get_effective_conditional_create_mode_for_user(get_current_user_id())
         : 'off';
@@ -196,7 +195,7 @@ function wwa_list_shortcode($vals){
 
     $show_type = wwa_get_option('show_authenticator_type') !== 'false';
     $type_th = $show_type ? '<th class="wwa-type-th">'.esc_html__('Type', 'wp-webauthn').'</th>' : '';
-    $loading_colspan = $show_type ? '5' : '4';
+    $loading_colspan = $show_type ? '6' : '5';
     $thead = '<div class="wwa-table-container"><table class="wwa-list-table"><thead><tr><th>'.esc_html__('Identifier', 'wp-webauthn').'</th>'.$type_th.'<th>'.esc_html_x('Registered', 'time', 'wp-webauthn').'</th><th>'.esc_html__('Last used', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.esc_html__('Usernameless', 'wp-webauthn').'</th><th>'.esc_html__('Action', 'wp-webauthn').'</th></tr></thead><tbody class="wwa-authenticator-list">';
     $tbody = '<tr><td colspan="'.esc_attr($loading_colspan).'">'.esc_html__('Loading...', 'wp-webauthn').'</td></tr>';
     $tfoot = '</tbody><tfoot><tr><th>'.esc_html__('Identifier', 'wp-webauthn').'</th>'.$type_th.'<th>'.esc_html_x('Registered', 'time', 'wp-webauthn').'</th><th>'.esc_html__('Last used', 'wp-webauthn').'</th><th class="wwa-usernameless-th">'.esc_html__('Usernameless', 'wp-webauthn').'</th><th>'.esc_html__('Action', 'wp-webauthn').'</th></tr></tfoot></table></div><p class="wwa-authenticator-list-usernameless-tip"></p><p class="wwa-authenticator-list-type-tip"></p>';

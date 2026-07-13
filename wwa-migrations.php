@@ -5,15 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 function wwa_credentials_schema_target_version(): int {
-    return 2;
+    return 3;
 }
 
 function wwa_credentials_schema_option_name(): string {
     return 'wwa_credentials_schema_version';
-}
-
-function wwa_credentials_schema_warning_option_name(): string {
-    return 'wwa_credentials_schema_warning';
 }
 
 function wwa_get_credentials_schema_version(): int {
@@ -31,28 +27,6 @@ function wwa_update_credentials_schema_version(int $version): void {
     update_option(wwa_credentials_schema_option_name(), $version);
 }
 
-function wwa_get_credentials_schema_warning() {
-    return is_multisite()
-        ? get_site_option(wwa_credentials_schema_warning_option_name(), '')
-        : get_option(wwa_credentials_schema_warning_option_name(), '');
-}
-
-function wwa_update_credentials_schema_warning(string $message): void {
-    if(is_multisite()){
-        update_site_option(wwa_credentials_schema_warning_option_name(), $message);
-        return;
-    }
-    update_option(wwa_credentials_schema_warning_option_name(), $message);
-}
-
-function wwa_delete_credentials_schema_warning(): void {
-    if(is_multisite()){
-        delete_site_option(wwa_credentials_schema_warning_option_name());
-        return;
-    }
-    delete_option(wwa_credentials_schema_warning_option_name());
-}
-
 function wwa_credentials_table_exists(): bool {
     global $wpdb;
     $table = $wpdb->wwa_credentials;
@@ -66,6 +40,27 @@ function wwa_credentials_column_exists(string $column): bool {
     }
     $row = $wpdb->get_row($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->wwa_credentials} LIKE %s", $column));
     return $row !== null;
+}
+
+function wwa_credentials_column_type(string $column): string {
+    global $wpdb;
+    if(!wwa_credentials_table_exists()){
+        return '';
+    }
+    $row = $wpdb->get_row($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->wwa_credentials} LIKE %s", $column));
+    return $row !== null && isset($row->Type) && is_string($row->Type) ? strtolower($row->Type) : '';
+}
+
+function wwa_credentials_column_allows_null(string $column): ?bool {
+    global $wpdb;
+    if(!wwa_credentials_table_exists()){
+        return null;
+    }
+    $row = $wpdb->get_row($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->wwa_credentials} LIKE %s", $column));
+    if($row === null || !isset($row->Null)){
+        return null;
+    }
+    return strtoupper((string) $row->Null) === 'YES';
 }
 
 function wwa_credentials_primary_columns(): array {
@@ -97,26 +92,29 @@ function wwa_credentials_index_is_unique(string $index_name): ?bool {
     return intval($row->Non_unique) === 0;
 }
 
-function wwa_credentials_schema_failure(): void {
-    $message = __('WP-WebAuthn could not finish updating passkey storage. Please try again or contact your site administrator.', 'wp-webauthn');
-    wwa_update_credentials_schema_warning($message);
-    wwa_add_log(wwa_generate_random_string(5), $message, true);
-}
-
 function wwa_run_credentials_schema_query(string $sql): bool {
     global $wpdb;
     $result = $wpdb->query($sql);
     if($result === false){
-        wwa_credentials_schema_failure();
         return false;
     }
     return true;
+}
+
+function wwa_log_credentials_migration_issue(string $message): void {
+    if(wwa_get_option('logging') !== 'true'){
+        return;
+    }
+    wwa_add_log(wwa_generate_random_string(5), 'Credential migration: '.$message);
 }
 
 function wwa_credentials_schema_is_ready(): bool {
     return wwa_credentials_table_exists()
         && wwa_credentials_column_exists('id')
         && wwa_credentials_column_exists('credential_hash')
+        && wwa_credentials_column_type('credential_hash') === 'char(64)'
+        && wwa_credentials_column_allows_null('credential_hash') === false
+        && in_array(wwa_credentials_column_type('credential_id'), array('text', 'mediumtext', 'longtext'), true)
         && wwa_credentials_primary_columns() === array('id')
         && wwa_credentials_index_is_unique('idx_credential_hash') === true;
 }
@@ -155,70 +153,79 @@ function wwa_create_table() {
 
     if(wwa_credentials_schema_is_ready()){
         wwa_update_credentials_schema_version(wwa_credentials_schema_target_version());
-        wwa_delete_credentials_schema_warning();
     }
 }
 
-function wwa_cleanup_credential_hash_conflicts(): array {
+function wwa_raw_credential_id_for_migration($stored_id, $credential_source): string {
+    if(is_string($credential_source) && $credential_source !== ''){
+        $source = json_decode($credential_source, true);
+        if(!is_array($source) || !isset($source['publicKeyCredentialId']) || !is_string($source['publicKeyCredentialId'])){
+            return '';
+        }
+
+        return wwa_decode_base64_or_base64url($source['publicKeyCredentialId']);
+    }
+
+    return is_string($stored_id) ? wwa_decode_base64_or_base64url($stored_id) : '';
+}
+
+function wwa_cleanup_credential_hash_conflicts(): bool {
     global $wpdb;
 
-    $removed_duplicates = 0;
-    $removed_unreadable = 0;
     $failed = false;
+    $discarded_unreadable = 0;
+    $discarded_duplicates = 0;
     $seen = array();
 
     $rows = $wpdb->get_results(
-        "SELECT id, credential_id, credential_hash
+        "SELECT id, credential_id, credential_hash, credential_source
          FROM {$wpdb->wwa_credentials}
          ORDER BY id ASC"
     );
     if(!is_array($rows)){
-        wwa_credentials_schema_failure();
-        return array('duplicates' => 0, 'unreadable' => 0, 'failed' => true);
+        return false;
     }
 
     foreach($rows as $row){
         $row_id = intval($row->id);
         $stored_id = is_string($row->credential_id) ? $row->credential_id : '';
-        $raw_id = wwa_decode_base64_or_base64url($stored_id);
+        $raw_id = wwa_raw_credential_id_for_migration($stored_id, $row->credential_source);
         $hash = is_string($row->credential_hash) ? $row->credential_hash : '';
 
         if($raw_id === ''){
             $deleted = $wpdb->delete($wpdb->wwa_credentials, array('id' => $row_id), array('%d'));
             if($deleted === false){
-                wwa_credentials_schema_failure();
                 $failed = true;
             }else{
-                $removed_unreadable++;
+                $discarded_unreadable++;
             }
             continue;
         }
 
         $expected_hash = wwa_credential_hash($raw_id);
+        $expected_stored_id = wwa_credential_storage_id($raw_id);
         if(isset($seen[$expected_hash])){
             $deleted = $wpdb->delete($wpdb->wwa_credentials, array('id' => $row_id), array('%d'));
             if($deleted === false){
-                wwa_credentials_schema_failure();
                 $failed = true;
             }else{
-                $removed_duplicates++;
+                $discarded_duplicates++;
             }
             continue;
         }
 
-        if($hash === '' || !hash_equals($expected_hash, $hash)){
+        if($hash === '' || !hash_equals($expected_hash, $hash) || !hash_equals($expected_stored_id, $stored_id)){
             $updated = $wpdb->update(
                 $wpdb->wwa_credentials,
                 array(
                     'credential_hash' => $expected_hash,
-                    'credential_id' => wwa_credential_storage_id($raw_id),
+                    'credential_id' => $expected_stored_id,
                 ),
                 array('id' => $row_id),
                 array('%s', '%s'),
                 array('%d')
             );
             if($updated === false){
-                wwa_credentials_schema_failure();
                 $failed = true;
                 continue;
             }
@@ -227,11 +234,14 @@ function wwa_cleanup_credential_hash_conflicts(): array {
         $seen[$expected_hash] = true;
     }
 
-    return array(
-        'duplicates' => $removed_duplicates,
-        'unreadable' => $removed_unreadable,
-        'failed' => $failed,
-    );
+    if($discarded_unreadable > 0){
+        wwa_log_credentials_migration_issue('discarded '.$discarded_unreadable.' unreadable credential row(s) while updating storage');
+    }
+    if($discarded_duplicates > 0){
+        wwa_log_credentials_migration_issue('discarded '.$discarded_duplicates.' duplicate credential row(s) while updating storage');
+    }
+
+    return !$failed;
 }
 
 function wwa_ensure_credential_hash_index(): bool {
@@ -289,8 +299,16 @@ function wwa_upgrade_credentials_schema(): void {
         return;
     }
 
-    $cleanup = wwa_cleanup_credential_hash_conflicts();
-    if($cleanup['failed']){
+    // Repair hashes without the old uniqueness constraint in place. Otherwise
+    // two rows whose stored hashes need to be swapped can make every UPDATE
+    // fail even though cleanup would leave a valid unique data set.
+    if(wwa_credentials_index_is_unique('idx_credential_hash') !== null
+        && !wwa_run_credentials_schema_query("ALTER TABLE {$wpdb->wwa_credentials} DROP INDEX idx_credential_hash")
+    ){
+        return;
+    }
+
+    if(!wwa_cleanup_credential_hash_conflicts()){
         return;
     }
 
@@ -299,7 +317,6 @@ function wwa_upgrade_credentials_schema(): void {
          WHERE credential_hash IS NULL OR credential_hash = ''"
     ));
     if($missing_hashes > 0){
-        wwa_credentials_schema_failure();
         return;
     }
 
@@ -308,24 +325,11 @@ function wwa_upgrade_credentials_schema(): void {
     }
 
     if(!wwa_ensure_credential_hash_index()){
-        $message = __('WP-WebAuthn updated passkey storage, but could not finish one final passkey storage safety check. Please try again or contact your site administrator.', 'wp-webauthn');
-        wwa_update_credentials_schema_warning($message);
-        wwa_add_log(wwa_generate_random_string(5), $message, true);
         return;
-    }
-
-    if($cleanup['duplicates'] > 0 || $cleanup['unreadable'] > 0){
-        $message = __('WP-WebAuthn skipped duplicate or unreadable passkeys while updating storage. Existing valid passkeys were kept.', 'wp-webauthn');
-        wwa_update_credentials_schema_warning($message);
-        wwa_add_log(wwa_generate_random_string(5), $message, true);
-    }else{
-        wwa_delete_credentials_schema_warning();
     }
 
     if(wwa_credentials_schema_is_ready()){
         wwa_update_credentials_schema_version(wwa_credentials_schema_target_version());
-    }else{
-        wwa_credentials_schema_failure();
     }
 }
 
@@ -333,20 +337,25 @@ function wwa_maybe_upgrade_credentials_schema(): void {
     if(wwa_get_credentials_schema_version() >= wwa_credentials_schema_target_version()){
         return;
     }
+    // Version 2 was used by pre-release builds before credential IDs were
+    // rebuilt from their serialized records. Run that data repair once, then
+    // rely on version 3 to keep schema introspection off the hot path.
     wwa_upgrade_credentials_schema();
 }
 
-function wwa_migrate_credentials_for_site(){
+function wwa_migrate_credentials_for_site(): bool {
     if(is_multisite()){
-        return;
+        return true;
     }
 
     if(wwa_get_credentials_schema_version() < wwa_credentials_schema_target_version()){
-        return;
+        return false;
     }
 
+    // This marker has been authoritative since 1.4. Replaying the legacy
+    // Options snapshot could restore credentials deleted after that migration.
     if(get_option('wwa_credentials_migrated')){
-        return;
+        return true;
     }
 
     global $wpdb;
@@ -354,24 +363,37 @@ function wwa_migrate_credentials_for_site(){
     $options = get_option('wwa_options');
     if(!is_array($options)){
         update_option('wwa_credentials_migrated', true);
-        return;
+        return true;
     }
 
     $user_id_map = isset($options['user_id']) && is_array($options['user_id']) ? $options['user_id'] : array();
     $raw_creds = isset($options['user_credentials']) ? $options['user_credentials'] : '{}';
     $raw_meta = isset($options['user_credentials_meta']) ? $options['user_credentials_meta'] : '{}';
 
+    if(!is_string($raw_creds) || !is_string($raw_meta)){
+        wwa_log_credentials_migration_issue('discarded legacy option credentials because one or more JSON fields were malformed');
+        update_option('wwa_credentials_migrated', true);
+        return true;
+    }
+
     $credentials = json_decode($raw_creds, true);
     $credentials_meta = json_decode($raw_meta, true);
 
     if(!is_array($credentials) || !is_array($credentials_meta)){
-        $message = __('WP-WebAuthn could not read one or more old passkeys while updating storage. The old data was left unchanged and the update will be retried.', 'wp-webauthn');
-        wwa_update_credentials_schema_warning($message);
-        wwa_add_log(wwa_generate_random_string(5), $message, true);
-        return;
+        wwa_log_credentials_migration_issue('discarded legacy option credentials because one or more JSON fields could not be parsed');
+        update_option('wwa_credentials_migrated', true);
+        return true;
     }
 
+    $skipped_malformed = 0;
+    $skipped_unreadable = 0;
+    $skipped_unencodable = 0;
+    $failed_inserts = 0;
+
     foreach($user_id_map as $user_login => $user_handle){
+        if(!is_string($user_login) || !is_string($user_handle)){
+            continue;
+        }
         $wp_user = get_user_by('login', $user_login);
         if($wp_user === false){
             continue;
@@ -384,26 +406,32 @@ function wwa_migrate_credentials_for_site(){
 
     $handle_to_login = array();
     foreach($user_id_map as $user_login => $user_handle){
+        if(!is_string($user_login) || !is_string($user_handle)){
+            continue;
+        }
         $handle_to_login[$user_handle] = $user_login;
     }
 
     $blog_id = get_current_blog_id();
     foreach($credentials_meta as $cred_id => $meta){
-        if(!isset($meta['user']) || !isset($credentials[$cred_id])){
+        if(!is_string($cred_id) || !is_array($meta) || !isset($meta['user']) || !isset($credentials[$cred_id]) || !is_array($credentials[$cred_id])){
+            $skipped_malformed++;
             continue;
         }
 
         $raw_credential_id = wwa_decode_base64_or_base64url($cred_id);
         if($raw_credential_id === ''){
-            $message = __('WP-WebAuthn skipped an unreadable passkey while updating storage. Existing valid passkeys were kept.', 'wp-webauthn');
-            wwa_update_credentials_schema_warning($message);
-            wwa_add_log(wwa_generate_random_string(5), $message, true);
+            $skipped_unreadable++;
             continue;
         }
         $stored_credential_id = base64_encode($raw_credential_id);
         $credential_hash = wwa_credential_hash($raw_credential_id);
 
         $handle = $meta['user'];
+        if(!is_string($handle)){
+            $skipped_malformed++;
+            continue;
+        }
         if(!isset($handle_to_login[$handle])){
             continue;
         }
@@ -412,25 +440,17 @@ function wwa_migrate_credentials_for_site(){
             continue;
         }
 
-        $existing_same_credential = $wpdb->get_var($wpdb->prepare(
-            "SELECT 1 FROM {$wpdb->wwa_credentials}
-             WHERE credential_hash = %s AND user_id = %d AND registered_blog_id = %d
-             LIMIT 1",
-            $credential_hash,
-            $wp_user->ID,
-            $blog_id
-        ));
-        if($existing_same_credential !== null){
-            continue;
-        }
-
         $existing_hash = $wpdb->get_var($wpdb->prepare(
             "SELECT 1 FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s LIMIT 1",
             $credential_hash
         ));
         if($existing_hash !== null){
-            $message = __('WP-WebAuthn skipped a duplicate passkey while updating storage. The existing passkey was kept.', 'wp-webauthn');
-            wwa_add_log(wwa_generate_random_string(5), $message, true);
+            continue;
+        }
+
+        $credential_source = wp_json_encode($credentials[$cred_id]);
+        if(!is_string($credential_source) || $credential_source === ''){
+            $skipped_unencodable++;
             continue;
         }
 
@@ -442,19 +462,17 @@ function wwa_migrate_credentials_for_site(){
             $stored_credential_id,
             $wp_user->ID,
             $blog_id,
-            wp_json_encode($credentials[$cred_id]),
+            $credential_source,
             $handle,
-            isset($meta['human_name']) ? $meta['human_name'] : '',
-            isset($meta['authenticator_type']) ? $meta['authenticator_type'] : 'none',
+            isset($meta['human_name']) && is_string($meta['human_name']) ? $meta['human_name'] : '',
+            isset($meta['authenticator_type']) && is_string($meta['authenticator_type']) ? $meta['authenticator_type'] : 'none',
             !empty($meta['usernameless']) ? 1 : 0,
-            isset($meta['added']) ? $meta['added'] : current_time('mysql'),
-            isset($meta['last_used']) ? $meta['last_used'] : '-'
+            isset($meta['added']) && is_string($meta['added']) ? $meta['added'] : current_time('mysql'),
+            isset($meta['last_used']) && is_string($meta['last_used']) ? $meta['last_used'] : '-'
         ));
         if($inserted === false){
             $migration_success = false;
-            $message = __('WP-WebAuthn could not move one or more old passkeys into the new storage. The old data was left unchanged and the update will be retried.', 'wp-webauthn');
-            wwa_update_credentials_schema_warning($message);
-            wwa_add_log(wwa_generate_random_string(5), $message, true);
+            $failed_inserts++;
         }
     }
 
@@ -465,9 +483,23 @@ function wwa_migrate_credentials_for_site(){
         }
     }
 
+    if($skipped_malformed > 0){
+        wwa_log_credentials_migration_issue('skipped '.$skipped_malformed.' malformed legacy credential record(s)');
+    }
+    if($skipped_unreadable > 0){
+        wwa_log_credentials_migration_issue('skipped '.$skipped_unreadable.' legacy credential record(s) with unreadable credential IDs');
+    }
+    if($skipped_unencodable > 0){
+        wwa_log_credentials_migration_issue('skipped '.$skipped_unencodable.' legacy credential record(s) that could not be encoded');
+    }
+    if($failed_inserts > 0){
+        wwa_log_credentials_migration_issue('could not insert '.$failed_inserts.' legacy credential record(s); migration will retry');
+    }
+
     if($migration_success){
         update_option('wwa_credentials_migrated', true);
     }
+    return $migration_success;
 }
 
 function wwa_migrate_network_options(bool $new_install = false){
@@ -489,14 +521,19 @@ function wwa_migrate_network_options(bool $new_install = false){
         'allow_authenticator_type' => 'none',
         'show_authenticator_type' => 'false',
         'allow_profile_test' => $new_install ? 'false' : 'true',
-        'conditional_create' => 'off'
+        'conditional_create' => 'off',
+        'credential_scope' => 'network_accessible'
     );
     $network_options = array();
     foreach($network_defaults as $key => $default){
         if(is_array($options) && isset($options[$key])){
-            $network_options[$key] = $key === 'conditional_create'
-                ? wwa_normalize_conditional_create_mode($options[$key])
-                : $options[$key];
+            if($key === 'conditional_create'){
+                $network_options[$key] = wwa_normalize_conditional_create_mode($options[$key]);
+            }elseif($key === 'credential_scope'){
+                $network_options[$key] = wwa_normalize_credential_scope($options[$key]);
+            }else{
+                $network_options[$key] = $options[$key];
+            }
         }else{
             $network_options[$key] = $default;
         }
@@ -505,17 +542,3 @@ function wwa_migrate_network_options(bool $new_install = false){
 
     update_site_option('wwa_network_options', $network_options);
 }
-
-function wwa_credentials_schema_admin_notice(): void {
-    $warning = wwa_get_credentials_schema_warning();
-    if(!is_string($warning) || $warning === ''){
-        return;
-    }
-    if(!current_user_can(is_multisite() ? 'manage_network_options' : 'manage_options')){
-        return;
-    }
-    echo '<div class="notice notice-warning"><p>'.esc_html($warning).'</p></div>';
-}
-
-add_action('admin_notices', 'wwa_credentials_schema_admin_notice');
-add_action('network_admin_notices', 'wwa_credentials_schema_admin_notice');

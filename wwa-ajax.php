@@ -12,6 +12,7 @@ use Webauthn\PublicKeyCredentialParameters;
 use Webauthn\PublicKeyCredential;
 use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAssertionResponse;
+use Webauthn\Exception\AuthenticatorResponseVerificationException;
 
 function wwa_unserialize_creation_options($stored_options): ?PublicKeyCredentialCreationOptions {
     if(!is_string($stored_options) || $stored_options === ''){
@@ -44,8 +45,6 @@ function wwa_ajax_create(){
     try{
         $res_id = wwa_generate_random_string(5);
         $client_id = strval(time()).wwa_generate_random_string(24);
-
-        wwa_init_new_options();
 
         wwa_add_log($res_id, "ajax_create: Start");
 
@@ -121,11 +120,17 @@ function wwa_ajax_create(){
 
         wwa_add_log($res_id, "ajax_create: user => \"".$user_info->user_login."\"");
 
+        $credential_scope_blog_ids = wwa_get_credential_scope_blog_ids_for_user(intval($user_info->ID));
+        if(count($credential_scope_blog_ids) === 0){
+            wwa_add_log($res_id, "ajax_create: (ERROR)User cannot access current site, exit");
+            wwa_wp_die("Something went wrong.", $client_id);
+        }
+
         $user_key = wwa_get_or_create_user_handle($user_info, $res_id);
         $userEntity = wwa_get_user_entity($user_info, $user_key);
 
         $credentialRecordRepository = new CredentialRecordRepository();
-        $excludeCredentials = $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID);
+        $excludeCredentials = $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID, null, $credential_scope_blog_ids);
 
         wwa_add_log($res_id, "ajax_create: excludeCredentials => ".wp_json_encode($excludeCredentials));
 
@@ -190,6 +195,7 @@ function wwa_ajax_create(){
             "usernameless" => $resident_key,
             "user_id" => intval($user_info->ID),
             "user_handle" => $user_key,
+            "blog_id" => get_current_blog_id(),
         ), $client_id);
 
         // Use serializer to produce spec-compliant JSON (base64url, etc.)
@@ -227,8 +233,6 @@ function wwa_ajax_create_response(){
     $client_id = false;
     try{
         $res_id = wwa_generate_random_string(5);
-
-        wwa_init_new_options();
 
         wwa_add_log($res_id, "ajax_create_response: Client response received");
 
@@ -304,6 +308,14 @@ function wwa_ajax_create_response(){
             wwa_add_log($res_id, "ajax_create_response: (ERROR)Challenged user not found, exit");
             wwa_wp_die("Something went wrong.", $client_id);
         }
+        if(isset($temp_val["bind_config"]["blog_id"]) && intval($temp_val["bind_config"]["blog_id"]) !== get_current_blog_id()){
+            wwa_add_log($res_id, "ajax_create_response: (ERROR)Challenge blog mismatch, exit");
+            wwa_wp_die("Bad request.", $client_id);
+        }
+        if(!wwa_user_can_access_blog($bound_user_id, get_current_blog_id())){
+            wwa_add_log($res_id, "ajax_create_response: (ERROR)User cannot access current site, exit");
+            wwa_wp_die("Something went wrong.", $client_id);
+        }
 
         // Check parameters
         if($temp_val["bind_config"]["type"] !== "platform" && $temp_val["bind_config"]["type"] !== "cross-platform" && $temp_val["bind_config"]["type"] !== "none"){
@@ -327,15 +339,7 @@ function wwa_ajax_create_response(){
         }
         wwa_add_log($res_id, "ajax_create_response: data => ".sanitize_text_field($decoded_credential_payload['json']));
 
-        // Check global unique credential ID
-        $credential_id = $decoded_credential_payload['raw_id'];
         $credentialRecordRepository = new CredentialRecordRepository();
-        if($credentialRecordRepository->findOneMetaByCredentialId($credential_id) !== null){
-            wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential ID not unique, ID => \"".base64_encode($credential_id)."\" , exit");
-            wwa_wp_die("Something went wrong.", $client_id);
-        }else{
-            wwa_add_log($res_id, "ajax_create_response: Credential ID unique check passed");
-        }
 
         $rp_id = wwa_get_rp_id();
         if($rp_id === ''){
@@ -374,6 +378,10 @@ function wwa_ajax_create_response(){
             if(!hash_equals($bound_user_handle, $credentialRecord->userHandle)){
                 wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential user handle mismatch, exit");
                 wwa_wp_die("Bad request.", $client_id);
+            }
+            if($credentialRecordRepository->findOneMetaByCredentialId($credentialRecord->publicKeyCredentialId) !== null){
+                wwa_add_log($res_id, "ajax_create_response: (ERROR)Credential ID not unique, exit");
+                wwa_wp_die("Something went wrong.", $client_id);
             }
 
             wwa_add_log($res_id, "ajax_create_response: Challenge verified");
@@ -427,7 +435,6 @@ function wwa_ajax_conditional_create_start(){
         $res_id = wwa_generate_random_string(5);
         $client_id = strval(time()).wwa_generate_random_string(24);
 
-        wwa_init_new_options();
         wwa_add_log($res_id, "ajax_conditional_create: Start");
 
         if(!current_user_can('read')){
@@ -457,9 +464,14 @@ function wwa_ajax_conditional_create_start(){
         $rpEntity = wwa_get_rp_entity($rp_id);
 
         $credentialRecordRepository = new CredentialRecordRepository();
+        $credential_scope_blog_ids = wwa_get_credential_scope_blog_ids_for_user(intval($user_info->ID));
+        if(count($credential_scope_blog_ids) === 0){
+            wwa_add_log($res_id, "ajax_conditional_create: (ERROR)User cannot access current site, exit");
+            wwa_wp_die("Bad Request.", $client_id);
+        }
         $excludeCredentials = $conditional_create_mode === 'no-credentials'
             ? array()
-            : $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID);
+            : $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID, null, $credential_scope_blog_ids);
 
         $authenticatorSelectionCriteria = AuthenticatorSelectionCriteria::create(
             authenticatorAttachment: AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
@@ -492,6 +504,7 @@ function wwa_ajax_conditional_create_start(){
             'usernameless' => true,
             'user_id' => intval($user_info->ID),
             'user_handle' => $user_key,
+            'blog_id' => get_current_blog_id(),
         ), $client_id);
 
         $components = wwa_get_server_components($rp_id);
@@ -526,7 +539,6 @@ function wwa_ajax_conditional_create_response(){
     $res_id = '-----';
     try{
         $res_id = wwa_generate_random_string(5);
-        wwa_init_new_options();
         wwa_add_log($res_id, "ajax_conditional_create_response: Client response received");
 
         if(!wwa_is_conditional_create_enabled() || !current_user_can('read')){
@@ -564,6 +576,18 @@ function wwa_ajax_conditional_create_response(){
             wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)Challenge user mismatch, exit");
             wwa_wp_die("Bad request.", $client_id);
         }
+        if(isset($temp_val['bind_config']['blog_id']) && intval($temp_val['bind_config']['blog_id']) !== get_current_blog_id()){
+            wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)Challenge blog mismatch, exit");
+            wwa_wp_die("Bad request.", $client_id);
+        }
+        if(!wwa_user_can_access_blog($bound_user_id, get_current_blog_id())){
+            wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)User cannot access current site, exit");
+            wwa_wp_die("Bad request.", $client_id);
+        }
+        if(wwa_get_effective_conditional_create_mode_for_user($bound_user_id) === 'off'){
+            wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)Conditional Create no longer eligible, exit");
+            wwa_wp_die("Bad request.", $client_id);
+        }
 
         $decoded_credential_payload = wwa_decode_client_credential_payload($_POST['data']);
         if($decoded_credential_payload === null){
@@ -572,12 +596,7 @@ function wwa_ajax_conditional_create_response(){
         }
         $decoded_data = $decoded_credential_payload['json'];
 
-        $credential_id = $decoded_credential_payload['raw_id'];
         $credentialRecordRepository = new CredentialRecordRepository();
-        if($credentialRecordRepository->findOneMetaByCredentialId($credential_id) !== null){
-            wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)Credential ID not unique, exit");
-            wwa_wp_die("Something went wrong.", $client_id);
-        }
 
         $rp_id = wwa_get_rp_id();
         if($rp_id === ''){
@@ -614,6 +633,10 @@ function wwa_ajax_conditional_create_response(){
             wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)Credential user handle mismatch, exit");
             wwa_wp_die("Bad request.", $client_id);
         }
+        if($credentialRecordRepository->findOneMetaByCredentialId($credentialRecord->publicKeyCredentialId) !== null){
+            wwa_add_log($res_id, "ajax_conditional_create_response: (ERROR)Credential ID not unique, exit");
+            wwa_wp_die("Something went wrong.", $client_id);
+        }
 
         $credentialRecordRepository->setRegistrationContext(
             $user_info->ID,
@@ -647,7 +670,10 @@ function wwa_ajax_auth_start(){
         $res_id = wwa_generate_random_string(5);
         $client_id = strval(time()).wwa_generate_random_string(24);
 
-        wwa_init_new_options();
+        if(!wwa_auth_request_is_same_origin()){
+            wwa_add_log($res_id, "ajax_auth: (ERROR)Cross-site request rejected, exit");
+            wwa_auth_json_failure("Bad request.");
+        }
 
         $rp_id = wwa_get_rp_id();
         if($rp_id === ''){
@@ -781,6 +807,20 @@ function wwa_ajax_auth_start(){
             }
         }
 
+        $credential_scope_blog_ids = array();
+        if(!$usernameless_flag && $user_exist){
+            $credential_scope_blog_ids = wwa_get_credential_scope_blog_ids_for_user(intval($user_info->ID));
+            if(count($credential_scope_blog_ids) === 0){
+                if($wwa_get["type"] === "test" && current_user_can("read")){
+                    wwa_add_log($res_id, "ajax_auth: (ERROR)User cannot access current site, exit");
+                    wwa_auth_json_failure("Bad request.", $client_id, array(), 403);
+                }
+                wwa_add_log($res_id, "ajax_auth: User cannot access current site, create a fake id");
+                $user_key = hash("sha256", $user_info->user_login."-".$user_info->user_login."-".wwa_generate_random_string(10));
+                $user_exist = false;
+            }
+        }
+
         if(!$usernameless_flag){
             $userEntity = wwa_get_user_entity($user_info, $user_key);
         }
@@ -821,10 +861,10 @@ function wwa_ajax_auth_start(){
             // Get the list of authenticators associated to the user
             $allow_authenticator_type = wwa_get_option("allow_authenticator_type");
             if($allow_authenticator_type === false || $allow_authenticator_type === "none"){
-                $allowedCredentials = $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID);
+                $allowedCredentials = $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID, null, $credential_scope_blog_ids);
             }else{
                 wwa_add_log($res_id, "ajax_auth: allow_authenticator_type => \"".$allow_authenticator_type."\", filter authenticators");
-                $allowedCredentials = $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID, $allow_authenticator_type);
+                $allowedCredentials = $credentialRecordRepository->findCredentialDescriptorsForUserId($user_info->ID, $allow_authenticator_type, $credential_scope_blog_ids);
             }
 
             // Logged in and testing, if the user haven't bind a authenticator yet, exit
@@ -859,18 +899,32 @@ function wwa_ajax_auth_start(){
             hints: wwa_get_public_key_hints(wwa_get_option("allow_authenticator_type") === false ? 'none' : wwa_get_option("allow_authenticator_type"))
         );
 
-        // Save for future use
-        wwa_set_temp_val("pkcco_auth", base64_encode(serialize($publicKeyCredentialRequestOptions)), $client_id);
-        wwa_set_temp_val("auth_type", $wwa_get["type"], $client_id);
-        wwa_set_temp_val("user_exist", $user_exist, $client_id);
-        if(!$usernameless_flag){
-            wwa_set_temp_val("user_name_auth", $user_info->user_login, $client_id);
-        }
-        wwa_set_temp_val("usernameless_auth", serialize($usernameless_flag), $client_id);
-
-        // Save the user entity if is not logged in and not usernameless
+        $stored_user_entity = null;
         if(!($wwa_get["type"] === "test" && current_user_can("read")) && !$usernameless_flag){
-            wwa_set_temp_val("user_auth", serialize($userEntity), $client_id);
+            $stored_user_entity = serialize($userEntity);
+        }
+
+        $browser_binding = wwa_get_auth_browser_binding(true);
+        if($browser_binding === ''){
+            throw new \RuntimeException("Failed to bind authentication ceremony to browser");
+        }
+
+        // Keep the complete authentication ceremony in one transient. The
+        // explicit inner serialization avoids restoring objects in the
+        // generic transient adapter.
+        $auth_state = array(
+            'pkcco_auth' => base64_encode(serialize($publicKeyCredentialRequestOptions)),
+            'auth_type' => $wwa_get["type"],
+            'user_exist' => $user_exist,
+            'user_name_auth' => $usernameless_flag ? null : $user_info->user_login,
+            'usernameless_auth' => $usernameless_flag,
+            'user_auth' => $stored_user_entity,
+            'browser_binding' => $browser_binding,
+            'blog_id' => get_current_blog_id(),
+            'expires_at' => time() + 90,
+        );
+        if(!wwa_set_temp_val('auth', $auth_state, $client_id)){
+            throw new \RuntimeException("Failed to store authentication ceremony");
         }
 
         // Use serializer to produce spec-compliant JSON
@@ -907,8 +961,7 @@ function wwa_ajax_auth(){
     $client_id = false;
     try{
         $res_id = wwa_generate_random_string(5);
-
-        wwa_init_new_options();
+        $uniform_auth_failure = is_multisite() ? "Bad request." : "Something went wrong.";
 
         $is_conditional = isset($_POST['conditional']) && $_POST['conditional'] === 'true';
         wwa_add_log($res_id, "ajax_auth_response: Client response received" . ($is_conditional ? " (conditional)" : ""));
@@ -926,10 +979,16 @@ function wwa_ajax_auth(){
             $client_id = $post_client_id;
         }
 
+        if(!wwa_auth_request_is_same_origin()){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Cross-site request rejected, exit");
+            wwa_auth_json_failure("Bad request.");
+        }
+
         // Check POST
         if(!isset($_POST["type"]) || !isset($_POST["data"]) || !isset($_POST["remember"])){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Missing parameters, exit");
-            wwa_auth_json_failure("Bad Request.", $client_id);
+            // A malformed request must not invalidate a valid ceremony.
+            wwa_auth_json_failure("Bad Request.");
         }else{
             // Sanitize the input
             $wwa_post = array();
@@ -938,16 +997,21 @@ function wwa_ajax_auth(){
             $wwa_post["redirect_to"] = isset($_POST["redirect_to"]) ? wp_unslash($_POST["redirect_to"]) : '';
         }
 
-        $temp_val = array(
-            "pkcco_auth" => wwa_get_temp_val("pkcco_auth", $client_id),
-            "auth_type" => wwa_get_temp_val("auth_type", $client_id),
-            "usernameless_auth" => wwa_get_temp_val("usernameless_auth", $client_id),
-            "user_auth" => wwa_get_temp_val("user_auth", $client_id),
-            "user_name_auth" => wwa_get_temp_val("user_name_auth", $client_id),
-            "user_exist" => wwa_get_temp_val("user_exist", $client_id),
-        );
+        $pending_auth_state = wwa_get_temp_val('auth', $client_id);
+        if(!wwa_auth_state_matches_current_request($pending_auth_state)){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge is not bound to this browser, exit");
+            // Do not let a request from another browser invalidate the valid
+            // ceremony. The state will expire naturally after 90 seconds.
+            wwa_auth_json_failure("Bad request.");
+        }
 
-        if($temp_val["auth_type"] === false || $wwa_post["type"] !== $temp_val["auth_type"]){
+        $temp_val = wwa_consume_auth_state($client_id);
+        if($temp_val === false){
+            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge already consumed or unavailable, exit");
+            wwa_auth_json_failure("Bad request.");
+        }
+
+        if($wwa_post["type"] !== $temp_val["auth_type"]){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Wrong parameters, exit");
             wwa_auth_json_failure("Bad Request.", $client_id);
         }
@@ -961,15 +1025,12 @@ function wwa_ajax_auth(){
             wwa_auth_json_failure("Bad Request.", $client_id);
         }
 
-        // May not get the challenge yet
-        if($temp_val["pkcco_auth"] === false || $temp_val["usernameless_auth"] === false || ($wwa_post["type"] !== "test" && $wwa_post["type"] !== "auth")){
+        if($wwa_post["type"] !== "test" && $wwa_post["type"] !== "auth"){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge not found in transient, exit");
             wwa_auth_json_failure("Bad request.", $client_id);
         }
 
-        $temp_val["usernameless_auth"] = unserialize($temp_val["usernameless_auth"], ['allowed_classes' => false]);
-
-        if($temp_val["usernameless_auth"] === false && $temp_val["user_name_auth"] === false){
+        if($temp_val["usernameless_auth"] === false && $temp_val["user_name_auth"] === null){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Username not found in transient, exit");
             wwa_auth_json_failure("Bad request.", $client_id);
         }
@@ -978,7 +1039,7 @@ function wwa_ajax_auth(){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Permission denied, exit");
             wwa_auth_json_failure("Bad request.", $client_id, array(), 403);
         }
-        if(!($wwa_post["type"] === "test" && current_user_can("read")) && ($temp_val["usernameless_auth"] === false && $temp_val["user_auth"] === false)){
+        if(!($wwa_post["type"] === "test" && current_user_can("read")) && ($temp_val["usernameless_auth"] === false && $temp_val["user_auth"] === null)){
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)Permission denied, exit");
             wwa_auth_json_failure("Bad request.", $client_id, array(), 403);
         }
@@ -1017,6 +1078,7 @@ function wwa_ajax_auth(){
         $usernameless_flag = $temp_val["usernameless_auth"];
 
         $credentialRecordRepository = new CredentialRecordRepository();
+        $credential_scope_blog_ids = array();
 
         // If user entity is not saved, read from WordPress
         $user_key = "";
@@ -1055,6 +1117,11 @@ function wwa_ajax_auth(){
                 }
             }
             $userEntity = wwa_get_user_entity($user_info, $user_key);
+            $credential_scope_blog_ids = wwa_get_credential_scope_blog_ids_for_user(intval($user_info->ID));
+            if(count($credential_scope_blog_ids) === 0){
+                wwa_add_log($res_id, "ajax_auth_response: (ERROR)User cannot access current site, exit");
+                wwa_auth_json_failure("Bad request.", $client_id, array(), 403);
+            }
 
             wwa_add_log($res_id, "ajax_auth_response: type => \"test\", user => \"".$user_info->user_login."\"");
         }else{
@@ -1079,18 +1146,12 @@ function wwa_ajax_auth(){
                         }
                     }
                     if($credential_meta["usernameless"] === true){
-                        global $wpdb;
-                        $cred_row = $wpdb->get_row($wpdb->prepare(
-                            "SELECT user_id, user_handle FROM {$wpdb->wwa_credentials} WHERE credential_hash = %s ORDER BY id ASC LIMIT 1",
-                            wwa_credential_hash($publicKeyCredential->rawId)
-                        ));
-
-                        $resolved_user_handle = null;
+                        $resolved_user_handle = isset($credential_meta["user_handle"]) ? $credential_meta["user_handle"] : ($credential_meta["user"] ?? null);
                         $resolved_user_info = null;
+                        $registered_blog_id = isset($credential_meta["registered_blog_id"]) ? intval($credential_meta["registered_blog_id"]) : get_current_blog_id();
 
-                        if($cred_row !== null){
-                            $resolved_user_handle = $cred_row->user_handle;
-                            $resolved_user_info = get_user_by('id', $cred_row->user_id);
+                        if(isset($credential_meta["user_id"])){
+                            $resolved_user_info = get_user_by('id', intval($credential_meta["user_id"]));
                         }elseif(!is_multisite() && !get_option('wwa_credentials_migrated')){
                             wwa_add_log($res_id, "ajax_auth_response: Credential not in global table, trying legacy single-site fallback");
                             $old_handle = $credential_meta["user"];
@@ -1128,6 +1189,12 @@ function wwa_ajax_auth(){
                             }
                         }
 
+                        $credential_scope_blog_ids = wwa_get_credential_scope_blog_ids_for_user(intval($user_info->ID));
+                        if(count($credential_scope_blog_ids) === 0 || !in_array($registered_blog_id, $credential_scope_blog_ids, true)){
+                            wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential is no longer usable for this user, exit");
+                            wwa_auth_json_failure("Bad request.", $client_id);
+                        }
+
                         $userEntity = wwa_get_user_entity($user_info, $resolved_user_handle);
                     }else{
                         wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential found, but usernameless => \"false\", exit");
@@ -1135,18 +1202,30 @@ function wwa_ajax_auth(){
                     }
                 }else{
                     wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential not found, exit");
-                    wwa_auth_json_failure("Bad request.", $client_id, array(
-                        'signal' => array(
-                            'type' => 'unknownCredential',
-                            'payload' => wwa_get_unknown_credential_signal_payload($publicKeyCredential->rawId),
-                        ),
-                    ));
+                    wwa_auth_json_failure("Bad request.", $client_id, wwa_get_unknown_credential_signal_response_data($publicKeyCredential->rawId));
                 }
             }else{
                 wwa_add_log($res_id, "ajax_auth_response: type => \"auth\", user => \"".$temp_val["user_name_auth"]."\"");
-                $userEntity = unserialize($temp_val["user_auth"], ['allowed_classes' => [
-                    Webauthn\PublicKeyCredentialUserEntity::class,
-                ]]);
+                if(!$temp_val["user_exist"]){
+                    wwa_add_log($res_id, "ajax_auth_response: Fake user challenge, defer to uniform failure path");
+                    $userEntity = unserialize($temp_val["user_auth"], ['allowed_classes' => [
+                        Webauthn\PublicKeyCredentialUserEntity::class,
+                    ]]);
+                }else{
+                    $user_info = get_user_by('login', $temp_val["user_name_auth"]);
+                    if($user_info === false){
+                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)User not found, exit");
+                        wwa_auth_json_failure("Bad request.", $client_id);
+                    }
+                    $credential_scope_blog_ids = wwa_get_credential_scope_blog_ids_for_user(intval($user_info->ID));
+                    if(count($credential_scope_blog_ids) === 0){
+                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)User cannot access current site, exit");
+                        wwa_auth_json_failure("Bad request.", $client_id, array(), 403);
+                    }
+                    $userEntity = unserialize($temp_val["user_auth"], ['allowed_classes' => [
+                        Webauthn\PublicKeyCredentialUserEntity::class,
+                    ]]);
+                }
             }
         }
 
@@ -1155,15 +1234,29 @@ function wwa_ajax_auth(){
         if($temp_val["user_exist"]){
             // Verify
             try {
-                $credentialSource = $credentialRecordRepository->findOneByCredentialId($publicKeyCredential->rawId);
+                if(count($credential_scope_blog_ids) === 0 || !isset($user_info) || !isset($user_info->ID)){
+                    wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential scope not available, exit");
+                    wwa_auth_json_failure("Bad request.", $client_id, array(), 403);
+                }
+
+                $candidate_meta = $credentialRecordRepository->findOneMetaByCredentialId($publicKeyCredential->rawId);
+                $credential_known_globally = $candidate_meta !== null;
+                if($candidate_meta !== null){
+                    if(isset($candidate_meta['user_id']) && intval($candidate_meta['user_id']) !== intval($user_info->ID)){
+                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential exists but belongs to a different user, exit");
+                        wwa_auth_json_failure($uniform_auth_failure, $client_id);
+                    }
+                    $candidate_blog_id = isset($candidate_meta['registered_blog_id']) ? intval($candidate_meta['registered_blog_id']) : get_current_blog_id();
+                    if(!in_array($candidate_blog_id, $credential_scope_blog_ids, true)){
+                        wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential exists but is outside current scope, exit");
+                        wwa_auth_json_failure($uniform_auth_failure, $client_id);
+                    }
+                }
+
+                $credentialSource = $credentialRecordRepository->findOneByCredentialId($publicKeyCredential->rawId, $credential_scope_blog_ids, intval($user_info->ID));
                 if($credentialSource === null){
                     wwa_add_log($res_id, "ajax_auth_response: (ERROR)Credential source not found, exit");
-                    wwa_auth_json_failure("Something went wrong.", $client_id, array(
-                        'signal' => array(
-                            'type' => 'unknownCredential',
-                            'payload' => wwa_get_unknown_credential_signal_payload($publicKeyCredential->rawId),
-                        ),
-                    ));
+                    wwa_auth_json_failure($uniform_auth_failure, $client_id, $credential_known_globally ? array() : wwa_get_unknown_credential_signal_response_data($publicKeyCredential->rawId));
                 }
 
                 // check() returns the updated CredentialRecord with
@@ -1182,7 +1275,7 @@ function wwa_ajax_auth(){
 
                 // Success
                 $publicKeyCredentialId = $publicKeyCredential->rawId;
-                $credentialRecordRepository->updateCredentialLastUsed($publicKeyCredentialId);
+                $credentialRecordRepository->updateCredentialLastUsed($publicKeyCredentialId, $credential_scope_blog_ids, intval($user_info->ID));
                 if(!($wwa_post["type"] === "test" && current_user_can("read"))){
                     // Log user in
                     if (!is_user_logged_in()) {
@@ -1228,6 +1321,9 @@ function wwa_ajax_auth(){
                     $success_data['redirect_to'] = $safe_redirect;
                 }
                 wwa_auth_json_success($client_id, $success_data);
+            }catch(AuthenticatorResponseVerificationException $exception){
+                wwa_add_log($res_id, "ajax_auth_response: (ERROR)Challenge not verified, exit");
+                wwa_auth_json_failure($uniform_auth_failure, $client_id);
             }catch(\Throwable $exception){
                 // Failed to verify
                 wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$exception->getMessage());
@@ -1237,12 +1333,9 @@ function wwa_ajax_auth(){
             }
         }else{
             wwa_add_log($res_id, "ajax_auth_response: (ERROR)User not exists or has no authenticator, exit without verification");
-            wwa_auth_json_failure("Something went wrong.", $client_id, array(), 403);
+            wwa_auth_json_failure($uniform_auth_failure, $client_id);
         }
 
-        // Destroy session
-        wwa_destroy_temp_val($client_id);
-        exit;
     }catch(\Exception $exception){
         wwa_add_log($res_id, "ajax_auth_response: (ERROR)".$exception->getMessage());
         wwa_add_log($res_id, wwa_generate_call_trace($exception));
@@ -1262,8 +1355,6 @@ add_action("wp_ajax_nopriv_wwa_auth" , "wwa_ajax_auth");
 function wwa_ajax_authenticator_list(){
     check_ajax_referer('wwa_ajax');
     $res_id = wwa_generate_random_string(5);
-
-    wwa_init_new_options();
 
     if(!current_user_can("read")){
         wwa_add_log($res_id, "ajax_authenticator_list: (ERROR)Missing parameters, exit");
@@ -1331,8 +1422,6 @@ function wwa_ajax_modify_authenticator(){
     check_ajax_referer('wwa_ajax');
     try{
         $res_id = wwa_generate_random_string(5);
-
-        wwa_init_new_options();
 
         wwa_add_log($res_id, "ajax_modify_authenticator: Start");
 
