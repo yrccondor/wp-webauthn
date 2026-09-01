@@ -96,7 +96,7 @@ function wwa_login_form_shortcode($vals){
             <input type="text" name="wwa-user-name" id="wwa-user-name" class="wwa-user-name" value="'.esc_attr(sanitize_user($atts['username'], true)).'" size="20">
         </p>
         <div class="wp-webauthn-notice">'.(wwa_get_option('terminology') === 'webauthn' ? __('Authenticate with WebAuthn', 'wp-webauthn') : __('Authenticate with a passkey', 'wp-webauthn')).'</div>
-            <p class="wwa-login-submit-p">'.$to_wwa.'<div class="wwa-form-left">'.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label>' : '').'<a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></div><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'"></p>
+            <div class="wwa-login-submit-p">'.$to_wwa.'<div class="wwa-form-left">'.((wwa_get_option('remember_me') === false ? 'false' : wwa_get_option('remember_me') !== 'false') ? '<label class="wwa-remember-label"><input name="wwa-rememberme" type="checkbox" id="wwa-rememberme" value="forever"> '.__('Remember Me').'</label>' : '').'<a class="wwa-w2t" href="#">'.__('Authenticate with password', 'wp-webauthn').'</a></div><input type="button" name="wwa-login-submit" id="wwa-login-submit" class="wwa-login-submit button button-primary" value="'.__('Auth', 'wp-webauthn').'"></div>
         </div>
     </div>';
 
